@@ -46,7 +46,10 @@ jobs:
           # Optional: override the model via a repo variable, e.g.
           # @cf/meta/llama-3.1-8b-instruct-fp8-fast to use far fewer free neurons.
           SUMMARIZER_MODEL: ${{ vars.SUMMARIZER_MODEL }}
-        run: python3 summarize_bills.py
+        run: |
+          MODEL="${SUMMARIZER_MODEL:-@cf/meta/llama-3.3-70b-instruct-fp8-fast}"
+          echo "Using model: $MODEL"
+          python3 summarize_bills.py --model "$MODEL"
 
       - name: Commit regenerated summaries (only when something changed)
         run: |

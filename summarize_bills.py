@@ -429,7 +429,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT), help=f"Fetch output to read (default: {DEFAULT_INPUT})")
     parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT), help=f"Summary file to write (default: {DEFAULT_OUTPUT})")
-    parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL", DEFAULT_MODEL), help="Cloudflare Workers AI model id")
+    parser.add_argument("--model", default=((os.getenv("SUMMARIZER_MODEL") or "").strip() or DEFAULT_MODEL), help="Cloudflare Workers AI model id")
     parser.add_argument("--delay", type=float, default=0.2, help="Seconds to pause between AI calls (default: 0.2)")
     return parser.parse_args()
 
