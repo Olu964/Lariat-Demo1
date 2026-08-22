@@ -159,7 +159,7 @@ def call_cloudflare_ai(context: str, model: str, account_id: str, api_token: str
             {"role": "user", "content": context},
         ],
         "temperature": 0.2,
-        "max_tokens": 900,
+        "max_tokens": 1500,
     }).encode("utf-8")
     request = Request(
         url,
@@ -179,28 +179,76 @@ def call_cloudflare_ai(context: str, model: str, account_id: str, api_token: str
     result = parsed.get("result")
     if isinstance(result, dict) and isinstance(result.get("response"), str):
         return result["response"]
-    raise RuntimeError("Cloudflare API returned an unexpected response shape")
+    raise RuntimeError(
+        f"Cloudflare API returned an unexpected response shape: {str(parsed)[:200]}"
+    )
+
+
+def _normalize_quotes(text: str) -> str:
+    """Replace Unicode smart quotes/dashes (common in LLM output) with ASCII,
+    because they make json.loads fail even when the JSON is otherwise fine."""
+    return (text.replace("\u201c", '"')
+                .replace("\u201d", '"')
+                .replace("\u2018", "'")
+                .replace("\u2019", "'")
+                .replace("\u2013", "-")
+                .replace("\u2014", "-")
+                .replace("\u2026", "..."))
+
+
+def _try_parse(text: str) -> dict[str, Any] | None:
+    try:
+        parsed = json.loads(text)
+        return parsed if isinstance(parsed, dict) else None
+    except json.JSONDecodeError:
+        return None
+
+
+def _extract_balanced(text: str) -> dict[str, Any] | None:
+    """Find the first brace-balanced JSON object in text, ignoring prose before
+    or after it. Handles trailing prose that itself contains braces, which a
+    greedy {.*} regex would break on."""
+    start = text.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    escaped = False
+    for index in range(start, len(text)):
+        char = text[index]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+        elif char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                candidate = text[start:index + 1]
+                parsed = _try_parse(candidate) or _try_parse(_normalize_quotes(candidate))
+                return parsed
+    return None
 
 
 def extract_json(text: str) -> dict[str, Any] | None:
-    """Extract a JSON object from model output, tolerating code fences and prose."""
-    cleaned = text.strip()
-    if cleaned.startswith("```"):
-        cleaned = re.sub(r"^```[a-zA-Z]*\s*", "", cleaned)
-        cleaned = re.sub(r"\s*```$", "", cleaned)
-    try:
-        parsed = json.loads(cleaned)
-        return parsed if isinstance(parsed, dict) else None
-    except json.JSONDecodeError:
-        pass
-    match = re.search(r"\{.*\}", cleaned, re.DOTALL)
-    if not match:
-        return None
-    try:
-        parsed = json.loads(match.group(0))
-        return parsed if isinstance(parsed, dict) else None
-    except json.JSONDecodeError:
-        return None
+    """Extract a JSON object from model output, tolerating code fences, prose
+    around the JSON, smart quotes, and trailing commentary."""
+    cleaned = re.sub(r"```[a-zA-Z]*", "", text.strip()).replace("```", "")
+    # Fast path: valid JSON parses as-is (smart quotes inside strings are legal).
+    parsed = _try_parse(cleaned)
+    if parsed is not None:
+        return parsed
+    # Some models use curly quotes as JSON delimiters — normalize and retry.
+    parsed = _try_parse(_normalize_quotes(cleaned))
+    if parsed is not None:
+        return parsed
+    return _extract_balanced(cleaned)
 
 
 def is_ceremonial(bill: dict[str, Any]) -> bool:
@@ -405,7 +453,11 @@ def summarize_one(
                 text = call_cloudflare_ai(context, model, account_id, api_token)
                 parsed = extract_json(text)
                 if parsed is None:
-                    raise ValueError("model output did not contain a JSON object")
+                    preview = " ".join(text.split())[:200]
+                    raise ValueError(
+                        f"model output did not contain a JSON object "
+                        f"(raw output: {preview!r})"
+                    )
                 record = normalize_record(parsed, bill)
                 time.sleep(delay)
                 return record, "ai"
