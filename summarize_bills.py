@@ -71,7 +71,7 @@ SYSTEM_PROMPT = f"""You are a Texas legislative analyst producing business-ready
 
 You will receive one Open States bill record (identifier, title, chamber, subjects, action dates, latest action description). The record may be thin — Texas records often have no abstract. Work only from what the record contains. Never invent vote counts, dollar amounts, sponsors, deadlines, or session history that are not in the record.
 
-Return ONLY a single JSON object — no markdown fences, no commentary — with exactly these keys:
+Return ONLY a single JSON object on ONE LINE — no markdown fences, no newlines, no commentary before or after it — with exactly these keys:
 - "title": a short friendly title (2-8 words), e.g. "Voter-approval tax rate reduction". Never use the literal "Relating to ..." phrasing.
 - "summary": 3-5 sentences, plain business-ready language. Describe what the bill does per the record, its current recorded status, and anything notable. If the record is thin, say so honestly (e.g. "the record shows the bill was filed with no further action recorded").
 - "affects": who/what it affects (agencies, industries, groups). Use "N/A — ..." for ceremonial resolutions.
@@ -159,7 +159,7 @@ def call_cloudflare_ai(context: str, model: str, account_id: str, api_token: str
             {"role": "user", "content": context},
         ],
         "temperature": 0.2,
-        "max_tokens": 1500,
+        "max_tokens": 4000,
     }).encode("utf-8")
     request = Request(
         url,
@@ -194,6 +194,32 @@ def _normalize_quotes(text: str) -> str:
                 .replace("\u2013", "-")
                 .replace("\u2014", "-")
                 .replace("\u2026", "..."))
+
+
+def _repair_string_newlines(text: str) -> str:
+    """Remove literal newlines inside JSON string values, which Llama
+    sometimes emits and which are invalid in JSON. Returns the original text
+    unchanged if no newlines were found inside strings."""
+    out: list[str] = []
+    in_string = False
+    escaped = False
+    changed = False
+    for char in text:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            elif char in "\r\n":
+                out.append(" ")
+                changed = True
+                continue
+        elif char == '"':
+            in_string = True
+        out.append(char)
+    return "".join(out) if changed else text
 
 
 def _try_parse(text: str) -> dict[str, Any] | None:
@@ -248,7 +274,13 @@ def extract_json(text: str) -> dict[str, Any] | None:
     parsed = _try_parse(_normalize_quotes(cleaned))
     if parsed is not None:
         return parsed
-    return _extract_balanced(cleaned)
+    # Llama sometimes emits literal newlines inside string values (invalid in
+    # JSON) — strip them and retry before falling back to balanced extraction.
+    repaired = _repair_string_newlines(_normalize_quotes(cleaned))
+    parsed = _try_parse(repaired)
+    if parsed is not None:
+        return parsed
+    return _extract_balanced(repaired)
 
 
 def is_ceremonial(bill: dict[str, Any]) -> bool:
@@ -456,7 +488,7 @@ def summarize_one(
                     preview = " ".join(text.split())[:200]
                     raise ValueError(
                         f"model output did not contain a JSON object "
-                        f"(raw output: {preview!r})"
+                        f"({len(text)} chars; raw output: {preview!r})"
                     )
                 record = normalize_record(parsed, bill)
                 time.sleep(delay)
