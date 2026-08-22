@@ -170,8 +170,23 @@ def call_cloudflare_ai(context: str, model: str, account_id: str, api_token: str
         },
         method="POST",
     )
-    with urlopen(request, timeout=60) as response:
-        parsed = json.loads(response.read().decode("utf-8"))
+    try:
+        with urlopen(request, timeout=60) as response:
+            parsed = json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        body = ""
+        try:
+            body = exc.read().decode("utf-8", errors="replace")[:300]
+        except Exception:
+            pass
+        if exc.code == 429:
+            raise RuntimeError(
+                "Cloudflare daily free quota or rate limit reached (HTTP 429): "
+                f"{body} — wait for the 00:00 UTC daily reset, or use the smaller "
+                "model (@cf/meta/llama-3.1-8b-instruct-fp8-fast) for ~6x fewer "
+                "neurons per call"
+            ) from exc
+        raise RuntimeError(f"Cloudflare API HTTP {exc.code}: {body}") from exc
     if not isinstance(parsed, dict) or not parsed.get("success"):
         errors = parsed.get("errors") if isinstance(parsed, dict) else None
         detail = "; ".join(str(error) for error in errors) if errors else "unknown error"
@@ -480,25 +495,41 @@ def summarize_one(
     """Return (record, mode) where mode is 'ai', 'mock', or 'kept'."""
     context = bill_context(bill)
     if api_token and account_id:
+        # One call per bill by default. Retry only transient network errors;
+        # a parse failure or a Cloudflare rejection (429 quota / 400) will not
+        # succeed on retry, and re-running 70B inference is what burns the
+        # free daily neuron quota fastest.
+        text = None
+        failure = None
         for attempt in (1, 2):
             try:
                 text = call_cloudflare_ai(context, model, account_id, api_token)
-                parsed = extract_json(text)
-                if parsed is None:
-                    preview = " ".join(text.split())[:200]
-                    raise ValueError(
-                        f"model output did not contain a JSON object "
-                        f"({len(text)} chars; raw output: {preview!r})"
-                    )
+                failure = None
+                break
+            except (RuntimeError, HTTPError) as exc:
+                failure = exc
+                break
+            except (URLError, TimeoutError) as exc:
+                failure = exc
+                if attempt == 2:
+                    break
+                print(f"    retrying after error: {exc}", file=sys.stderr)
+                time.sleep(2 * attempt)
+        if failure is not None:
+            print(f"    AI call failed ({failure}); falling back to mock for this bill", file=sys.stderr)
+        else:
+            parsed = extract_json(text)
+            if parsed is None:
+                preview = " ".join(text.split())[:200]
+                print(
+                    f"    AI output not parseable ({len(text)} chars); falling "
+                    f"back to mock: {preview!r}",
+                    file=sys.stderr,
+                )
+            else:
                 record = normalize_record(parsed, bill)
                 time.sleep(delay)
                 return record, "ai"
-            except (HTTPError, URLError, TimeoutError, RuntimeError, ValueError) as exc:
-                if attempt == 2:
-                    print(f"    AI failed ({exc}); falling back to mock for this bill", file=sys.stderr)
-                else:
-                    print(f"    retrying after error: {exc}", file=sys.stderr)
-                    time.sleep(2 * attempt)
     # Mock mode: never destroy a curated or AI-written summary that already
     # exists for the same bill — keep it instead of writing a placeholder.
     identifier = str(bill.get("identifier") or "").strip().lower()
@@ -514,7 +545,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT), help=f"Fetch output to read (default: {DEFAULT_INPUT})")
     parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT), help=f"Summary file to write (default: {DEFAULT_OUTPUT})")
     parser.add_argument("--model", default=((os.getenv("SUMMARIZER_MODEL") or "").strip() or DEFAULT_MODEL), help="Cloudflare Workers AI model id")
-    parser.add_argument("--delay", type=float, default=0.2, help="Seconds to pause between AI calls (default: 0.2)")
+    parser.add_argument("--delay", type=float, default=1.0, help="Seconds to pause between AI calls (default: 1.0)")
     return parser.parse_args()
 
 
