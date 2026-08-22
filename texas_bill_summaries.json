@@ -1,0 +1,137 @@
+[
+  {
+    "id": "ocd-bill/67cd2f08-7122-424b-8d21-9aee64edda79",
+    "identifier": "SB 5",
+    "title": "Supplemental disaster relief appropriations",
+    "affects": "Emergency management agencies, flood-affected counties, first responders",
+    "changes": "Appropriates $294M in Rainy Day Fund money for FEMA match, flood sirens, forecasting, and training",
+    "business_impact": "Disaster-response contractors and local governments gain access to new grant funding",
+    "impact_level": "Moderate"
+  },
+  {
+    "id": "ocd-bill/571fb803-bf3d-4eaf-a481-0f8c74100ec7",
+    "identifier": "SB 3",
+    "title": "Outdoor warning sirens in flood-prone areas",
+    "affects": "30 flood-declared counties, municipalities, TWDB",
+    "changes": "Requires siren installation in high-risk flood zones and creates a state grant program to fund it",
+    "business_impact": "Siren/alert-system vendors and local governments face new install and maintenance mandates",
+    "impact_level": "Moderate"
+  },
+  {
+    "id": "ocd-bill/f8a22c30-bdba-49e5-b97f-b493327bae83",
+    "identifier": "SR 76",
+    "title": "Honoring Tedd L. Mitchell",
+    "affects": "N/A — ceremonial resolution",
+    "changes": "N/A — no substantive policy change",
+    "business_impact": "N/A — no business impact",
+    "impact_level": "Low"
+  },
+  {
+    "id": "",
+    "identifier": "SB 58",
+    "title": "Groundwater permits and modeled available groundwater",
+    "affects": "Groundwater conservation districts, water permit applicants",
+    "changes": "Would require districts to weigh modeled available groundwater when issuing permits (bill filed, not passed)",
+    "business_impact": "Companies seeking large groundwater transfer permits could face new limits if enacted",
+    "impact_level": "Low"
+  },
+  {
+    "id": "",
+    "identifier": "HB 161",
+    "title": "Handgun license eligibility for federal judges",
+    "affects": "Federal immigration court judges",
+    "changes": "Adds U.S. immigration court judges to the definition of 'federal judge' eligible for expedited handgun licenses (bill filed, not passed)",
+    "business_impact": "No business impact — affects individual judges' license eligibility only",
+    "impact_level": "Low"
+  },
+  {
+    "id": "ocd-bill/8b2cc702-2d78-4bf4-a924-9bb6ca258e3f",
+    "identifier": "HR 32",
+    "title": "Honoring Fundación 911 flood rescue team",
+    "affects": "N/A — ceremonial resolution",
+    "changes": "N/A — no substantive policy change",
+    "business_impact": "N/A — no business impact",
+    "impact_level": "Low"
+  },
+  {
+    "id": "ocd-bill/b35c8db1-0110-4b15-a261-69616b6d0b8c",
+    "identifier": "HB 200",
+    "title": "Local emergency warning system opt-in via DMV",
+    "affects": "Municipalities, counties, DMV, driver's license applicants",
+    "changes": "Lets residents opt in via driver's license application to share contact info with local emergency alert systems (bill filed, not passed this session)",
+    "business_impact": "Minimal direct business impact; local governments could gain a new resident contact database",
+    "impact_level": "Low"
+  },
+  {
+    "id": "",
+    "identifier": "HB 188",
+    "title": "County authority to regulate impervious cover",
+    "affects": "County governments, developers, property owners in unincorporated areas",
+    "changes": "Would let counties regulate impervious cover (pavement, roofs) to reduce flood risk (bill filed, not passed)",
+    "business_impact": "Developers could face new county-level site coverage limits in unincorporated areas",
+    "impact_level": "Moderate"
+  },
+  {
+    "id": "ocd-bill/a6332f2b-07ae-4f22-bfeb-4547a150a451",
+    "identifier": "SB 9",
+    "title": "Voter-approval tax rate reduction (1st special session)",
+    "affects": "Cities and counties above 30,000 population",
+    "changes": "Lowers automatic property tax growth cap from 3.5% to 2.5% before voter approval required; passed Senate, died before House action",
+    "business_impact": "Would have constrained local government tax revenue growth; superseded by SB 10 in 2nd special session",
+    "impact_level": "Moderate"
+  },
+  {
+    "id": "ocd-bill/23c72470-e16b-4c27-b9b9-14576e64fd44",
+    "identifier": "SR 60",
+    "title": "In memory of Bobby Gene Roberts Sr.",
+    "affects": "N/A — memorial resolution",
+    "changes": "N/A — no substantive policy change",
+    "business_impact": "N/A — no business impact",
+    "impact_level": "Low"
+  },
+  {
+    "id": "ocd-bill/af45d80f-4ff1-4a5e-8ec9-6dfa01241cf8",
+    "identifier": "SB 1",
+    "title": "Heaven's 27 Camp Safety Act",
+    "affects": "Youth camps, campgrounds, and DSHS",
+    "changes": "Bans floodplain cabins, requires emergency plans, muster zones, weather radios, redundant internet",
+    "business_impact": "Camp operators face new licensing, infrastructure, and staff training costs",
+    "impact_level": "High"
+  },
+  {
+    "id": "ocd-bill/63065a85-9789-4d46-be46-7986e3e04617",
+    "identifier": "SB 10",
+    "title": "Voter-approval tax rate reduction",
+    "affects": "Cities and counties over 75,000 population",
+    "changes": "Lowers the automatic property tax growth cap from 3.5% to 2.5% before voter approval is required",
+    "business_impact": "May slow local property tax growth, affecting local government revenue and services",
+    "impact_level": "Moderate"
+  },
+  {
+    "id": "ocd-bill/628f4192-e8db-4802-9e01-1a672027f9e0",
+    "identifier": "SB 8",
+    "title": "Texas Women's Privacy Act",
+    "affects": "State agencies, schools, universities, prisons, shelters",
+    "changes": "Requires restrooms/locker rooms designated by biological sex; sets civil penalties for violations",
+    "business_impact": "Public institutions must update facility policies or face $25,000+ fines and lawsuits",
+    "impact_level": "High"
+  },
+  {
+    "id": "ocd-bill/e3b77cbc-8961-47c5-9c6c-7bc8ba526073",
+    "identifier": "SB 2",
+    "title": "Disaster preparedness and emergency manager licensing",
+    "affects": "Emergency managers, TDEM, local governments, volunteers",
+    "changes": "Creates tiered emergency manager license, volunteer database, and disaster loan program",
+    "business_impact": "Emergency management professionals need new licenses; note: bill stalled and missed final passage",
+    "impact_level": "Moderate"
+  },
+  {
+    "id": "ocd-bill/c18980e2-ef6c-4279-b06e-e6bf6302f8eb",
+    "identifier": "SB 16",
+    "title": "Real property theft and fraud offenses",
+    "affects": "Property owners, title companies, county clerks",
+    "changes": "Creates new felony crimes for deed/title fraud; requires photo ID to file property documents",
+    "business_impact": "Title companies and clerks gain new ID-check duties; victims get restitution rights",
+    "impact_level": "Moderate"
+  }
+]

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A fictional Lariat bill feed prototype for energy and infrastructure teams.">
+  <title>Bill feed — Lariat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>try { if (localStorage.getItem('lariat-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (error) {}</script>
+</head>
+<body class="dashboard-page">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Lariat home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">Lariat</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link active" href="feed.html" aria-current="page">Bill feed</a>
+      <a class="nav-link" href="pricing.html">Pricing</a>
+    </nav>
+    <div class="header-actions">
+      <span class="demo-pill"><span class="status-dot"></span> Prototype mode</span>
+      <button class="avatar-button" type="button" aria-label="Open account menu">OL</button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="dashboard-hero page-reveal">
+      <div>
+        <div class="eyebrow"><span class="eyebrow-line"></span> 89th Texas Legislature · Preview</div>
+        <h1>Good morning, Olu.</h1>
+        <p class="hero-copy">Here’s what changed across the Texas legislature this week.</p>
+      </div>
+      <label class="industry-filter">
+        <span class="filter-label">Tracking industry</span>
+        <span class="select-wrap">
+          <select aria-label="Filter by industry">
+            <option>Energy &amp; oil &amp; gas</option>
+            <option>Real estate</option>
+            <option>Healthcare</option>
+            <option>Agriculture</option>
+          </select>
+        </span>
+      </label>
+    </section>
+
+    <section class="stats-grid page-reveal delay-one" aria-label="Legislative summary">
+      <article class="stat-card">
+        <div class="stat-card-top"><span class="stat-icon icon-document" aria-hidden="true"></span><span class="stat-trend trend-up">↑ 12%</span></div>
+        <p class="stat-label">New bills this week</p>
+        <p class="stat-value">24</p>
+        <p class="stat-detail">Across your tracked topics</p>
+      </article>
+      <article class="stat-card stat-card-accent">
+        <div class="stat-card-top"><span class="stat-icon icon-flag" aria-hidden="true"></span><span class="stat-trend trend-alert">Needs review</span></div>
+        <p class="stat-label">Flagged high impact</p>
+        <p class="stat-value">7</p>
+        <p class="stat-detail">2 added since Monday</p>
+      </article>
+      <article class="stat-card">
+        <div class="stat-card-top"><span class="stat-icon icon-calendar" aria-hidden="true"></span><span class="stat-trend trend-neutral">89th session</span></div>
+        <p class="stat-label">Days to 2027 session</p>
+        <p class="stat-value">146</p>
+        <p class="stat-detail">Regular session begins Jan 12</p>
+      </article>
+    </section>
+
+    <section class="feed-section page-reveal delay-two">
+      <div class="section-heading">
+        <div>
+          <div class="section-kicker">Your watchlist</div>
+          <h2>Latest bill activity <span class="count-chip">5 new</span></h2>
+        </div>
+        <button class="text-button" type="button" data-toast="Filters are available in the full product.">View all activity <span aria-hidden="true">→</span></button>
+      </div>
+
+      <div class="bill-list">
+        <article class="bill-card high-impact">
+          <div class="bill-topline"><span class="bill-number">HB 2214</span><span class="bill-date">Updated today · 9:42 AM</span></div>
+          <div class="bill-heading"><h3>Pipeline permitting timelines</h3><span class="impact-badge high"><span class="badge-dot"></span> High impact</span></div>
+          <ul class="bill-summary">
+            <li><strong>Affects:</strong> Midstream operators and county permitting offices.</li>
+            <li><strong>Changes:</strong> Sets a 45-day decision window for qualifying pipeline permits.</li>
+            <li><strong>Business impact:</strong> Could shorten project launch timelines, with new reporting obligations.</li>
+          </ul>
+          <a class="bill-link" href="#bill-text">Read the full bill text <span aria-hidden="true">↗</span></a>
+        </article>
+
+        <article class="bill-card">
+          <div class="bill-topline"><span class="bill-number">SB 874</span><span class="bill-date">Updated yesterday · 3:18 PM</span></div>
+          <div class="bill-heading"><h3>Orphaned well remediation fund</h3><span class="impact-badge moderate"><span class="badge-dot"></span> Moderate</span></div>
+          <ul class="bill-summary">
+            <li><strong>Affects:</strong> Well operators with inactive or transferred leases.</li>
+            <li><strong>Changes:</strong> Establishes a fee-backed fund to plug high-risk orphaned wells.</li>
+            <li><strong>Business impact:</strong> Adds a modest per-barrel assessment but may reduce long-term liability.</li>
+          </ul>
+          <a class="bill-link" href="#bill-text">Read the full bill text <span aria-hidden="true">↗</span></a>
+        </article>
+
+        <article class="bill-card">
+          <div class="bill-topline"><span class="bill-number">HB 3096</span><span class="bill-date">May 28 · 11:06 AM</span></div>
+          <div class="bill-heading"><h3>Produced water reuse standards</h3><span class="impact-badge high"><span class="badge-dot"></span> High impact</span></div>
+          <ul class="bill-summary">
+            <li><strong>Affects:</strong> Producers, water recyclers, and operators in the Permian Basin.</li>
+            <li><strong>Changes:</strong> Creates a statewide framework for treating and reusing produced water.</li>
+            <li><strong>Business impact:</strong> Opens reuse pathways while requiring new testing and chain-of-custody records.</li>
+          </ul>
+          <a class="bill-link" href="#bill-text">Read the full bill text <span aria-hidden="true">↗</span></a>
+        </article>
+
+        <article class="bill-card compact-card">
+          <div class="bill-topline"><span class="bill-number">SB 1182</span><span class="bill-date">May 27 · 4:51 PM</span></div>
+          <div class="bill-heading"><h3>Grid resiliency planning</h3><span class="impact-badge moderate"><span class="badge-dot"></span> Moderate</span></div>
+          <ul class="bill-summary">
+            <li><strong>Affects:</strong> Gas-fired generators and transmission-connected facilities.</li>
+            <li><strong>Changes:</strong> Requires a five-year fuel assurance plan for critical generation assets.</li>
+            <li><strong>Business impact:</strong> May increase planning costs while improving winter reliability.</li>
+          </ul>
+          <a class="bill-link" href="#bill-text">Read the full bill text <span aria-hidden="true">↗</span></a>
+        </article>
+
+        <article class="bill-card compact-card">
+          <div class="bill-topline"><span class="bill-number">HB 1647</span><span class="bill-date">May 26 · 1:27 PM</span></div>
+          <div class="bill-heading"><h3>Flare monitoring disclosures</h3><span class="impact-badge low"><span class="badge-dot"></span> Low impact</span></div>
+          <ul class="bill-summary">
+            <li><strong>Affects:</strong> Facilities with routine or emergency flaring activity.</li>
+            <li><strong>Changes:</strong> Standardizes monthly public reporting for flaring events.</li>
+            <li><strong>Business impact:</strong> Minimal operational change, but more visible compliance data.</li>
+          </ul>
+          <a class="bill-link" href="#bill-text">Read the full bill text <span aria-hidden="true">↗</span></a>
+        </article>
+      </div>
+      <p class="prototype-note"><span aria-hidden="true">✦</span> Fictional sample legislation for prototype demonstration only.</p>
+    </section>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script src="theme.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

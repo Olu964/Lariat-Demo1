@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://127.0.0.1:3000 https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+  <meta name="description" content="A Lariat bill feed powered by the current published Texas bill summary dataset.">
+  <meta name="lariat-data-updated" content="August 21, 2026">
+  <meta name="lariat-session-name" content="90th Texas Legislature regular session">
+  <meta name="lariat-session-start" content="2027-01-12T00:00:00-06:00">
+  <title>Bill feed — Lariat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=bill-notes-1">
+  <script src="theme-init.js"></script>
+</head>
+<body class="dashboard-page real-data-page">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Lariat home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">Lariat</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link active" href="feed.html" aria-current="page">Bill feed</a><a class="nav-link" href="pricing.html">Pricing</a><a class="nav-link" href="privacy.html">Privacy</a></nav>
+    <div class="header-actions">
+      <span class="demo-pill"><span class="status-dot"></span> Real data snapshot</span>
+      <button class="avatar-button" type="button" aria-label="Open account menu" title="Account menu — disabled in this prototype">OL</button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Switch to dark mode"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="dashboard-hero page-reveal">
+      <div>
+        <div class="eyebrow"><span class="eyebrow-line"></span> Texas Legislature · Open States data</div>
+        <h1>Real bill activity, Olu.</h1>
+        <p class="hero-copy">A business-ready view of the Texas bills in your local summary dataset.</p>
+      </div>
+      <label class="industry-filter">
+        <span class="filter-label">Impacted industry</span>
+        <span class="select-wrap">
+          <select id="industry-select" aria-label="Select impacted industry" disabled>
+            <option value="__all__" selected>All industries</option>
+          </select>
+        </span>
+      </label>
+    </section>
+
+    <section class="stats-grid page-reveal delay-one" aria-label="Legislative summary">
+      <article class="stat-card">
+        <div class="stat-card-top"><span class="stat-icon icon-document" aria-hidden="true"></span><span class="stat-trend trend-up">Loaded</span></div>
+        <p class="stat-label">Bills in this dataset</p>
+        <p class="stat-value" data-stat="total">—</p>
+        <p class="stat-detail">Real records from Texas bill summaries</p>
+      </article>
+      <article class="stat-card stat-card-accent">
+        <div class="stat-card-top"><span class="stat-icon icon-flag" aria-hidden="true"></span><span class="stat-trend trend-alert">Review</span></div>
+        <p class="stat-label">High-impact bills</p>
+        <p class="stat-value" data-stat="high">—</p>
+        <p class="stat-detail">Marked high impact in the source data</p>
+      </article>
+      <article class="stat-card">
+        <div class="stat-card-top"><span class="stat-icon icon-calendar" aria-hidden="true"></span><span class="stat-trend trend-neutral" data-session-label>90th session</span></div>
+        <p class="stat-label">Days to next session</p>
+        <p class="stat-value" data-stat="days-to-session">—</p>
+        <p class="stat-detail" data-session-detail>Regular session date is configured in the page metadata</p>
+      </article>
+    </section>
+
+    <section class="feed-section page-reveal delay-two">
+      <div class="section-heading">
+        <div>
+          <div class="section-kicker">Browse by industry</div>
+          <h2>Industry bill activity <span class="count-chip" data-stat="chip">Loading</span></h2>
+          <p class="plan-status"><span data-plan-name>Demo plan: Free</span> · <span data-plan-usage>0/1 industries selected</span> · <a href="pricing.html">Change plan</a></p>
+        </div>
+        <div class="section-heading-actions">
+          <button class="text-button" type="button" data-action="reset-subscriptions" title="Clear saved subscriptions from this browser only. Backend subscription records are kept; the selected demo plan is not cleared.">Reset demo subscriptions <span aria-hidden="true">↺</span></button>
+          <button class="text-button" type="button" data-action="scroll-topics" title="Scroll down to the bill activity list">Jump to bill activity <span aria-hidden="true">↓</span></button>
+        </div>
+      </div>
+
+      <div class="bill-list" id="bill-list" aria-live="polite">
+        <article class="bill-card loading-card"><div class="bill-heading"><h3>Loading real bill summaries…</h3></div><p class="bill-summary-loading">Reading texas_bill_summaries.json</p></article>
+      </div>
+      <p class="prototype-note real-data-note" data-dataset-freshness><span aria-hidden="true">✦</span> Published dataset: August 7, 2026. Verify current status with official Texas legislative sources; not legal advice.</p>
+    </section>
+  </main>
+
+  <dialog id="bill-modal" class="bill-modal" aria-labelledby="bill-modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Bill details</div>
+          <h2 id="bill-modal-title"></h2>
+        </div>
+        <button id="modal-close" class="modal-close" type="button" aria-label="Close bill details" title="Close">×</button>
+      </div>
+      <div id="bill-modal-body" class="modal-body"></div>
+    </div>
+  </dialog>
+
+  <dialog id="subscribe-modal" class="subscribe-modal" aria-labelledby="subscribe-modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Bill alerts</div>
+          <h2 id="subscribe-modal-title">Subscribe to alerts</h2>
+        </div>
+        <button id="subscribe-modal-close" class="modal-close" type="button" aria-label="Close subscription" title="Close">×</button>
+      </div>
+      <div id="subscribe-modal-body" class="modal-body"></div>
+    </div>
+  </dialog>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script src="theme.js"></script>
+  <script src="subscriptions.js"></script>
+  <script src="real-script.js?v=bill-notes-1"></script>
+</body>
+</html>

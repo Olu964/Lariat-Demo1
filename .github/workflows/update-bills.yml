@@ -1,0 +1,61 @@
+name: Update bill summaries
+
+# Runs daily (13:00 UTC ≈ 7–8am Central) and can also be triggered manually
+# from the Actions tab ("Run workflow").
+on:
+  schedule:
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Number of bills to fetch (default 25)'
+        required: false
+        default: '25'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch bills from Open States
+        env:
+          OPEN_STATES_API_KEY: ${{ secrets.OPEN_STATES_API_KEY }}
+          # Optional repo variable (Settings → Variables) pinning the session,
+          # e.g. 892. Leave unset to fetch the most recently updated bills.
+          LARIAT_SESSION: ${{ vars.LARIAT_SESSION }}
+          FETCH_LIMIT: ${{ inputs.limit || '25' }}
+        run: |
+          ARGS=(--limit "$FETCH_LIMIT")
+          if [ -n "$LARIAT_SESSION" ]; then ARGS+=(--session "$LARIAT_SESSION"); fi
+          python3 fetch_texas_bills.py "${ARGS[@]}"
+
+      - name: Summarize bills with Cloudflare AI
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Optional: override the model via a repo variable, e.g.
+          # @cf/meta/llama-3.1-8b-instruct-fp8-fast to use far fewer free neurons.
+          SUMMARIZER_MODEL: ${{ vars.SUMMARIZER_MODEL }}
+        run: python3 summarize_bills.py
+
+      - name: Commit regenerated summaries (only when something changed)
+        run: |
+          git config user.name "lariat-bot"
+          git config user.email "lariat-bot@users.noreply.github.com"
+          git add Lariat-real/texas_bill_summaries.json Lariat-real/feed.html
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: refresh Texas bill summaries"
+            git push
+          else
+            echo "No changes — nothing to commit"
+          fi

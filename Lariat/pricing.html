@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Simple prototype pricing for Lariat.">
+  <title>Pricing — Lariat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>try { if (localStorage.getItem('lariat-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (error) {}</script>
+</head>
+<body class="pricing-page">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Lariat home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">Lariat</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="feed.html">Bill feed</a>
+      <a class="nav-link active" href="pricing.html" aria-current="page">Pricing</a>
+    </nav>
+    <div class="header-actions">
+      <span class="demo-pill"><span class="status-dot"></span> Prototype mode</span>
+      <button class="avatar-button" type="button" aria-label="Open account menu">OL</button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
+    </div>
+  </header>
+
+  <main class="pricing-shell page-reveal">
+    <section class="pricing-hero">
+      <div class="eyebrow"><span class="eyebrow-line"></span> Simple, transparent plans</div>
+      <h1>Stay ahead of what’s next.</h1>
+      <p>Choose the level of legislative visibility your team needs. Every plan keeps your watchlist focused and your team informed.</p>
+      <div class="annual-note"><span class="sparkle" aria-hidden="true">✦</span> Save 20% with annual billing</div>
+    </section>
+
+    <section class="pricing-grid" aria-label="Pricing plans">
+      <article class="pricing-card">
+        <div class="plan-top"><span class="plan-label">For individuals</span><span class="plan-index">01</span></div>
+        <h2>Starter</h2>
+        <p class="plan-description">For professionals who need a clear view of the issues that matter.</p>
+        <div class="price"><span class="price-currency">$</span><span class="price-number">49</span><span class="price-period">/mo</span></div>
+        <p class="plan-for">For one person tracking a focused set of topics.</p>
+        <button class="plan-button secondary-button" type="button" data-toast="This is a demo — plan selection is not connected.">Choose Starter <span aria-hidden="true">→</span></button>
+        <div class="feature-divider"></div>
+        <ul class="feature-list"><li>Track up to 10 topics</li><li>Weekly bill digest</li><li>Plain-English summaries</li></ul>
+      </article>
+
+      <article class="pricing-card popular-card">
+        <div class="popular-ribbon">Most popular</div>
+        <div class="plan-top"><span class="plan-label">For growing teams</span><span class="plan-index">02</span></div>
+        <h2>Professional</h2>
+        <p class="plan-description">For teams that need timely context before decisions get made.</p>
+        <div class="price"><span class="price-currency">$</span><span class="price-number">99</span><span class="price-period">/mo</span></div>
+        <p class="plan-for">For policy, legal, and operations teams working together.</p>
+        <button class="plan-button primary-button" type="button" data-toast="This is a demo — plan selection is not connected.">Choose Professional <span aria-hidden="true">→</span></button>
+        <div class="feature-divider"></div>
+        <ul class="feature-list"><li>Unlimited tracked topics</li><li>Daily bill activity alerts</li><li>Shareable team watchlists</li></ul>
+      </article>
+
+      <article class="pricing-card">
+        <div class="plan-top"><span class="plan-label">For organizations</span><span class="plan-index">03</span></div>
+        <h2>Business</h2>
+        <p class="plan-description">For organizations turning legislative intelligence into an advantage.</p>
+        <div class="price"><span class="price-currency">$</span><span class="price-number">299</span><span class="price-period">/mo</span></div>
+        <p class="plan-for">For departments with multiple stakeholders and priorities.</p>
+        <button class="plan-button secondary-button" type="button" data-toast="This is a demo — plan selection is not connected.">Choose Business <span aria-hidden="true">→</span></button>
+        <div class="feature-divider"></div>
+        <ul class="feature-list"><li>Everything in Professional</li><li>Custom impact categories</li><li>Exportable activity reports</li></ul>
+      </article>
+
+      <article class="pricing-card enterprise-card">
+        <div class="plan-top"><span class="plan-label">For complex teams</span><span class="plan-index">04</span></div>
+        <h2>Enterprise</h2>
+        <p class="plan-description">For organizations where every signal, stakeholder, and deadline matters.</p>
+        <div class="price enterprise-price"><span class="price-currency">$</span><span class="price-number">599</span><span class="price-period">– $1,999/mo</span></div>
+        <p class="plan-for">For multi-team organizations with custom workflows.</p>
+        <button class="plan-button secondary-button" type="button" data-toast="This is a demo — contact sales is not connected.">Talk to our team <span aria-hidden="true">→</span></button>
+        <div class="feature-divider"></div>
+        <ul class="feature-list"><li>Everything in Business</li><li>Multiple industry workspaces</li><li>Dedicated onboarding</li></ul>
+      </article>
+    </section>
+
+    <p class="pricing-footnote"><span aria-hidden="true">✦</span> Prototype pricing for concept exploration. No plans, billing, or payment processing are active.</p>
+  </main>
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script src="theme.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

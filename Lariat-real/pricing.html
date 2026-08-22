@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+  <meta name="description" content="Simple, transparent plans for Lariat.">
+  <title>Pricing — Lariat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="theme-init.js"></script>
+</head>
+<body class="pricing-page">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Lariat home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">Lariat</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="feed.html">Bill feed</a><a class="nav-link active" href="pricing.html" aria-current="page">Pricing</a><a class="nav-link" href="privacy.html">Privacy</a></nav>
+    <div class="header-actions">
+      <span class="demo-pill"><span class="status-dot"></span> Real data snapshot</span>
+      <button class="avatar-button" type="button" aria-label="Open account menu" title="Account menu — disabled in this prototype">OL</button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Switch to dark mode"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
+    </div>
+  </header>
+
+  <main class="pricing-shell page-reveal">
+    <section class="pricing-hero">
+      <div class="eyebrow"><span class="eyebrow-line"></span> Simple, transparent plans</div>
+      <h1>Stay ahead of what’s next.</h1>
+      <p>Choose how many industries you want to follow. In this demo, selecting a plan immediately changes how many industry subscriptions your browser can hold.</p>
+      <div class="annual-note"><span class="sparkle" aria-hidden="true">✦</span> One simple monthly price · Demo selection only</div>
+    </section>
+
+    <section class="pricing-grid" aria-label="Pricing plans">
+      <article class="pricing-card" data-plan-card="free">
+        <div class="plan-top"><span class="plan-label">For individuals</span><span class="plan-index">01</span></div>
+        <h2>Free</h2>
+        <p class="plan-description">A focused way to follow the industry that matters most to you.</p>
+        <div class="price"><span class="price-currency">$</span><span class="price-number">0</span><span class="price-period">/mo</span></div>
+        <p class="plan-for">For one person tracking one industry.</p>
+        <a class="plan-button secondary-button" data-select-plan="free" href="feed.html" title="Select the Free demo plan">Select Free <span aria-hidden="true">→</span></a>
+        <div class="feature-divider"></div>
+        <ul class="feature-list"><li>Subscribe to 1 industry</li><li>Email verification required</li><li>Basic demo alert subscription</li></ul>
+      </article>
+
+      <article class="pricing-card popular-card" data-plan-card="professional">
+        <div class="popular-ribbon">Most popular</div>
+        <div class="plan-top"><span class="plan-label">For professionals</span><span class="plan-index">02</span></div>
+        <h2>Professional</h2>
+        <p class="plan-description">Broader legislative visibility for people tracking several business priorities.</p>
+        <div class="price"><span class="price-currency">$</span><span class="price-number">29</span><span class="price-period">/mo</span></div>
+        <p class="plan-for">For one person tracking up to five industries.</p>
+        <a class="plan-button primary-button" data-select-plan="professional" href="feed.html" title="Select the Professional demo plan">Select Professional <span aria-hidden="true">→</span></a>
+        <div class="feature-divider"></div>
+        <ul class="feature-list"><li>Subscribe to up to 5 industries</li><li>Email verification required</li><li>Expanded demo alert subscription</li></ul>
+      </article>
+
+      <article class="pricing-card" data-plan-card="business">
+        <div class="plan-top"><span class="plan-label">For organizations</span><span class="plan-index">03</span></div>
+        <h2>Business</h2>
+        <p class="plan-description">Complete industry coverage for organizations that want the broadest view.</p>
+        <div class="price"><span class="price-currency">$</span><span class="price-number">99</span><span class="price-period">/mo</span></div>
+        <p class="plan-for">For one demo user subscribing to every available industry.</p>
+        <a class="plan-button secondary-button" data-select-plan="business" href="feed.html" title="Select the Business demo plan">Select Business <span aria-hidden="true">→</span></a>
+        <div class="feature-divider"></div>
+        <ul class="feature-list"><li>Subscribe to all industries</li><li>Email verification required</li><li>Full demo alert subscription</li></ul>
+      </article>
+    </section>
+
+    <p class="pricing-footnote"><span aria-hidden="true">✦</span> Demo mode: plan selection is saved in this browser. Billing, payments, accounts, and scheduled automatic alerts are not active yet.</p>
+  </main>
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script src="theme.js"></script>
+  <script src="subscriptions.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
