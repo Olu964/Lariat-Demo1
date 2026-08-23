@@ -5,6 +5,11 @@ Reads the aggregate file produced by fetch_texas_bills.py (default
 texas_bills.json) and writes Lariat-real/texas_bill_summaries.json — the file
 the Bill feed and the backend's industry list read.
 
+Bills accumulate across runs: bills that were in the previous dataset but are
+not in the current fetch are retained (so the feed grows over time instead of
+churning through only the most recently updated bills), while bills still in
+the fetch get their summaries refreshed.
+
 Summaries are written by Cloudflare Workers AI when CLOUDFLARE_ACCOUNT_ID and
 CLOUDFLARE_API_TOKEN are set (see AUTOMATION_SETUP.md). Without them the script
 runs in MOCK mode and generates deterministic placeholder summaries, so the
@@ -40,22 +45,16 @@ DEFAULT_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8"
 FEED_PATH = "Lariat-real/feed.html"
 FEED_META_PATTERN = re.compile(r'(<meta name="lariat-data-updated" content=")[^"]*(")')
 
-# The fixed industry taxonomy the model must choose from. Keeping the list
-# small means the industry dropdown on the feed stays tidy.
+# The fixed industry taxonomy the model must choose from. This is the curated
+# set Lariat tracks and must stay in sync with the feed's industry dropdown
+# (ALL_INDUSTRIES in Lariat-real/real-script.js). Keeping the list small means
+# the dropdown on the feed stays tidy.
 INDUSTRIES = [
     "Energy & Utilities",
     "Government & Municipal Operations",
     "Emergency & Public Safety",
     "Real Estate & Land Use",
-    "Health & Human Services",
-    "Education",
     "Insurance & Financial Services",
-    "Transportation & Infrastructure",
-    "Agriculture & Natural Resources",
-    "Technology & Communications",
-    "Labor & Employment",
-    "Criminal Justice & Law",
-    "Other",
     "N/A",
 ]
 INDUSTRY_LIST = ", ".join(f'"{industry}"' for industry in INDUSTRIES)
@@ -319,14 +318,7 @@ MOCK_INDUSTRY_RULES = [
     ("Emergency & Public Safety", ("emergency", "disaster", "flood", "siren", "warning", "rescue", "preparedness", "first respond")),
     ("Real Estate & Land Use", ("deed", "title", "real property", "impervious", "zoning", "land use", "subdivision", "property")),
     ("Energy & Utilities", ("groundwater", "water", "energy", "oil", "gas", "utility", "electric", "pipeline")),
-    ("Health & Human Services", ("health", "hospital", "medical", "mental")),
-    ("Education", ("school", "education", "student", "universit", "curriculum", "teacher")),
     ("Insurance & Financial Services", ("insurance", "bank", "finance", "credit", "lending", "loan")),
-    ("Transportation & Infrastructure", ("highway", "road", "transport", "transit", "vehicle", "driver", "license", "dmv")),
-    ("Agriculture & Natural Resources", ("agriculture", "farm", "ranch", "wildlife", "crop")),
-    ("Technology & Communications", ("technology", "data", "internet", "cyber", "telecom", "software")),
-    ("Labor & Employment", ("labor", "employment", "wage", "worker", "occupational")),
-    ("Criminal Justice & Law", ("crime", "criminal", "penalty", "offense", "firearm", "gun", "judge", "court")),
     ("Government & Municipal Operations", ("tax", "budget", "appropriation", "comptroller", "levy", "municipal", "county", "election", "voter")),
 ]
 
@@ -443,7 +435,10 @@ def normalize_record(record: dict[str, Any], bill: dict[str, Any]) -> dict[str, 
                "failed", "did not pass", "died", "replaced"}
     record["status"] = status if status in allowed else "pending"
     industry = str(record.get("industry") or "").strip()
-    record["industry"] = industry if industry else "Other"
+    # Keep the feed dropdown and the data in sync: any industry outside the
+    # curated taxonomy (e.g. a model slip) falls back to "Other", which still
+    # shows under "All industries" on the feed.
+    record["industry"] = industry if industry in INDUSTRIES else "Other"
     specific = str(record.get("specific_industry") or "").strip()
     record["specific_industry"] = specific if specific else ("N/A" if record["industry"] == "N/A" else "General")
     return record
@@ -577,6 +572,7 @@ def main() -> int:
             existing = {}
 
     records: list[dict[str, Any]] = []
+    seen_identifiers: set[str] = set()
     for index, bill in enumerate(bills, start=1):
         record, mode = summarize_one(
             bill,
@@ -587,11 +583,40 @@ def main() -> int:
             existing=existing,
         )
         records.append(record)
+        seen_identifiers.add(str(record.get("identifier") or "").strip().lower())
         print(f"  [{index}/{len(bills)}] {record['identifier']} -> {mode}")
+
+    # Retain bills from the previous dataset that were not part of this fetch,
+    # so the feed accumulates past bills instead of churning through only the
+    # most recently updated ones. Placeholders are never retained.
+    retained = 0
+    for identifier, existing_record in existing.items():
+        if identifier in seen_identifiers or is_placeholder(existing_record):
+            continue
+        records.append(existing_record)
+        retained += 1
+    if retained:
+        print(f"Retained {retained} existing bill{'s' if retained != 1 else ''} not in this fetch")
 
     write_output(records, args.output)
     print(f"Saved {len(records)} summaries to {args.output}")
     update_feed_freshness(Path(args.output).resolve().parent / "feed.html")
+
+    # Post-run check: when running with real Cloudflare credentials, a run that
+    # leaves placeholder summaries behind (e.g. quota hit mid-run) must fail so
+    # mock data is never silently committed. Local mock mode (no token) is the
+    # documented preview path and keeps returning success.
+    placeholder_count = sum(1 for record in records if is_placeholder(record))
+    if use_ai and placeholder_count:
+        print(
+            f"ERROR: {placeholder_count} of {len(records)} summaries are still "
+            "placeholders (AI call failed for those bills). The run will not "
+            "be committed — wait for the Cloudflare quota reset and re-run.",
+            file=sys.stderr,
+        )
+        return 1
+    if use_ai:
+        print(f"All {len(records)} summaries are AI-written — no placeholder data remains.")
     return 0
 
 

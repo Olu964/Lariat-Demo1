@@ -45,6 +45,17 @@
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
   }[character]));
 
+  // The curated set of industries Lariat tracks. Every option stays in the
+  // dropdown even when the current dataset has no bills for it — empty
+  // industries show a "no bills recently passed" message.
+  const ALL_INDUSTRIES = [
+    'Energy & Utilities',
+    'Government & Municipal Operations',
+    'Emergency & Public Safety',
+    'Real Estate & Land Use',
+    'Insurance & Financial Services',
+  ];
+
   const impactClass = (level) => {
     const normalized = safe(level).toLowerCase();
     if (normalized === 'high') return 'high';
@@ -289,7 +300,11 @@
     const list = document.querySelector('#bill-list');
     if (!list) return;
     if (!bills.length) {
-      list.innerHTML = '<article class="bill-card"><div class="bill-heading"><h3>No bill summaries found</h3></div><p class="bill-summary-loading">The source file did not contain any bill records.</p></article>';
+      // A specific industry with no recent bills gets a friendly empty state;
+      // the all-industries view is only empty when the source file itself is.
+      list.innerHTML = showSpecificIndustry
+        ? `<div class="industry-empty-state"><span class="empty-state-icon" aria-hidden="true">✦</span><h3>No recent bills in ${escapeHtml(viewTitle)}</h3><p>No bills have recently been passed concerning this industry.</p></div>`
+        : '<article class="bill-card"><div class="bill-heading"><h3>No bill summaries found</h3></div><p class="bill-summary-loading">The source file did not contain any bill records.</p></article>';
       return;
     }
 
@@ -364,12 +379,9 @@
 
       const industrySelect = document.querySelector('#industry-select');
       if (!industrySelect) throw new Error('The impacted industry selector is missing');
-      const industries = [...new Set(allBills
-        .map((bill) => safe(bill.industry).trim())
-        .filter((industry) => industry && industry !== 'N/A'))].sort((a, b) => a.localeCompare(b));
       industrySelect.innerHTML = [
         '<option value="__all__" selected>All industries</option>',
-        ...industries.map((industry) => `<option value="${escapeHtml(industry)}">${escapeHtml(industry)}</option>`),
+        ...ALL_INDUSTRIES.map((industry) => `<option value="${escapeHtml(industry)}">${escapeHtml(industry)}</option>`),
       ].join('');
       industrySelect.disabled = false;
       if (deepLinkIndustry) {

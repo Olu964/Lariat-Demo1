@@ -54,9 +54,16 @@ You now have two values: your **Account ID** and your **API token**.
   (10,000 neurons/day — a 25-bill run with the default 8B model uses ~2k),
   GitHub Actions (free), Brevo email (300/day). No credit card anywhere.
 - **If the AI quota runs out** on a given day (e.g. after many manual test runs,
-  or if you switched to the 70B model), the workflow still succeeds — the
-  summarizer falls back to placeholder summaries and the run is marked in the
-  log. The 10k-neuron allowance resets daily at 00:00 UTC.
+  or if you switched to the 70B model), the summarize step fails and nothing is
+  committed — mock placeholder summaries are never pushed to the site. The
+  10k-neuron allowance resets daily at 00:00 UTC; re-run the workflow after the
+  reset to generate the real AI summaries.
+- **Bills accumulate over time:** each run refreshes the summaries of the
+  most recently updated bills and **adds new ones**, while bills that drop out
+  of the daily fetch are retained in the dataset — so the feed grows instead
+  of churning through only the latest 25. (The fetch limit is `25` by default;
+  raise it via the workflow's "Run workflow" input to bring in more bills per
+  day.)
 - **Running locally:** `python3 fetch_texas_bills.py --limit 15` then
   `python3 summarize_bills.py`. Without a Cloudflare token it runs in mock mode
   and **keeps existing summaries untouched** — it only writes placeholders for

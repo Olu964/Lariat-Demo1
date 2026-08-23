@@ -42,14 +42,15 @@
     <section class="legal-hero">
       <div class="eyebrow"><span class="eyebrow-line"></span> Legal &amp; transparency</div>
       <h1>Privacy Policy</h1>
-      <p>Lariat is a prototype that turns Texas bill summaries into clear, business-ready signals. This policy explains what information we collect, why we collect it, and the choices you have.</p>
-      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Effective August 19, 2026</div>
+      <p>Lariat turns Texas bill summaries into clear, business-ready signals. This policy explains what information we collect, why we collect it, and the choices you have.</p>
+      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Effective August 23, 2026</div>
     </section>
 
     <article class="legal-card">
       <section class="legal-section">
         <h2>1. What this policy covers</h2>
-        <p>This policy applies to the Lariat demo site — including the landing page, the <strong>Bill feed</strong>, <strong>Pricing</strong>, and the optional email subscription flow. It describes the current prototype, which may be served locally or deployed with a separately configured backend. Browsing the feed does not require an account, payment, or login. Billing, customer accounts, and automatic bill-alert delivery are not active features in the current code.</p>
+        <p>This policy applies to the Lariat site — including the landing page, the <strong>Bill feed</strong>, <strong>Pricing</strong>, and the optional email subscription flow. Browsing the feed does not require an account, payment, or login. Billing, customer accounts, and automatic bill-alert delivery are not active features in the current code.</p>
+        <p><strong>How the bill feed is produced.</strong> The feed is populated by an automated pipeline: a scheduled job fetches public Texas bill records from the <strong>Open States</strong> API, sends each record to <strong>Cloudflare Workers AI</strong> to draft a structured summary, and publishes the result to this site. The pipeline is triggered daily by a scheduled <strong>GitHub Actions</strong> workflow, which fetches, summarizes, and commits updated records automatically. These steps process only public legislative data — no personal information from site visitors is involved in generating summaries.</p>
       </section>
 
       <section class="legal-section">
@@ -90,6 +91,9 @@
           <li><strong>Brevo</strong> — delivers verification and welcome emails when you subscribe. See their <a href="https://www.brevo.com/legal/privacypolicy/" target="_blank" rel="noopener noreferrer">privacy policy</a>.</li>
           <li><strong>Google Fonts</strong> — loads the site's typography. Google may log standard request information when the fonts load; see <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's privacy policy</a>.</li>
           <li><strong>Texas Legislature</strong> — the feed links out to <a href="https://capitol.texas.gov/" target="_blank" rel="noopener noreferrer">capitol.texas.gov</a> so you can verify bill status with the official source. That site is outside our control.</li>
+          <li><strong>Open States</strong> — the public API that supplies the Texas bill records displayed in the feed. See their <a href="https://openstates.org/privacy/" target="_blank" rel="noopener noreferrer">privacy policy</a>.</li>
+          <li><strong>Cloudflare Workers AI</strong> — generates the bill summaries from the public legislative records. Only bill data (identifier, title, subjects, action history) is sent; no visitor personal information is included. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's privacy policy</a>.</li>
+          <li><strong>GitHub Actions</strong> — runs the scheduled fetch-and-summarize job. It has access only to the public bill records and your repository's automation secrets; it never receives visitor personal information. See <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub's privacy statement</a>.</li>
         </ul>
       </section>
 
@@ -187,7 +191,7 @@
         <section>
           <h3>Feedback</h3>
           <p>For an accessibility barrier, please contact <a href="mailto:lariatfeed@gmail.com">lariatfeed@gmail.com</a> with the page, task, assistive technology or browser involved, and the problem you encountered. We will review reports and work toward an accessible fix.</p>
-          <p><strong>Statement reviewed:</strong> August 19, 2026. This statement covers the current demo UI, including local demo-plan selection and the subscription access-code lockout countdown.</p>
+          <p><strong>Statement reviewed:</strong> August 23, 2026. This statement covers the current site, including the real-data bill feed, bill notes, industry filtering, demo-plan selection, the subscription access-code lockout countdown, and the automated summary pipeline.</p>
         </section>
       </div>
     </div>
