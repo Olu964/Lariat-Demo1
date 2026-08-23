@@ -37,7 +37,7 @@ You now have two values: your **Account ID** and your **API token**.
    | Name | Value | Why |
    |---|---|---|
    | `LARIAT_SESSION` | e.g. `892` | Pin the legislative session so fetches don't mix sessions. Leave unset to fetch the most recently updated bills. |
-   | `SUMMARIZER_MODEL` | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` | Default model. Set to `@cf/meta/llama-3.1-8b-instruct-fp8-fast` to use ~6× fewer free neurons. |
+   | `SUMMARIZER_MODEL` | `@cf/meta/llama-3.1-8b-instruct-fp8` | Default (cheap) model — a 25-bill run uses ~2k of the 10k free daily neurons. Set to `@cf/meta/llama-3.3-70b-instruct-fp8-fast` for higher-quality summaries at ~8× the neuron cost. Leave unset. |
 
 ## Step 3 — Turn it on (~2 min)
 
@@ -51,11 +51,12 @@ You now have two values: your **Account ID** and your **API token**.
 ## Notes
 
 - **Free forever:** Open States API (free key), Cloudflare Workers AI
-  (10,000 neurons/day — a daily 50-bill run uses ~6–7k), GitHub Actions (free),
-  Brevo email (300/day). No credit card anywhere.
-- **If the AI quota runs out** on a given day, the workflow still succeeds — the
-  summarizer falls back to placeholder summaries and the run is marked in the log.
-  Switch to the smaller model (Step 2) if that happens.
+  (10,000 neurons/day — a 25-bill run with the default 8B model uses ~2k),
+  GitHub Actions (free), Brevo email (300/day). No credit card anywhere.
+- **If the AI quota runs out** on a given day (e.g. after many manual test runs,
+  or if you switched to the 70B model), the workflow still succeeds — the
+  summarizer falls back to placeholder summaries and the run is marked in the
+  log. The 10k-neuron allowance resets daily at 00:00 UTC.
 - **Running locally:** `python3 fetch_texas_bills.py --limit 15` then
   `python3 summarize_bills.py`. Without a Cloudflare token it runs in mock mode
   and **keeps existing summaries untouched** — it only writes placeholders for

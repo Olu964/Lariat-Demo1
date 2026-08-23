@@ -13,7 +13,7 @@ whole pipeline works end-to-end with zero keys and you can preview the format.
 Usage:
     python3 summarize_bills.py [--input texas_bills.json]
                                [--output Lariat-real/texas_bill_summaries.json]
-                               [--model @cf/meta/llama-3.3-70b-instruct-fp8-fast]
+                               [--model @cf/meta/llama-3.1-8b-instruct-fp8]
 """
 
 from __future__ import annotations
@@ -32,9 +32,11 @@ from urllib.request import Request, urlopen
 
 DEFAULT_INPUT = "texas_bills.json"
 DEFAULT_OUTPUT = "Lariat-real/texas_bill_summaries.json"
-DEFAULT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
-# If the daily free neuron quota runs out, switch the model to the smaller one:
-#   --model @cf/meta/llama-3.1-8b-instruct-fp8-fast
+# Default is the 8B model: cheap enough that a full 25-bill run costs ~2k of
+# the 10k free daily neurons, leaving room for manual test runs. For higher-
+# quality summaries (at ~8x the neuron cost), override with the 70B model:
+#   --model @cf/meta/llama-3.3-70b-instruct-fp8-fast
+DEFAULT_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8"
 FEED_PATH = "Lariat-real/feed.html"
 FEED_META_PATTERN = re.compile(r'(<meta name="lariat-data-updated" content=")[^"]*(")')
 
@@ -182,9 +184,10 @@ def call_cloudflare_ai(context: str, model: str, account_id: str, api_token: str
         if exc.code == 429:
             raise RuntimeError(
                 "Cloudflare daily free quota or rate limit reached (HTTP 429): "
-                f"{body} — wait for the 00:00 UTC daily reset, or use the smaller "
-                "model (@cf/meta/llama-3.1-8b-instruct-fp8-fast) for ~6x fewer "
-                "neurons per call"
+                f"{body} — wait for the 00:00 UTC daily reset, or upgrade to "
+                "Workers Paid for more capacity. The default model "
+                f"({DEFAULT_MODEL}) is already the cheapest that fits a full run "
+                "in the free allowance."
             ) from exc
         raise RuntimeError(f"Cloudflare API HTTP {exc.code}: {body}") from exc
     if not isinstance(parsed, dict) or not parsed.get("success"):
