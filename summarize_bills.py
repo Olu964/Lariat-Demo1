@@ -76,7 +76,7 @@ def capitol_url(bill: dict[str, Any]) -> str:
     return str(bill.get("openstates_url") or "https://capitol.texas.gov/")
 
 
-def fetch_html(url: str, *, attempts: int = 4, timeout: int = 60) -> str:
+def fetch_html(url: str, *, attempts: int = 2, timeout: int = 30) -> str:
     """Fetch an official page with bounded retries for transient timeouts."""
     last_error: Exception | None = None
     for attempt in range(1, attempts + 1):
@@ -111,9 +111,9 @@ def fetch_bill_text(bill: dict[str, Any]) -> tuple[str, str]:
             for word, points in (("enrolled", 60), ("engrossed", 50), ("substitute", 40), ("introduced", 30), ("text", 10), ("pdf", 5)):
                 if word in text: score += points
             candidates.append((score, absolute))
-    for _, url in sorted(candidates, reverse=True):
+    for _, url in sorted(candidates, reverse=True)[:4]:
         try:
-            raw = fetch_html(url, attempts=3, timeout=90); extractor = TextExtractor(); extractor.feed(raw); text = extractor.text()
+            raw = fetch_html(url, attempts=2, timeout=45); extractor = TextExtractor(); extractor.feed(raw); text = extractor.text()
             if len(text.split()) >= 100 and (identifier in text.lower().replace(" ", "") or "relating to" in text.lower()): return text, url
         except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError): continue
     raise RuntimeError("no usable official bill-text document found")
@@ -126,8 +126,8 @@ def bill_context(bill: dict[str, Any], text: str, text_url: str) -> str:
     return f"RECORD METADATA:\n{metadata}\n\nOFFICIAL BILL TEXT:\n{text[:120000]}"
 
 
-def call_ai(context: str, model: str, account: str, token: str) -> str:
-    payload = json.dumps({"messages": [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": context}], "temperature": 0.15, "max_tokens": 2500}).encode()
+def call_ai(context: str, model: str, account: str, token: str, *, system_prompt: str = SYSTEM_PROMPT) -> str:
+    payload = json.dumps({"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": context}], "temperature": 0.15, "max_tokens": 2500}).encode()
     request = Request(f"https://api.cloudflare.com/client/v4/accounts/{account}/ai/run/{model}", data=payload, headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}, method="POST")
     with urlopen(request, timeout=90) as response:
         parsed = json.loads(response.read().decode())
@@ -138,13 +138,48 @@ def call_ai(context: str, model: str, account: str, token: str) -> str:
 
 
 def extract_json(text: str) -> dict[str, Any] | None:
-    cleaned = re.sub(r"```(?:json)?", "", text.strip()).strip(); match = re.search(r"\{.*\}", cleaned, re.S)
-    if not match: return None
-    try: return json.loads(match.group(0))
-    except json.JSONDecodeError: return None
+    cleaned = re.sub(r"```(?:json)?", "", text.strip()).strip()
+    start = cleaned.find("{")
+    if start < 0: return None
+    depth = 0; in_string = False; escaped = False
+    for index in range(start, len(cleaned)):
+        character = cleaned[index]
+        if in_string:
+            if escaped: escaped = False
+            elif character == "\\": escaped = True
+            elif character == '"': in_string = False
+        elif character == '"': in_string = True
+        elif character == "{": depth += 1
+        elif character == "}":
+            depth -= 1
+            if depth == 0:
+                try:
+                    parsed = json.loads(cleaned[start:index + 1])
+                    return parsed if isinstance(parsed, dict) else None
+                except json.JSONDecodeError:
+                    return None
+    return None
 
 
 def word_count(value: Any) -> int: return len(re.findall(r"\b\w+(?:['’-]\w+)*\b", str(value or "")))
+
+
+EXPANSION_PROMPT = f"""You are revising a Texas legislative bill summary. Use ONLY the supplied official bill text, metadata, and draft. Return the same JSON object with exactly the same keys. Replace only the summary with one neutral paragraph between {MIN_SUMMARY_WORDS} and {MAX_SUMMARY_WORDS} words. Add useful facts from the official text such as operative changes, affected parties, requirements, exceptions, funding, or effective dates when present. Do not pad with repetition or invent facts. Keep all other fields accurate and consistent with the text. Return JSON only."""
+
+
+def generate_ai_record(context: str, model: str, account: str, token: str) -> dict[str, Any]:
+    """Generate a valid-length record using at most two AI calls."""
+    output = extract_json(call_ai(context, model, account, token))
+    if output is None: raise RuntimeError("AI output was not valid JSON")
+    count = word_count(output.get("summary"))
+    if MIN_SUMMARY_WORDS <= count <= MAX_SUMMARY_WORDS: return output
+    revision_context = f"{context}\n\nDRAFT JSON TO REVISE:\n{json.dumps(output, ensure_ascii=False)}\n\nThe draft summary contains {count} words. Rewrite it to exactly {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS} words."
+    revised = extract_json(call_ai(revision_context, model, account, token, system_prompt=EXPANSION_PROMPT))
+    if revised is None: raise RuntimeError("AI expansion output was not valid JSON")
+    revised_count = word_count(revised.get("summary"))
+    if not MIN_SUMMARY_WORDS <= revised_count <= MAX_SUMMARY_WORDS:
+        raise ValueError(f"summary has {revised_count} words after expansion; expected {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS}")
+    return revised
 
 
 def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None, text_hash: str | None) -> dict[str, Any]:
@@ -187,31 +222,18 @@ def main() -> int:
             text, text_url = fetch_bill_text(bill); digest = hashlib.sha256(text.encode()).hexdigest()
             if old and old.get("bill_text_hash") == digest and 70 <= word_count(old.get("summary")) <= 150:
                 records.append(old); print(f"[{index}/{len(bills)}] {identifier} -> cached"); continue
-            output = extract_json(call_ai(bill_context(bill, text, text_url), args.model, account, token))
-            if output is None: raise RuntimeError("AI output was not valid JSON")
+            output = generate_ai_record(bill_context(bill, text, text_url), args.model, account, token)
             records.append(normalize(output, bill, text_url, digest)); print(f"[{index}/{len(bills)}] {identifier} -> AI")
             time.sleep(args.delay)
         except Exception as exc:
             failures += 1; deferred.append((bill, old, str(exc))); print(f"[{index}/{len(bills)}] {identifier} -> deferred: {exc}", file=sys.stderr)
             if old and 70 <= word_count(old.get("summary")) <= 150: records.append(old)
-    # Retry deferred bills once after the rest of the batch. This helps when
-    # the official site temporarily times out, without publishing placeholders.
-    for bill, old, first_error in deferred:
-        identifier = str(bill.get("identifier") or "Unknown")
-        try:
-            text, text_url = fetch_bill_text(bill); digest = hashlib.sha256(text.encode()).hexdigest()
-            output = extract_json(call_ai(bill_context(bill, text, text_url), args.model, account, token))
-            if output is None: raise RuntimeError("AI output was not valid JSON")
-            replacement = normalize(output, bill, text_url, digest)
-            for position, record in enumerate(records):
-                if str(record.get("identifier") or "").lower() == identifier.lower(): records[position] = replacement; break
-            else: records.append(replacement)
-            failures -= 1; print(f"retry {identifier} -> AI")
-        except Exception as exc:
-            print(f"retry {identifier} -> kept previous summary ({first_error}; {exc})", file=sys.stderr)
-            if not old or not (70 <= word_count(old.get("summary")) <= 150):
-                print(f"No valid summary available for {identifier}; failing safely.", file=sys.stderr)
-                return 1
+    # A failed bill is not retried with another full page crawl in this run.
+    # This keeps the batch bounded and lets the next scheduled run try again.
+    for bill, old, error in deferred:
+        if not old or not (70 <= word_count(old.get("summary")) <= 150):
+            print(f"No valid summary available for {bill.get('identifier', 'Unknown')}; failing safely.", file=sys.stderr)
+            return 1
     write_output(records, args.output); update_feed(Path("Lariat-real/feed.html"))
     print(f"Saved {len(records)} summaries; unresolved failures: {failures}"); return 1 if failures else 0
 
