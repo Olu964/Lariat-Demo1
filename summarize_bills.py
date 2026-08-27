@@ -76,9 +76,25 @@ def capitol_url(bill: dict[str, Any]) -> str:
     return str(bill.get("openstates_url") or "https://capitol.texas.gov/")
 
 
-def fetch_html(url: str) -> str:
-    request = Request(url, headers={"User-Agent": "Lariat bill research bot; contact via repository"})
-    with urlopen(request, timeout=30) as response: return response.read().decode("utf-8", errors="replace")
+def fetch_html(url: str, *, attempts: int = 4, timeout: int = 60) -> str:
+    """Fetch an official page with bounded retries for transient timeouts."""
+    last_error: Exception | None = None
+    for attempt in range(1, attempts + 1):
+        request = Request(url, headers={
+            "User-Agent": "Lariat bill research bot; contact via repository",
+            "Accept": "text/html,application/xhtml+xml,application/pdf;q=0.9,*/*;q=0.8",
+            "Connection": "close",
+        })
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                return response.read().decode("utf-8", errors="replace")
+        except (HTTPError, URLError, TimeoutError, ConnectionError) as exc:
+            last_error = exc
+            if isinstance(exc, HTTPError) and exc.code not in {408, 425, 429} and exc.code < 500:
+                break
+            if attempt < attempts:
+                time.sleep(min(3 * attempt, 12))
+    raise RuntimeError(f"official page request failed after {attempts} attempts: {last_error}")
 
 
 def fetch_bill_text(bill: dict[str, Any]) -> tuple[str, str]:
@@ -97,9 +113,9 @@ def fetch_bill_text(bill: dict[str, Any]) -> tuple[str, str]:
             candidates.append((score, absolute))
     for _, url in sorted(candidates, reverse=True):
         try:
-            raw = fetch_html(url); extractor = TextExtractor(); extractor.feed(raw); text = extractor.text()
+            raw = fetch_html(url, attempts=3, timeout=90); extractor = TextExtractor(); extractor.feed(raw); text = extractor.text()
             if len(text.split()) >= 100 and (identifier in text.lower().replace(" ", "") or "relating to" in text.lower()): return text, url
-        except (HTTPError, URLError, TimeoutError): continue
+        except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError): continue
     raise RuntimeError("no usable official bill-text document found")
 
 
@@ -164,7 +180,7 @@ def main() -> int:
     if args.output.exists():
         try: existing = {str(x.get("identifier", "")).lower(): x for x in json.loads(args.output.read_text()) if isinstance(x, dict)}
         except (OSError, json.JSONDecodeError): pass
-    records: list[dict[str, Any]] = []; failures = 0
+    records: list[dict[str, Any]] = []; failures = 0; deferred: list[tuple[dict[str, Any], dict[str, Any] | None, str]] = []
     for index, bill in enumerate(bills, 1):
         identifier = str(bill.get("identifier") or "Unknown"); old = existing.get(identifier.lower())
         try:
@@ -176,11 +192,28 @@ def main() -> int:
             records.append(normalize(output, bill, text_url, digest)); print(f"[{index}/{len(bills)}] {identifier} -> AI")
             time.sleep(args.delay)
         except Exception as exc:
-            failures += 1; print(f"[{index}/{len(bills)}] {identifier} -> FAILED: {exc}", file=sys.stderr)
+            failures += 1; deferred.append((bill, old, str(exc))); print(f"[{index}/{len(bills)}] {identifier} -> deferred: {exc}", file=sys.stderr)
             if old and 70 <= word_count(old.get("summary")) <= 150: records.append(old)
-            else: return 1
+    # Retry deferred bills once after the rest of the batch. This helps when
+    # the official site temporarily times out, without publishing placeholders.
+    for bill, old, first_error in deferred:
+        identifier = str(bill.get("identifier") or "Unknown")
+        try:
+            text, text_url = fetch_bill_text(bill); digest = hashlib.sha256(text.encode()).hexdigest()
+            output = extract_json(call_ai(bill_context(bill, text, text_url), args.model, account, token))
+            if output is None: raise RuntimeError("AI output was not valid JSON")
+            replacement = normalize(output, bill, text_url, digest)
+            for position, record in enumerate(records):
+                if str(record.get("identifier") or "").lower() == identifier.lower(): records[position] = replacement; break
+            else: records.append(replacement)
+            failures -= 1; print(f"retry {identifier} -> AI")
+        except Exception as exc:
+            print(f"retry {identifier} -> kept previous summary ({first_error}; {exc})", file=sys.stderr)
+            if not old or not (70 <= word_count(old.get("summary")) <= 150):
+                print(f"No valid summary available for {identifier}; failing safely.", file=sys.stderr)
+                return 1
     write_output(records, args.output); update_feed(Path("Lariat-real/feed.html"))
-    print(f"Saved {len(records)} summaries; failures: {failures}"); return 1 if failures else 0
+    print(f"Saved {len(records)} summaries; unresolved failures: {failures}"); return 1 if failures else 0
 
 
 def write_output(records: list[dict[str, Any]], path: Path) -> None:
