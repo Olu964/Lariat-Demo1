@@ -1,624 +1,194 @@
 #!/usr/bin/env python3
-"""Turn raw Open States bill records into the Lariat summary JSON.
-
-Reads the aggregate file produced by fetch_texas_bills.py (default
-texas_bills.json) and writes Lariat-real/texas_bill_summaries.json — the file
-the Bill feed and the backend's industry list read.
-
-Bills accumulate across runs: bills that were in the previous dataset but are
-not in the current fetch are retained (so the feed grows over time instead of
-churning through only the most recently updated bills), while bills still in
-the fetch get their summaries refreshed.
-
-Summaries are written by Cloudflare Workers AI when CLOUDFLARE_ACCOUNT_ID and
-CLOUDFLARE_API_TOKEN are set (see AUTOMATION_SETUP.md). Without them the script
-runs in MOCK mode and generates deterministic placeholder summaries, so the
-whole pipeline works end-to-end with zero keys and you can preview the format.
-
-Usage:
-    python3 summarize_bills.py [--input texas_bills.json]
-                               [--output Lariat-real/texas_bill_summaries.json]
-                               [--model @cf/meta/llama-3.1-8b-instruct-fp8]
-"""
-
+"""Generate Lariat bill summaries from official Texas bill text when available."""
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
 import sys
 import time
-from datetime import date, datetime, timezone
+from datetime import date
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
+from urllib.parse import urljoin
 from urllib.request import Request, urlopen
 
 DEFAULT_INPUT = "texas_bills.json"
 DEFAULT_OUTPUT = "Lariat-real/texas_bill_summaries.json"
-# Default is the 8B model: cheap enough that a full 25-bill run costs ~2k of
-# the 10k free daily neurons, leaving room for manual test runs. For higher-
-# quality summaries (at ~8x the neuron cost), override with the 70B model:
-#   --model @cf/meta/llama-3.3-70b-instruct-fp8-fast
 DEFAULT_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8"
-FEED_PATH = "Lariat-real/feed.html"
+MIN_SUMMARY_WORDS = 70
+MAX_SUMMARY_WORDS = 150
 FEED_META_PATTERN = re.compile(r'(<meta name="lariat-data-updated" content=")[^"]*(")')
 
-# The fixed industry taxonomy the model must choose from. This is the curated
-# set Lariat tracks and must stay in sync with the feed's industry dropdown
-# (ALL_INDUSTRIES in Lariat-real/real-script.js). Keeping the list small means
-# the dropdown on the feed stays tidy.
-INDUSTRIES = [
-    "Energy & Utilities",
-    "Government & Municipal Operations",
-    "Emergency & Public Safety",
-    "Real Estate & Land Use",
-    "Insurance & Financial Services",
-    "N/A",
-]
-INDUSTRY_LIST = ", ".join(f'"{industry}"' for industry in INDUSTRIES)
-
-STATUS_VALUES = (
-    "alive, active, pending, passed, signed, enacted, adopted, "
-    "failed, did not pass, died, replaced"
-)
-
-# Fields the script fills from the record itself (never from the model), so
-# identifiers and links are always correct even if the model drifts.
+INDUSTRIES = ["Energy & Utilities", "Government & Municipal Operations", "Emergency & Public Safety", "Real Estate & Land Use", "Insurance & Financial Services", "N/A"]
+INDUSTRY_LIST = ", ".join(f'"{item}"' for item in INDUSTRIES)
+STATUS_VALUES = "alive, active, pending, passed, signed, enacted, adopted, failed, did not pass, died, replaced"
 SCRIPT_OWNED_FIELDS = ("id", "identifier", "session", "updated_at", "source_url")
 
-SYSTEM_PROMPT = f"""You are a Texas legislative analyst producing business-ready bill summaries for Lariat, a bill-intelligence feed.
+SYSTEM_PROMPT = f"""You are a neutral Texas legislative analyst. Use ONLY the supplied official bill text and record metadata. Never invent facts. Return one JSON object on one line with exactly these keys: title (2-8 words), summary, affects, changes, business_impact, impact_level (High/Moderate/Low), industry (one of {INDUSTRY_LIST}), specific_industry (2-5 words or N/A), status (one of {STATUS_VALUES}), suggested_action. The summary MUST be one paragraph of 70-150 words, counting whitespace-separated words. It must explain the bill's purpose, operative changes, affected parties, important requirements/exceptions/funding/effective date when present, and recorded legislative status. If full text is unavailable or incomplete, say so explicitly and avoid guessing. For ceremonial resolutions, explain that they have no legal effect. This is informational, not legal advice."""
 
-You will receive one Open States bill record (identifier, title, chamber, subjects, action dates, latest action description). The record may be thin — Texas records often have no abstract. Work only from what the record contains. Never invent vote counts, dollar amounts, sponsors, deadlines, or session history that are not in the record.
+class TextExtractor(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.parts: list[str] = []
+        self.skip = 0
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.lower() in {"script", "style", "noscript"}: self.skip += 1
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() in {"script", "style", "noscript"} and self.skip: self.skip -= 1
+    def handle_data(self, data: str) -> None:
+        if not self.skip: self.parts.append(data)
+    def text(self) -> str:
+        return re.sub(r"\s+", " ", " ".join(self.parts)).strip()
 
-Return ONLY a single JSON object on ONE LINE — no markdown fences, no newlines, no commentary before or after it — with exactly these keys:
-- "title": a short friendly title (2-8 words), e.g. "Voter-approval tax rate reduction". Never use the literal "Relating to ..." phrasing.
-- "summary": 3-5 sentences, plain business-ready language. Describe what the bill does per the record, its current recorded status, and anything notable. If the record is thin, say so honestly (e.g. "the record shows the bill was filed with no further action recorded").
-- "affects": who/what it affects (agencies, industries, groups). Use "N/A — ..." for ceremonial resolutions.
-- "changes": what the bill changes or does in one or two sentences.
-- "business_impact": the practical impact on businesses, in one or two sentences. Use "N/A — no business impact" when none.
-- "impact_level": exactly one of "High", "Moderate", "Low".
-- "industry": exactly one of {INDUSTRY_LIST}. Use "N/A" only for ceremonial resolutions.
-- "specific_industry": a more specific sub-category (2-5 words), or "N/A".
-- "status": exactly one of {STATUS_VALUES}. Use "signed"/"enacted" only if the record shows signing/effective language; "passed" only if a passage date or enrolled action appears; otherwise "pending" and note in the summary that final status must be verified.
-- "suggested_action": one practical paragraph (2-4 sentences) advising a business audience on what to do or watch, tailored to the bill. If the bill needs no action, say so.
-
-For ceremonial resolutions (congratulatory, honorary, memorial): title as-is, summary noting it is a ceremonial resolution with no legal effect, "affects"/"changes"/"business_impact" = "N/A — ...", "impact_level" = "Low", "industry" = "N/A", "suggested_action" = a short no-action-needed line.
-
-This is a starting point for human review, not legal advice."""
-
+class LinkExtractor(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(); self.links: list[tuple[str, str]] = []
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.lower() != "a": return
+        values = dict(attrs); href = values.get("href") or ""
+        self.links.append((values.get("title") or "", href))
+    
 
 def load_dotenv(path: Path) -> None:
-    """Load simple KEY=VALUE entries without printing secret values."""
-    if not path.exists():
-        return
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if line.startswith("export "):
-            line = line[7:].lstrip()
-        if "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        key = key.strip()
-        value = value.strip()
-        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", key):
-            continue
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
-            value = value[1:-1]
-        elif " #" in value:
-            value = value.split(" #", 1)[0].rstrip()
-        os.environ.setdefault(key, value)
+    if not path.exists(): return
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line: continue
+        key, value = line.split("=", 1); key = key.strip(); value = value.strip()
+        if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", key): os.environ.setdefault(key, value.strip('"\''))
 
 
 def read_bills(path: Path) -> list[dict[str, Any]]:
-    """Read the aggregate fetch output; accept either shape Open States or
-    the wrapper {"bills": [...]} produced by fetch_texas_bills.py."""
-    if not path.exists():
-        raise SystemExit(f"Input file not found: {path} (run fetch_texas_bills.py first)")
     parsed = json.loads(path.read_text(encoding="utf-8"))
-    if isinstance(parsed, list):
-        bills = parsed
-    elif isinstance(parsed, dict) and isinstance(parsed.get("bills"), list):
-        bills = parsed["bills"]
-    else:
-        raise SystemExit(f"Unexpected JSON shape in {path}: expected an array or {{bills: [...]}}")
-    return [bill for bill in bills if isinstance(bill, dict)]
-
-
-def bill_context(bill: dict[str, Any]) -> str:
-    """Render the record as a compact key/value block for the model prompt."""
-    org = bill.get("from_organization")
-    chamber = str(org.get("name") or "") if isinstance(org, dict) else ""
-    classification = ", ".join(str(item) for item in (bill.get("classification") or []))
-    subjects = "; ".join(str(item) for item in (bill.get("subject") or []))
-    fields = [
-        ("identifier", bill.get("identifier") or ""),
-        ("title", bill.get("title") or ""),
-        ("classification", classification),
-        ("chamber", chamber),
-        ("session", bill.get("session") or ""),
-        ("subjects", subjects or "(none)"),
-        ("first_action_date", bill.get("first_action_date") or ""),
-        ("latest_action_date", bill.get("latest_action_date") or ""),
-        ("latest_action_description", bill.get("latest_action_description") or ""),
-        ("latest_passage_date", bill.get("latest_passage_date") or ""),
-        ("abstracts", "; ".join(str(item) for item in (bill.get("abstracts") or [])) or "(none)"),
-        ("openstates_url", bill.get("openstates_url") or ""),
-    ]
-    return "\n".join(f"{key}: {value}" for key, value in fields if value)
-
-
-def call_cloudflare_ai(context: str, model: str, account_id: str, api_token: str) -> str:
-    """Call Workers AI and return the model's raw text. Raises on failure."""
-    url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run/{model}"
-    payload = json.dumps({
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": context},
-        ],
-        "temperature": 0.2,
-        "max_tokens": 4000,
-    }).encode("utf-8")
-    request = Request(
-        url,
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {api_token}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    try:
-        with urlopen(request, timeout=60) as response:
-            parsed = json.loads(response.read().decode("utf-8"))
-    except HTTPError as exc:
-        body = ""
-        try:
-            body = exc.read().decode("utf-8", errors="replace")[:300]
-        except Exception:
-            pass
-        if exc.code == 429:
-            raise RuntimeError(
-                "Cloudflare daily free quota or rate limit reached (HTTP 429): "
-                f"{body} — wait for the 00:00 UTC daily reset, or upgrade to "
-                "Workers Paid for more capacity. The default model "
-                f"({DEFAULT_MODEL}) is already the cheapest that fits a full run "
-                "in the free allowance."
-            ) from exc
-        raise RuntimeError(f"Cloudflare API HTTP {exc.code}: {body}") from exc
-    if not isinstance(parsed, dict) or not parsed.get("success"):
-        errors = parsed.get("errors") if isinstance(parsed, dict) else None
-        detail = "; ".join(str(error) for error in errors) if errors else "unknown error"
-        raise RuntimeError(f"Cloudflare API error: {detail}")
-    result = parsed.get("result")
-    if isinstance(result, dict) and isinstance(result.get("response"), str):
-        return result["response"]
-    raise RuntimeError(
-        f"Cloudflare API returned an unexpected response shape: {str(parsed)[:200]}"
-    )
-
-
-def _normalize_quotes(text: str) -> str:
-    """Replace Unicode smart quotes/dashes (common in LLM output) with ASCII,
-    because they make json.loads fail even when the JSON is otherwise fine."""
-    return (text.replace("\u201c", '"')
-                .replace("\u201d", '"')
-                .replace("\u2018", "'")
-                .replace("\u2019", "'")
-                .replace("\u2013", "-")
-                .replace("\u2014", "-")
-                .replace("\u2026", "..."))
-
-
-def _repair_string_newlines(text: str) -> str:
-    """Remove literal newlines inside JSON string values, which Llama
-    sometimes emits and which are invalid in JSON. Returns the original text
-    unchanged if no newlines were found inside strings."""
-    out: list[str] = []
-    in_string = False
-    escaped = False
-    changed = False
-    for char in text:
-        if in_string:
-            if escaped:
-                escaped = False
-            elif char == "\\":
-                escaped = True
-            elif char == '"':
-                in_string = False
-            elif char in "\r\n":
-                out.append(" ")
-                changed = True
-                continue
-        elif char == '"':
-            in_string = True
-        out.append(char)
-    return "".join(out) if changed else text
-
-
-def _try_parse(text: str) -> dict[str, Any] | None:
-    try:
-        parsed = json.loads(text)
-        return parsed if isinstance(parsed, dict) else None
-    except json.JSONDecodeError:
-        return None
-
-
-def _extract_balanced(text: str) -> dict[str, Any] | None:
-    """Find the first brace-balanced JSON object in text, ignoring prose before
-    or after it. Handles trailing prose that itself contains braces, which a
-    greedy {.*} regex would break on."""
-    start = text.find("{")
-    if start == -1:
-        return None
-    depth = 0
-    in_string = False
-    escaped = False
-    for index in range(start, len(text)):
-        char = text[index]
-        if in_string:
-            if escaped:
-                escaped = False
-            elif char == "\\":
-                escaped = True
-            elif char == '"':
-                in_string = False
-        elif char == '"':
-            in_string = True
-        elif char == "{":
-            depth += 1
-        elif char == "}":
-            depth -= 1
-            if depth == 0:
-                candidate = text[start:index + 1]
-                parsed = _try_parse(candidate) or _try_parse(_normalize_quotes(candidate))
-                return parsed
-    return None
-
-
-def extract_json(text: str) -> dict[str, Any] | None:
-    """Extract a JSON object from model output, tolerating code fences, prose
-    around the JSON, smart quotes, and trailing commentary."""
-    cleaned = re.sub(r"```[a-zA-Z]*", "", text.strip()).replace("```", "")
-    # Fast path: valid JSON parses as-is (smart quotes inside strings are legal).
-    parsed = _try_parse(cleaned)
-    if parsed is not None:
-        return parsed
-    # Some models use curly quotes as JSON delimiters — normalize and retry.
-    parsed = _try_parse(_normalize_quotes(cleaned))
-    if parsed is not None:
-        return parsed
-    # Llama sometimes emits literal newlines inside string values (invalid in
-    # JSON) — strip them and retry before falling back to balanced extraction.
-    repaired = _repair_string_newlines(_normalize_quotes(cleaned))
-    parsed = _try_parse(repaired)
-    if parsed is not None:
-        return parsed
-    return _extract_balanced(repaired)
-
-
-def is_ceremonial(bill: dict[str, Any]) -> bool:
-    text = " ".join([
-        " ".join(str(item) for item in (bill.get("classification") or [])),
-        " ".join(str(item) for item in (bill.get("subject") or [])),
-        str(bill.get("title") or ""),
-    ]).lower()
-    return any(
-        keyword in text
-        for keyword in ("congratulatory", "honorary", "memorial", "recognizing", "in memory of", "honoring")
-    )
-
-
-# --- Mock mode: deterministic placeholders so the pipeline runs with no key ---
-
-MOCK_INDUSTRY_RULES = [
-    ("Emergency & Public Safety", ("emergency", "disaster", "flood", "siren", "warning", "rescue", "preparedness", "first respond")),
-    ("Real Estate & Land Use", ("deed", "title", "real property", "impervious", "zoning", "land use", "subdivision", "property")),
-    ("Energy & Utilities", ("groundwater", "water", "energy", "oil", "gas", "utility", "electric", "pipeline")),
-    ("Insurance & Financial Services", ("insurance", "bank", "finance", "credit", "lending", "loan")),
-    ("Government & Municipal Operations", ("tax", "budget", "appropriation", "comptroller", "levy", "municipal", "county", "election", "voter")),
-]
-
-
-def mock_summary_record(bill: dict[str, Any], today_iso: str) -> dict[str, Any]:
-    identifier = str(bill.get("identifier") or "Unknown")
-    raw_title = str(bill.get("title") or "Untitled bill").strip()
-    chamber = ""
-    org = bill.get("from_organization")
-    if isinstance(org, dict):
-        chamber = str(org.get("name") or "")
-    latest_action = str(bill.get("latest_action_description") or "no action recorded")
-    latest_date = str(bill.get("latest_action_date") or "")
-    first_date = str(bill.get("first_action_date") or "")
-    subjects = "; ".join(str(item) for item in (bill.get("subject") or []))
-
-    friendly = re.sub(r"^relating to\s+", "", raw_title, flags=re.IGNORECASE).strip().rstrip(".")
-    friendly = friendly[:1].upper() + friendly[1:] if friendly else raw_title
-    ceremonial = is_ceremonial(bill)
-
-    if ceremonial:
-        kind = "ceremonial resolution" if "resolution" in " ".join(str(item) for item in (bill.get("classification") or [])).lower() else "resolution"
-        summary = (f"Texas {identifier} is a {kind} with no statutory or regulatory content. "
-                   f"It was filed on {first_date} and carries no legal obligations. "
-                   "This is an automated placeholder summary — see the Verify link for the official record.")
-        affects = "N/A — ceremonial resolution"
-        changes = "N/A — no substantive policy change"
-        business_impact = "N/A — no business impact"
-        industry = "N/A"
-        specific = "N/A"
-        impact = "Low"
-        status = "passed" if latest_date else "pending"
-        suggested = "No action needed — this resolution carries no compliance, funding, or regulatory implications."
-    else:
-        status = "signed" if re.search(r"signed|effective immediately", latest_action, re.IGNORECASE) else (
-            "passed" if bill.get("latest_passage_date") or re.search(r"enrolled", latest_action, re.IGNORECASE) else "pending")
-        # Strip the parenthetical topic codes (e.g. "(I0211)") Open States
-        # appends to subject names so keyword matching is not confused by them.
-        lowered = re.sub(r"\s*\([^)]*\)", "", f"{raw_title} {subjects}").lower()
-        industry = "Other"
-        for candidate, keywords in MOCK_INDUSTRY_RULES:
-            if any(keyword in lowered for keyword in keywords):
-                industry = candidate
-                break
-        if industry == "Other":
-            industry = "Government & Municipal Operations"
-        specific = "General"
-        impact = "Moderate" if re.search(r"\$\s?\d|million|billion|appropriat", lowered) else "Low"
-        summary = (
-            f"Texas {identifier} — {friendly}. Filed in the {chamber or 'legislature'} on {first_date}; "
-            f"latest recorded action: {latest_action} ({latest_date}). "
-            "The Open States record contains no abstract, so this is a provisional automated summary — "
-            "verify the bill's text and current status at the official Texas Legislature website."
-        )
-        affects = subjects if subjects else "Not yet determined from the record"
-        changes = latest_action if latest_action != "no action recorded" else f"Would {friendly.lower()}"
-        business_impact = "Assessment pending — this is an automated placeholder summary. Review the bill text for business impact."
-        suggested = (
-            "Review the bill's text and current status at the official Texas Legislature website "
-            "(see the Verify link). This automated summary is a starting point and is not legal advice."
-        )
-
-    return {
-        "id": str(bill.get("id") or ""),
-        "identifier": identifier,
-        "session": str(bill.get("session") or ""),
-        "title": friendly if not ceremonial else raw_title,
-        "summary": summary,
-        "affects": affects,
-        "changes": changes,
-        "business_impact": business_impact,
-        "impact_level": impact,
-        "industry": industry,
-        "specific_industry": specific,
-        "status": status,
-        "updated_at": today_iso,
-        "source_url": capitol_url(bill),
-        "suggested_action": suggested,
-    }
+    bills = parsed if isinstance(parsed, list) else parsed.get("bills", []) if isinstance(parsed, dict) else []
+    if not isinstance(bills, list): raise SystemExit(f"Unexpected JSON shape in {path}")
+    return [item for item in bills if isinstance(item, dict)]
 
 
 def capitol_url(bill: dict[str, Any]) -> str:
-    session = str(bill.get("session") or "").strip()
-    identifier = str(bill.get("identifier") or "").strip()
-    if session and identifier:
-        return f"https://capitol.texas.gov/BillLookup/History.aspx?LegSess={session}&Bill={identifier.replace(' ', '')}"
-    openstates = str(bill.get("openstates_url") or "").strip()
-    return openstates or "https://capitol.texas.gov/"
+    session = str(bill.get("session") or "").strip(); identifier = str(bill.get("identifier") or "").strip()
+    if session and identifier: return f"https://capitol.texas.gov/BillLookup/History.aspx?LegSess={session}&Bill={identifier.replace(' ', '')}"
+    return str(bill.get("openstates_url") or "https://capitol.texas.gov/")
 
 
-def normalize_record(record: dict[str, Any], bill: dict[str, Any]) -> dict[str, Any]:
-    """Fill SCRIPT_OWNED_FIELDS from the record and coerce model fields into
-    the shapes the frontend expects, so a model slip cannot break the feed."""
+def fetch_html(url: str) -> str:
+    request = Request(url, headers={"User-Agent": "Lariat bill research bot; contact via repository"})
+    with urlopen(request, timeout=30) as response: return response.read().decode("utf-8", errors="replace")
+
+
+def fetch_bill_text(bill: dict[str, Any]) -> tuple[str, str]:
+    """Find and download a bill-text link from the official history page."""
+    history_url = capitol_url(bill); html = fetch_html(history_url); parser = LinkExtractor(); parser.feed(html)
+    identifier = re.sub(r"\s+", "", str(bill.get("identifier") or "")).lower()
+    candidates: list[tuple[int, str]] = []
+    for label, href in parser.links:
+        absolute = urljoin(history_url, href)
+        text = f"{label} {href}".lower()
+        if not absolute.startswith("https://capitol.texas.gov/"): continue
+        if any(word in text for word in ("text", "html", "pdf", "introduced", "engrossed", "enrolled", "substitute")):
+            score = 0
+            for word, points in (("enrolled", 60), ("engrossed", 50), ("substitute", 40), ("introduced", 30), ("text", 10), ("pdf", 5)):
+                if word in text: score += points
+            candidates.append((score, absolute))
+    for _, url in sorted(candidates, reverse=True):
+        try:
+            raw = fetch_html(url); extractor = TextExtractor(); extractor.feed(raw); text = extractor.text()
+            if len(text.split()) >= 100 and (identifier in text.lower().replace(" ", "") or "relating to" in text.lower()): return text, url
+        except (HTTPError, URLError, TimeoutError): continue
+    raise RuntimeError("no usable official bill-text document found")
+
+
+def bill_context(bill: dict[str, Any], text: str, text_url: str) -> str:
+    org = bill.get("from_organization"); chamber = str(org.get("name") or "") if isinstance(org, dict) else ""
+    subjects = "; ".join(str(x) for x in (bill.get("subject") or []))
+    metadata = "\n".join(f"{key}: {value}" for key, value in [("identifier", bill.get("identifier")), ("title", bill.get("title")), ("chamber", chamber), ("session", bill.get("session")), ("subjects", subjects), ("latest_action_date", bill.get("latest_action_date")), ("latest_action_description", bill.get("latest_action_description")), ("latest_passage_date", bill.get("latest_passage_date")), ("official_text_url", text_url)] if value)
+    return f"RECORD METADATA:\n{metadata}\n\nOFFICIAL BILL TEXT:\n{text[:120000]}"
+
+
+def call_ai(context: str, model: str, account: str, token: str) -> str:
+    payload = json.dumps({"messages": [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": context}], "temperature": 0.15, "max_tokens": 2500}).encode()
+    request = Request(f"https://api.cloudflare.com/client/v4/accounts/{account}/ai/run/{model}", data=payload, headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}, method="POST")
+    with urlopen(request, timeout=90) as response:
+        parsed = json.loads(response.read().decode())
+    if not parsed.get("success"): raise RuntimeError(f"Cloudflare API error: {parsed.get('errors', 'unknown error')}")
+    result = parsed.get("result", {}); output = result.get("response") if isinstance(result, dict) else None
+    if not isinstance(output, str): raise RuntimeError("Cloudflare returned no text")
+    return output
+
+
+def extract_json(text: str) -> dict[str, Any] | None:
+    cleaned = re.sub(r"```(?:json)?", "", text.strip()).strip(); match = re.search(r"\{.*\}", cleaned, re.S)
+    if not match: return None
+    try: return json.loads(match.group(0))
+    except json.JSONDecodeError: return None
+
+
+def word_count(value: Any) -> int: return len(re.findall(r"\b\w+(?:['’-]\w+)*\b", str(value or "")))
+
+
+def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None, text_hash: str | None) -> dict[str, Any]:
     for field in SCRIPT_OWNED_FIELDS:
-        if field == "id":
-            record[field] = str(bill.get("id") or "")
-        elif field == "identifier":
-            record[field] = str(bill.get("identifier") or "Unknown")
-        elif field == "session":
-            record[field] = str(bill.get("session") or "")
-        elif field == "updated_at":
-            record[field] = date.today().isoformat()
-        elif field == "source_url":
-            record[field] = capitol_url(bill)
-
-    record.setdefault("title", str(bill.get("title") or "Untitled bill"))
-    for field in ("summary", "affects", "changes", "business_impact", "suggested_action"):
-        value = record.get(field)
-        record[field] = str(value).strip() if value else "Not provided"
-    impact = str(record.get("impact_level") or "").strip().lower()
-    record["impact_level"] = {"high": "High", "moderate": "Moderate", "low": "Low"}.get(impact, "Low")
-    status = str(record.get("status") or "").strip().lower()
-    allowed = {"alive", "active", "pending", "passed", "signed", "enacted", "adopted",
-               "failed", "did not pass", "died", "replaced"}
-    record["status"] = status if status in allowed else "pending"
-    industry = str(record.get("industry") or "").strip()
-    # Keep the feed dropdown and the data in sync: any industry outside the
-    # curated taxonomy (e.g. a model slip) falls back to "Other", which still
-    # shows under "All industries" on the feed.
-    record["industry"] = industry if industry in INDUSTRIES else "Other"
-    specific = str(record.get("specific_industry") or "").strip()
-    record["specific_industry"] = specific if specific else ("N/A" if record["industry"] == "N/A" else "General")
+        record[field] = {"id": str(bill.get("id") or ""), "identifier": str(bill.get("identifier") or "Unknown"), "session": str(bill.get("session") or ""), "updated_at": date.today().isoformat(), "source_url": capitol_url(bill)}[field]
+    record["summary"] = str(record.get("summary") or "").strip()
+    if not 70 <= word_count(record["summary"]) <= 150: raise ValueError(f"summary has {word_count(record['summary'])} words; expected 70-150")
+    for field in ("title", "affects", "changes", "business_impact", "suggested_action"): record[field] = str(record.get(field) or "Not provided").strip()
+    record["impact_level"] = {"high": "High", "moderate": "Moderate", "low": "Low"}.get(str(record.get("impact_level") or "").lower(), "Low")
+    record["status"] = str(record.get("status") or "pending").lower()
+    record["industry"] = str(record.get("industry") or "N/A") if str(record.get("industry") or "N/A") in INDUSTRIES else "Government & Municipal Operations"
+    record["specific_industry"] = str(record.get("specific_industry") or "N/A")
+    if text_url: record["bill_text_source"] = text_url
+    if text_hash: record["bill_text_hash"] = text_hash; record["summary_word_count"] = word_count(record["summary"]); record["summary_source"] = "official bill text"
     return record
 
 
-def update_feed_freshness(feed_path: Path) -> None:
-    """Bump the dataset freshness meta tag the feed displays."""
-    if not feed_path.exists():
-        print(f"  (feed freshness not updated: {feed_path} missing)", file=sys.stderr)
-        return
-    content = feed_path.read_text(encoding="utf-8")
-    month_names = ["January", "February", "March", "April", "May", "June",
-                   "July", "August", "September", "October", "November", "December"]
-    today = date.today()
-    label = f"{month_names[today.month - 1]} {today.day}, {today.year}"
-    new_content, count = FEED_META_PATTERN.subn(lambda match: f'{match.group(1)}{label}"', content, count=1)
-    if count:
-        feed_path.write_text(new_content, encoding="utf-8")
-        print(f"  feed freshness set to: {label}")
-    else:
-        print(f"  (lariat-data-updated meta not found in {feed_path})", file=sys.stderr)
-
-
-def write_output(records: list[dict[str, Any]], output_path: Path) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = output_path.with_suffix(output_path.suffix + ".tmp")
-    tmp.write_text(json.dumps(records, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    tmp.replace(output_path)
-
-
-# Marker strings mock summaries carry, used to detect placeholder content so
-# curated or AI-written summaries are never overwritten by mock placeholders.
-PLACEHOLDER_MARKERS = ("automated placeholder summary", "provisional automated summary")
-
-
 def is_placeholder(record: dict[str, Any] | None) -> bool:
-    if not isinstance(record, dict):
-        return True
-    text = " ".join(str(record.get(key) or "") for key in ("summary", "business_impact"))
-    return not text.strip() or any(marker in text for marker in PLACEHOLDER_MARKERS)
+    return not isinstance(record, dict) or word_count(record.get("summary")) < 1 or "placeholder" in str(record.get("summary", "")).lower()
 
 
-def summarize_one(
-    bill: dict[str, Any],
-    *,
-    model: str,
-    account_id: str,
-    api_token: str,
-    delay: float,
-    existing: dict[str, dict[str, Any]] | None = None,
-) -> tuple[dict[str, Any], str]:
-    """Return (record, mode) where mode is 'ai', 'mock', or 'kept'."""
-    context = bill_context(bill)
-    if api_token and account_id:
-        # One call per bill by default. Retry only transient network errors;
-        # a parse failure or a Cloudflare rejection (429 quota / 400) will not
-        # succeed on retry, and re-running 70B inference is what burns the
-        # free daily neuron quota fastest.
-        text = None
-        failure = None
-        for attempt in (1, 2):
-            try:
-                text = call_cloudflare_ai(context, model, account_id, api_token)
-                failure = None
-                break
-            except (RuntimeError, HTTPError) as exc:
-                failure = exc
-                break
-            except (URLError, TimeoutError) as exc:
-                failure = exc
-                if attempt == 2:
-                    break
-                print(f"    retrying after error: {exc}", file=sys.stderr)
-                time.sleep(2 * attempt)
-        if failure is not None:
-            print(f"    AI call failed ({failure}); falling back to mock for this bill", file=sys.stderr)
-        else:
-            parsed = extract_json(text)
-            if parsed is None:
-                preview = " ".join(text.split())[:200]
-                print(
-                    f"    AI output not parseable ({len(text)} chars); falling "
-                    f"back to mock: {preview!r}",
-                    file=sys.stderr,
-                )
-            else:
-                record = normalize_record(parsed, bill)
-                time.sleep(delay)
-                return record, "ai"
-    # Mock mode: never destroy a curated or AI-written summary that already
-    # exists for the same bill — keep it instead of writing a placeholder.
-    identifier = str(bill.get("identifier") or "").strip().lower()
-    if existing and identifier:
-        for existing_record in existing.values():
-            if str(existing_record.get("identifier") or "").strip().lower() == identifier and not is_placeholder(existing_record):
-                return existing_record, "kept"
-    return mock_summary_record(bill, date.today().isoformat()), "mock"
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT), help=f"Fetch output to read (default: {DEFAULT_INPUT})")
-    parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT), help=f"Summary file to write (default: {DEFAULT_OUTPUT})")
-    parser.add_argument("--model", default=((os.getenv("SUMMARIZER_MODEL") or "").strip() or DEFAULT_MODEL), help="Cloudflare Workers AI model id")
-    parser.add_argument("--delay", type=float, default=1.0, help="Seconds to pause between AI calls (default: 1.0)")
-    return parser.parse_args()
+def update_feed(path: Path) -> None:
+    if not path.exists(): return
+    content = path.read_text(encoding="utf-8"); label = date.today().strftime("%B %-d, %Y")
+    path.write_text(FEED_META_PATTERN.sub(lambda m: f'{m.group(1)}{label}"', content, count=1), encoding="utf-8")
 
 
 def main() -> int:
-    load_dotenv(Path(__file__).resolve().parent / ".env")
-    args = parse_args()
-
-    account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID", "").strip()
-    api_token = os.getenv("CLOUDFLARE_API_TOKEN", "").strip()
-    use_ai = bool(account_id and api_token)
-    mode_label = f"Cloudflare AI ({args.model})" if use_ai else "MOCK mode (no Cloudflare token — placeholder summaries)"
-
-    bills = read_bills(args.input)
-    if not bills:
-        print(f"No bills found in {args.input}", file=sys.stderr)
-        return 1
-    print(f"Summarizing {len(bills)} bills via {mode_label}")
-
+    load_dotenv(Path(".env")); args = parse_args(); bills = read_bills(args.input)
+    account, token = os.getenv("CLOUDFLARE_ACCOUNT_ID", "").strip(), os.getenv("CLOUDFLARE_API_TOKEN", "").strip()
+    if not account or not token: raise SystemExit("Cloudflare credentials are required; refusing to publish metadata-only placeholders")
     existing: dict[str, dict[str, Any]] = {}
     if args.output.exists():
+        try: existing = {str(x.get("identifier", "")).lower(): x for x in json.loads(args.output.read_text()) if isinstance(x, dict)}
+        except (OSError, json.JSONDecodeError): pass
+    records: list[dict[str, Any]] = []; failures = 0
+    for index, bill in enumerate(bills, 1):
+        identifier = str(bill.get("identifier") or "Unknown"); old = existing.get(identifier.lower())
         try:
-            existing = {str(record.get("identifier") or "").strip().lower(): record
-                        for record in json.loads(args.output.read_text(encoding="utf-8"))
-                        if isinstance(record, dict)}
-        except (json.JSONDecodeError, OSError):
-            existing = {}
-
-    records: list[dict[str, Any]] = []
-    seen_identifiers: set[str] = set()
-    for index, bill in enumerate(bills, start=1):
-        record, mode = summarize_one(
-            bill,
-            model=args.model,
-            account_id=account_id,
-            api_token=api_token,
-            delay=args.delay,
-            existing=existing,
-        )
-        records.append(record)
-        seen_identifiers.add(str(record.get("identifier") or "").strip().lower())
-        print(f"  [{index}/{len(bills)}] {record['identifier']} -> {mode}")
-
-    # Retain bills from the previous dataset that were not part of this fetch,
-    # so the feed accumulates past bills instead of churning through only the
-    # most recently updated ones. Placeholders are never retained.
-    retained = 0
-    for identifier, existing_record in existing.items():
-        if identifier in seen_identifiers or is_placeholder(existing_record):
-            continue
-        records.append(existing_record)
-        retained += 1
-    if retained:
-        print(f"Retained {retained} existing bill{'s' if retained != 1 else ''} not in this fetch")
-
-    write_output(records, args.output)
-    print(f"Saved {len(records)} summaries to {args.output}")
-    update_feed_freshness(Path(args.output).resolve().parent / "feed.html")
-
-    # Post-run check: when running with real Cloudflare credentials, a run that
-    # leaves placeholder summaries behind (e.g. quota hit mid-run) must fail so
-    # mock data is never silently committed. Local mock mode (no token) is the
-    # documented preview path and keeps returning success.
-    placeholder_count = sum(1 for record in records if is_placeholder(record))
-    if use_ai and placeholder_count:
-        print(
-            f"ERROR: {placeholder_count} of {len(records)} summaries are still "
-            "placeholders (AI call failed for those bills). The run will not "
-            "be committed — wait for the Cloudflare quota reset and re-run.",
-            file=sys.stderr,
-        )
-        return 1
-    if use_ai:
-        print(f"All {len(records)} summaries are AI-written — no placeholder data remains.")
-    return 0
+            text, text_url = fetch_bill_text(bill); digest = hashlib.sha256(text.encode()).hexdigest()
+            if old and old.get("bill_text_hash") == digest and 70 <= word_count(old.get("summary")) <= 150:
+                records.append(old); print(f"[{index}/{len(bills)}] {identifier} -> cached"); continue
+            output = extract_json(call_ai(bill_context(bill, text, text_url), args.model, account, token))
+            if output is None: raise RuntimeError("AI output was not valid JSON")
+            records.append(normalize(output, bill, text_url, digest)); print(f"[{index}/{len(bills)}] {identifier} -> AI")
+            time.sleep(args.delay)
+        except Exception as exc:
+            failures += 1; print(f"[{index}/{len(bills)}] {identifier} -> FAILED: {exc}", file=sys.stderr)
+            if old and 70 <= word_count(old.get("summary")) <= 150: records.append(old)
+            else: return 1
+    write_output(records, args.output); update_feed(Path("Lariat-real/feed.html"))
+    print(f"Saved {len(records)} summaries; failures: {failures}"); return 1 if failures else 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+def write_output(records: list[dict[str, Any]], path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True); temp = path.with_suffix(path.suffix + ".tmp")
+    temp.write_text(json.dumps(records, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"); temp.replace(path)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or DEFAULT_MODEL); parser.add_argument("--delay", type=float, default=1.0); return parser.parse_args()
+
+if __name__ == "__main__": raise SystemExit(main())

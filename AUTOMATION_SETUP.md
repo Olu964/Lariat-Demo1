@@ -4,8 +4,8 @@ The pipeline is already built and tested. These are the only steps that need
 your accounts:
 
 ```
-Open States API ──> summarize_bills.py ──> Cloudflare Workers AI ──> Lariat-real/texas_bill_summaries.json ──> committed to GitHub daily
-     (already works)        (built)                     (you create the free key)                     (auto, 13:00 UTC daily)
+Open States metadata ──> official Texas bill text ──> summarize_bills.py ──> Cloudflare Workers AI ──> Lariat-real/texas_bill_summaries.json
+       (discovery)             (free source)                 (70–150 words, cached by text hash)       (committed daily)
 ```
 
 ## Step 1 — Get a free Cloudflare API token (~5 min)
@@ -70,8 +70,4 @@ You now have two values: your **Account ID** and your **API token**.
   bills that have never been summarized.
 - **Private-repo caveat:** GitHub pauses *scheduled* workflows in private repos
   after 60 days without activity. Pushing anything (or clicking "Run workflow")
-  resets it. Public repos are unaffected.
-- **Quality note:** the AI writes from the Open States record (title, subjects,
-  action history). Texas records carry no abstracts, so summaries are more
-  conservative than the hand-curated ones currently in the site. Verify any
-  important bill at capitol.texas.gov.
+  resets it. Public repos are unaffected.- **Quality note:** the summarizer retrieves the latest usable official Texas bill-text document from each bill history page and requires a 70–150 word summary. The exact document URL, SHA-256 text hash, word count, and `summary_source` are stored with each record. If a bill-text document cannot be retrieved, the run fails rather than publishing an unsupported metadata-only summary. Verify important bills at capitol.texas.gov.

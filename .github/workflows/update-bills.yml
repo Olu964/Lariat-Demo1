@@ -39,14 +39,13 @@ jobs:
           if [ -n "$LARIAT_SESSION" ]; then ARGS+=(--session "$LARIAT_SESSION"); fi
           python3 fetch_texas_bills.py "${ARGS[@]}"
 
-      - name: Summarize bills with Cloudflare AI
+      - name: Summarize bills from official Texas bill text with Cloudflare AI
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          # Default is the cheap 8B model so a 25-bill run fits in the free
-          # 10k-neuron daily allowance. Override via a repo variable with the
-          # 70B model (@cf/meta/llama-3.3-70b-instruct-fp8-fast) only if you
-          # want higher-quality summaries and can absorb ~8x the neurons.
+          # The summarizer retrieves official Texas bill text, caches by text
+          # hash, and enforces 70–150 words. Keep the cheap model to preserve
+          # the free daily allowance.
           SUMMARIZER_MODEL: ${{ vars.SUMMARIZER_MODEL }}
         run: |
           MODEL="${SUMMARIZER_MODEL:-@cf/meta/llama-3.1-8b-instruct-fp8}"
