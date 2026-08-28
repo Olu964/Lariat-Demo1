@@ -26,6 +26,20 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Restore official bill-text cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/lariat-bill-text
+          # Use a new key per run so newly downloaded official text is saved;
+          # restore-keys still retrieves the previous run's cache first.
+          key: lariat-bill-text-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            lariat-bill-text-${{ github.ref_name }}-
+            lariat-bill-text-
+
+      - name: Install official PDF text extractor
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+
       - name: Fetch bills from Open States
         env:
           OPEN_STATES_API_KEY: ${{ secrets.OPEN_STATES_API_KEY }}

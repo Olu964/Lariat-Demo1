@@ -7,9 +7,12 @@ import hashlib
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
 import time
-from datetime import date
+from datetime import date, datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
@@ -19,7 +22,8 @@ from urllib.request import Request, urlopen
 
 DEFAULT_INPUT = "texas_bills.json"
 DEFAULT_OUTPUT = "Lariat-real/texas_bill_summaries.json"
-REQUESTED_MODEL = "nvidia/nemotron-3-ultra:free"
+TEXT_CACHE_DIR = Path(os.getenv("LARIAT_TEXT_CACHE_DIR", ".cache/lariat-bill-text"))
+REQUESTED_MODEL: str | None = None
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
 MIN_SUMMARY_WORDS = 70
@@ -31,7 +35,25 @@ INDUSTRY_LIST = ", ".join(f'"{item}"' for item in INDUSTRIES)
 STATUS_VALUES = "alive, active, pending, passed, signed, enacted, adopted, failed, did not pass, died, replaced"
 SCRIPT_OWNED_FIELDS = ("id", "identifier", "session", "updated_at", "source_url")
 
-SYSTEM_PROMPT = f"""You are a neutral Texas legislative analyst. Use ONLY the supplied official bill text and record metadata. Never invent facts. Return one JSON object on one line with exactly these keys: title (2-8 words), summary, affects, changes, business_impact, impact_level (High/Moderate/Low), industry (one of {INDUSTRY_LIST}), specific_industry (2-5 words or N/A), status (one of {STATUS_VALUES}), suggested_action. The summary MUST be one paragraph of 70-150 words, counting whitespace-separated words. It must explain the bill's purpose, operative changes, affected parties, important requirements/exceptions/funding/effective date when present, and recorded legislative status. If full text is unavailable or incomplete, say so explicitly and avoid guessing. For ceremonial resolutions, explain that they have no legal effect. This is informational, not legal advice."""
+SYSTEM_PROMPT = f"""You are a neutral Texas legislative analyst. Use ONLY the supplied official bill text and record metadata. Never invent facts. Return one JSON object only, with no markdown or commentary, containing exactly the requested structured fields. The summary MUST be one paragraph of 70-150 words, counting whitespace-separated words. It must explain the bill's purpose, operative changes, affected parties, important requirements/exceptions/funding/effective date when present, and recorded legislative status. If full text is unavailable or incomplete, say so explicitly and avoid guessing. For ceremonial resolutions, explain that they have no legal effect. This is informational, not legal advice."""
+
+RECORD_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "title": {"type": "string", "description": "A concise 2-8 word title."},
+        "summary": {"type": "string", "description": "One neutral paragraph of 70-150 words."},
+        "affects": {"type": "string"},
+        "changes": {"type": "string"},
+        "business_impact": {"type": "string"},
+        "impact_level": {"type": "string", "enum": ["High", "Moderate", "Low"]},
+        "industry": {"type": "string", "enum": INDUSTRIES},
+        "specific_industry": {"type": "string"},
+        "status": {"type": "string"},
+        "suggested_action": {"type": "string"},
+    },
+    "required": ["title", "summary", "affects", "changes", "business_impact", "impact_level", "industry", "specific_industry", "status", "suggested_action"],
+    "additionalProperties": False,
+}
 
 class TextExtractor(HTMLParser):
     def __init__(self) -> None:
@@ -78,8 +100,8 @@ def capitol_url(bill: dict[str, Any]) -> str:
     return str(bill.get("openstates_url") or "https://capitol.texas.gov/")
 
 
-def fetch_html(url: str, *, attempts: int = 2, timeout: int = 30) -> str:
-    """Fetch an official page with bounded retries for transient timeouts."""
+def fetch_url_bytes(url: str, *, attempts: int = 2, timeout: int = 30) -> bytes:
+    """Fetch an official page with bounded retries for transient failures."""
     last_error: Exception | None = None
     for attempt in range(1, attempts + 1):
         request = Request(url, headers={
@@ -89,7 +111,7 @@ def fetch_html(url: str, *, attempts: int = 2, timeout: int = 30) -> str:
         })
         try:
             with urlopen(request, timeout=timeout) as response:
-                return response.read().decode("utf-8", errors="replace")
+                return response.read()
         except (HTTPError, URLError, TimeoutError, ConnectionError) as exc:
             last_error = exc
             if isinstance(exc, HTTPError) and exc.code not in {408, 425, 429} and exc.code < 500:
@@ -97,6 +119,10 @@ def fetch_html(url: str, *, attempts: int = 2, timeout: int = 30) -> str:
             if attempt < attempts:
                 time.sleep(min(3 * attempt, 12))
     raise RuntimeError(f"official page request failed after {attempts} attempts: {last_error}")
+
+
+def fetch_html(url: str, *, attempts: int = 2, timeout: int = 30) -> str:
+    return fetch_url_bytes(url, attempts=attempts, timeout=timeout).decode("utf-8", errors="replace")
 
 
 def official_document_urls(value: Any) -> list[str]:
@@ -113,10 +139,59 @@ def official_document_urls(value: Any) -> list[str]:
     return list(dict.fromkeys(found))
 
 
+def cache_file_for(bill: dict[str, Any]) -> Path:
+    stable = str(bill.get("id") or f"{bill.get('session', '')}-{bill.get('identifier', '')}")
+    safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", stable)
+    return TEXT_CACHE_DIR / f"{safe}.json"
+
+
+def source_marker(bill: dict[str, Any]) -> str:
+    return str(bill.get("updated_at") or bill.get("latest_action_date") or "")
+
+
+def save_text_cache(bill: dict[str, Any], text: str, url: str) -> None:
+    path = cache_file_for(bill); path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({
+        "url": url,
+        "text": text,
+        "source_marker": source_marker(bill),
+        "cached_at": datetime.now(timezone.utc).isoformat(),
+    }, ensure_ascii=False), encoding="utf-8")
+
+
+def load_text_cache(bill: dict[str, Any]) -> tuple[str, str] | None:
+    try:
+        parsed = json.loads(cache_file_for(bill).read_text(encoding="utf-8"))
+        if not isinstance(parsed, dict) or not isinstance(parsed.get("text"), str) or not isinstance(parsed.get("url"), str):
+            return None
+        cached_marker = str(parsed.get("source_marker") or "")
+        if source_marker(bill) and cached_marker and cached_marker != source_marker(bill):
+            return None
+        if usable_bill_text(parsed["text"], str(bill.get("identifier") or "")):
+            return parsed["text"], parsed["url"]
+    except (OSError, json.JSONDecodeError):
+        pass
+    return None
+
+
 def extract_document_text(url: str) -> str:
-    """Download an HTML bill document and extract visible text."""
-    raw = fetch_html(url, attempts=2, timeout=45)
-    extractor = TextExtractor(); extractor.feed(raw)
+    """Download an HTML or PDF bill document and extract visible text."""
+    raw = fetch_url_bytes(url, attempts=2, timeout=45)
+    if url.lower().split("?", 1)[0].endswith(".pdf") or raw.startswith(b"%PDF"):
+        if not shutil.which("pdftotext"):
+            raise RuntimeError("official document is a PDF but pdftotext is unavailable")
+        with tempfile.TemporaryDirectory() as directory:
+            input_path = Path(directory) / "bill.pdf"
+            output_path = Path(directory) / "bill.txt"
+            input_path.write_bytes(raw)
+            result = subprocess.run(
+                ["pdftotext", "-layout", str(input_path), str(output_path)],
+                capture_output=True, text=True, timeout=45,
+            )
+            if result.returncode != 0 or not output_path.exists():
+                raise RuntimeError("could not extract text from official PDF")
+            return output_path.read_text(encoding="utf-8", errors="replace").strip()
+    extractor = TextExtractor(); extractor.feed(raw.decode("utf-8", errors="replace"))
     return extractor.text()
 
 
@@ -136,10 +211,17 @@ def fetch_bill_text(bill: dict[str, Any]) -> tuple[str, str]:
         for word, points in (("enrolled", 60), ("engrossed", 50), ("substitute", 40), ("introduced", 30), ("billtext", 20), ("html", 10), ("pdf", 5)):
             if word in lowered: score += points
         direct_candidates.append((score, url))
+    cached = load_text_cache(bill)
+    if cached:
+        print(f"{bill.get('identifier', 'Unknown')}: using cached official bill text", file=sys.stderr)
+        return cached
+
     for _, url in sorted(direct_candidates, reverse=True)[:6]:
         try:
             text = extract_document_text(url)
-            if usable_bill_text(text, identifier): return text, url
+            if usable_bill_text(text, identifier):
+                save_text_cache(bill, text, url)
+                return text, url
         except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError):
             continue
 
@@ -158,7 +240,9 @@ def fetch_bill_text(bill: dict[str, Any]) -> tuple[str, str]:
     for _, url in sorted(candidates, reverse=True)[:4]:
         try:
             text = extract_document_text(url)
-            if usable_bill_text(text, identifier): return text, url
+            if usable_bill_text(text, identifier):
+                save_text_cache(bill, text, url)
+                return text, url
         except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError):
             continue
     raise RuntimeError("no usable official bill-text document found")
@@ -168,7 +252,12 @@ def bill_context(bill: dict[str, Any], text: str, text_url: str) -> str:
     org = bill.get("from_organization"); chamber = str(org.get("name") or "") if isinstance(org, dict) else ""
     subjects = "; ".join(str(x) for x in (bill.get("subject") or []))
     metadata = "\n".join(f"{key}: {value}" for key, value in [("identifier", bill.get("identifier")), ("title", bill.get("title")), ("chamber", chamber), ("session", bill.get("session")), ("subjects", subjects), ("latest_action_date", bill.get("latest_action_date")), ("latest_action_description", bill.get("latest_action_description")), ("latest_passage_date", bill.get("latest_passage_date")), ("official_text_url", text_url)] if value)
-    return f"RECORD METADATA:\n{metadata}\n\nOFFICIAL BILL TEXT:\n{text[:120000]}"
+    # Keep both the opening provisions and the ending provisions (where
+    # effective dates and transition rules commonly appear) within modest
+    # context limits for free models.
+    if len(text) > 60000:
+        text = text[:48000] + "\n\n[Middle of document omitted for context limits]\n\n" + text[-12000:]
+    return f"RECORD METADATA:\n{metadata}\n\nOFFICIAL BILL TEXT:\n{text}"
 
 
 def choose_openrouter_models(api_key: str, requested: str | None) -> list[str]:
@@ -194,18 +283,24 @@ def choose_openrouter_models(api_key: str, requested: str | None) -> list[str]:
     free_models = []
     for model_id, item in available.items():
         pricing = item.get("pricing") if isinstance(item, dict) else None
-        if isinstance(pricing, dict) and pricing.get("prompt") == "0" and pricing.get("completion") == "0":
-            free_models.append((model_id, item))
-    preferred_terms = ("instruct", "chat", "qwen", "llama", "mistral", "nemotron")
-    # Prefer ordinary instruction models over reasoning, multimodal, or audio models
-    # because the summarizer requires concise JSON text.
+        if not (isinstance(pricing, dict) and pricing.get("prompt") == "0" and pricing.get("completion") == "0"):
+            continue
+        lowered_id = model_id.lower()
+        # These model families are poor fits for a strict text-only JSON task.
+        if any(term in lowered_id for term in ("reasoning", "omni", "audio", "vision", "content-safety")):
+            continue
+        free_models.append((model_id, item))
+    # Prefer models that advertise response-format support, then ordinary
+    # instruction/chat models. If the catalog omits that field, keep the model
+    # eligible and let the API response decide.
+    preferred_terms = ("instruct", "chat", "qwen", "llama", "mistral", "gemma")
     free_models.sort(key=lambda pair: (
-        any(term in pair[0].lower() for term in ("reasoning", "omni", "audio", "vision")),
+        not any(parameter in (pair[1].get("supported_parameters") or []) for parameter in ("response_format", "structured_outputs")),
         not any(term in pair[0].lower() for term in preferred_terms),
         pair[0],
     ))
     ordered = [model_id for model_id, _ in free_models]
-    if requested and requested in available:
+    if requested and requested in ordered:
         ordered = [requested] + [model_id for model_id in ordered if model_id != requested]
     elif requested:
         print(f"Requested model '{requested}' is unavailable; selecting available free models.", file=sys.stderr)
@@ -225,18 +320,22 @@ class ModelCapacityError(RuntimeError):
 def is_capacity_error(message: str) -> bool:
     lowered = message.lower()
     return any(marker in lowered for marker in (
-        "rate limit", "quota", "resourceexhausted", "request limit", "worker local", "temporarily unavailable", "overloaded", "capacity",
+        "rate limit", "quota", "resourceexhausted", "request limit", "worker local", "temporarily unavailable", "overloaded", "capacity", "timeout", "timed out", "code': 504", '"code": 504',
     ))
 
 
 def call_ai(context: str, model: str, api_key: str, *, system_prompt: str = SYSTEM_PROMPT) -> str:
-    """Call OpenRouter's OpenAI-compatible chat endpoint and return its text."""
+    """Call one OpenRouter model with structured JSON output."""
     payload = json.dumps({
         "model": model,
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": context},
         ],
+        # json_object is supported by more free models than strict JSON Schema;
+        # the script still validates the parsed object and word count locally.
+        "response_format": {"type": "json_object"},
+        "plugins": [{"id": "response-healing"}],
         "temperature": 0.15,
         "max_tokens": 1800,
     }).encode("utf-8")
@@ -258,11 +357,11 @@ def call_ai(context: str, model: str, api_key: str, *, system_prompt: str = SYST
     except HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")[:500]
         message = f"OpenRouter API HTTP {exc.code}: {body}"
-        if exc.code in {429, 502, 503, 504} or is_capacity_error(message):
+        if exc.code in {400, 429, 502, 503, 504} or is_capacity_error(message):
             raise ModelCapacityError(message) from exc
         raise RuntimeError(message) from exc
     except (URLError, TimeoutError, ConnectionError) as exc:
-        raise RuntimeError(f"OpenRouter request failed: {exc}") from exc
+        raise ModelCapacityError(f"OpenRouter request failed: {exc}") from exc
     if not isinstance(parsed, dict):
         raise RuntimeError("OpenRouter returned an unexpected response shape")
     choices = parsed.get("choices")
@@ -273,8 +372,13 @@ def call_ai(context: str, model: str, api_key: str, *, system_prompt: str = SYST
         raise RuntimeError(f"OpenRouter returned no choices: {message}")
     message = choices[0].get("message")
     output = message.get("content") if isinstance(message, dict) else None
-    if not isinstance(output, str):
-        raise RuntimeError("OpenRouter returned no text content")
+    if isinstance(output, list):
+        output = "".join(
+            str(part.get("text", "")) for part in output
+            if isinstance(part, dict) and isinstance(part.get("text"), str)
+        )
+    if not isinstance(output, str) or not output.strip():
+        raise ModelCapacityError("OpenRouter returned no text content; switching models")
     return output
 
 
@@ -305,45 +409,48 @@ def extract_json(text: str) -> dict[str, Any] | None:
 def word_count(value: Any) -> int: return len(re.findall(r"\b\w+(?:['’-]\w+)*\b", str(value or "")))
 
 
+def validate_ai_record(record: dict[str, Any]) -> dict[str, Any]:
+    """Reject incomplete model objects before they can become published data."""
+    required = (
+        "title", "summary", "affects", "changes", "business_impact",
+        "impact_level", "industry", "specific_industry", "status", "suggested_action",
+    )
+    missing = [field for field in required if not isinstance(record.get(field), str) or not record[field].strip()]
+    if missing:
+        raise ValueError(f"AI output is missing required fields: {', '.join(missing)}")
+    return record
+
+
 EXPANSION_PROMPT = f"""You are revising a Texas legislative bill summary. Use ONLY the supplied official bill text, metadata, and draft. Return the same JSON object with exactly the same keys. Replace only the summary with one neutral paragraph between {MIN_SUMMARY_WORDS} and {MAX_SUMMARY_WORDS} words. Add useful facts from the official text such as operative changes, affected parties, requirements, exceptions, funding, or effective dates when present. Do not pad with repetition or invent facts. Keep all other fields accurate and consistent with the text. Return JSON only."""
 
 
-def call_with_model_fallback(context: str, models: list[str], start_index: int, api_key: str, *, system_prompt: str = SYSTEM_PROMPT) -> tuple[str, int]:
-    """Retry one request with the next model after capacity or malformed-output errors."""
+def generate_ai_record(context: str, models: list[str], start_index: int, api_key: str) -> tuple[dict[str, Any], int]:
+    """Try each model once, including one bounded expansion request."""
     last_error: Exception | None = None
     for index in range(start_index, len(models)):
         model = models[index]
         try:
-            raw = call_ai(context, model, api_key, system_prompt=system_prompt)
-            if extract_json(raw) is None:
+            output = extract_json(call_ai(context, model, api_key))
+            if output is None:
                 raise ValueError("AI output was not valid JSON")
-            return raw, index
-        except ModelCapacityError as exc:
+            validate_ai_record(output)
+            count = word_count(output.get("summary"))
+            if MIN_SUMMARY_WORDS <= count <= MAX_SUMMARY_WORDS:
+                return output, index
+            revision_context = f"{context}\n\nDRAFT JSON TO REVISE:\n{json.dumps(output, ensure_ascii=False)}\n\nThe draft summary contains {count} words. Rewrite it to exactly {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS} words."
+            revised = extract_json(call_ai(revision_context, model, api_key, system_prompt=EXPANSION_PROMPT))
+            if revised is None:
+                raise ValueError("AI expansion output was not valid JSON")
+            validate_ai_record(revised)
+            revised_count = word_count(revised.get("summary"))
+            if not MIN_SUMMARY_WORDS <= revised_count <= MAX_SUMMARY_WORDS:
+                raise ValueError(f"summary has {revised_count} words after expansion; expected {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS}")
+            return revised, index
+        except (ModelCapacityError, RuntimeError, ValueError) as exc:
             last_error = exc
-            print(f"Model unavailable due to capacity; switching from {model} to the next fallback.", file=sys.stderr)
-        except ValueError as exc:
-            last_error = exc
-            print(f"Model returned malformed JSON; switching from {model} to the next fallback.", file=sys.stderr)
-    if last_error:
-        raise RuntimeError(f"All OpenRouter fallback models failed: {last_error}") from last_error
-    raise RuntimeError("No OpenRouter fallback models are available")
-
-
-def generate_ai_record(context: str, models: list[str], start_index: int, api_key: str) -> tuple[dict[str, Any], int]:
-    """Generate a valid-length record using a bounded model fallback chain."""
-    raw_output, model_index = call_with_model_fallback(context, models, start_index, api_key)
-    output = extract_json(raw_output)
-    if output is None: raise RuntimeError("AI output was not valid JSON")
-    count = word_count(output.get("summary"))
-    if MIN_SUMMARY_WORDS <= count <= MAX_SUMMARY_WORDS: return output, model_index
-    revision_context = f"{context}\n\nDRAFT JSON TO REVISE:\n{json.dumps(output, ensure_ascii=False)}\n\nThe draft summary contains {count} words. Rewrite it to exactly {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS} words."
-    revised_raw, model_index = call_with_model_fallback(revision_context, models, model_index, api_key, system_prompt=EXPANSION_PROMPT)
-    revised = extract_json(revised_raw)
-    if revised is None: raise RuntimeError("AI expansion output was not valid JSON")
-    revised_count = word_count(revised.get("summary"))
-    if not MIN_SUMMARY_WORDS <= revised_count <= MAX_SUMMARY_WORDS:
-        raise ValueError(f"summary has {revised_count} words after expansion; expected {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS}")
-    return revised, model_index
+            if index + 1 < len(models):
+                print(f"Model attempt failed; switching from {model} to {models[index + 1]}.", file=sys.stderr)
+    raise RuntimeError(f"All OpenRouter models failed to produce a valid summary: {last_error}") from last_error
 
 
 def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None, text_hash: str | None) -> dict[str, Any]:

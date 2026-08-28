@@ -37,7 +37,7 @@ The scheduled run executes daily at 13:00 UTC and has a 45-minute maximum runtim
 ## How each bill is processed
 
 1. Open States supplies the identifier, session, status, and source links.
-2. The summarizer retrieves a public official Texas bill-history page and the best available bill-text document.
+2. The summarizer first checks the persistent GitHub Actions cache, then tries direct official document/version URLs from Open States, and finally uses the public Texas bill-history page.
 3. The document text is hashed with SHA-256.
 4. OpenRouter receives the official bill text and record metadata, not visitor information.
 5. The result must be valid JSON and its main summary must contain 70–150 words. If a model reaches its capacity, the same request is retried with the next available free model.
@@ -45,13 +45,14 @@ The scheduled run executes daily at 13:00 UTC and has a 45-minute maximum runtim
 7. A matching text hash reuses the existing valid summary without another AI call.
 8. The output stores the bill-text URL, text hash, word count, and `summary_source`.
 
-The workflow does not publish metadata-only summaries. If official text cannot be reached or a bill has no valid existing summary, that run fails safely without committing an incomplete dataset.
+The workflow does not publish metadata-only summaries. If official text cannot be reached or a bill has no valid existing summary, that run fails safely without committing an incomplete dataset. A successful run refreshes the persistent text cache for the next run.
 
 ## Free usage and reliability
 
 - Open States, GitHub Actions, and the public Texas source do not require a bill-text API key.
 - OpenRouter model availability and free-tier limits can change. The script builds a live free-model fallback chain and switches to the next model after rate-limit, quota, worker-exhaustion, overload, or capacity errors.
 - Hash caching avoids repeating AI calls for unchanged bill text.
+- GitHub Actions caches successfully downloaded official bill text between runs, so temporary Texas-site outages do not automatically prevent processing previously seen bills.
 - Keep the fetch limit reasonable, especially when regenerating the whole dataset.
 - Verify important summaries against the official source. They are informational and not legal advice.
 
