@@ -19,7 +19,8 @@ from urllib.request import Request, urlopen
 
 DEFAULT_INPUT = "texas_bills.json"
 DEFAULT_OUTPUT = "Lariat-real/texas_bill_summaries.json"
-DEFAULT_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8"
+DEFAULT_MODEL = "Qwen/Qwen3-4B"
+BYTEZ_API_URL = "https://api.bytez.com/models/v2/openai/v1/chat/completions"
 MIN_SUMMARY_WORDS = 70
 MAX_SUMMARY_WORDS = 150
 FEED_META_PATTERN = re.compile(r'(<meta name="lariat-data-updated" content=")[^"]*(")')
@@ -126,14 +127,46 @@ def bill_context(bill: dict[str, Any], text: str, text_url: str) -> str:
     return f"RECORD METADATA:\n{metadata}\n\nOFFICIAL BILL TEXT:\n{text[:120000]}"
 
 
-def call_ai(context: str, model: str, account: str, token: str, *, system_prompt: str = SYSTEM_PROMPT) -> str:
-    payload = json.dumps({"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": context}], "temperature": 0.15, "max_tokens": 2500}).encode()
-    request = Request(f"https://api.cloudflare.com/client/v4/accounts/{account}/ai/run/{model}", data=payload, headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}, method="POST")
-    with urlopen(request, timeout=90) as response:
-        parsed = json.loads(response.read().decode())
-    if not parsed.get("success"): raise RuntimeError(f"Cloudflare API error: {parsed.get('errors', 'unknown error')}")
-    result = parsed.get("result", {}); output = result.get("response") if isinstance(result, dict) else None
-    if not isinstance(output, str): raise RuntimeError("Cloudflare returned no text")
+def call_ai(context: str, model: str, api_key: str, *, system_prompt: str = SYSTEM_PROMPT) -> str:
+    """Call Bytez's OpenAI-compatible chat endpoint and return its text."""
+    payload = json.dumps({
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": context},
+        ],
+        "temperature": 0.15,
+        "max_tokens": 1800,
+    }).encode("utf-8")
+    request = Request(
+        BYTEZ_API_URL,
+        data=payload,
+        headers={
+            "Authorization": api_key,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urlopen(request, timeout=120) as response:
+            parsed = json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")[:500]
+        if exc.code == 429:
+            raise RuntimeError(f"Bytez rate limit or quota reached (HTTP 429): {body}") from exc
+        raise RuntimeError(f"Bytez API HTTP {exc.code}: {body}") from exc
+    except (URLError, TimeoutError, ConnectionError) as exc:
+        raise RuntimeError(f"Bytez request failed: {exc}") from exc
+    if not isinstance(parsed, dict):
+        raise RuntimeError("Bytez returned an unexpected response shape")
+    choices = parsed.get("choices")
+    if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
+        raise RuntimeError(f"Bytez returned no choices: {str(parsed)[:300]}")
+    message = choices[0].get("message")
+    output = message.get("content") if isinstance(message, dict) else None
+    if not isinstance(output, str):
+        raise RuntimeError("Bytez returned no text content")
     return output
 
 
@@ -167,14 +200,14 @@ def word_count(value: Any) -> int: return len(re.findall(r"\b\w+(?:['’-]\w+)*\
 EXPANSION_PROMPT = f"""You are revising a Texas legislative bill summary. Use ONLY the supplied official bill text, metadata, and draft. Return the same JSON object with exactly the same keys. Replace only the summary with one neutral paragraph between {MIN_SUMMARY_WORDS} and {MAX_SUMMARY_WORDS} words. Add useful facts from the official text such as operative changes, affected parties, requirements, exceptions, funding, or effective dates when present. Do not pad with repetition or invent facts. Keep all other fields accurate and consistent with the text. Return JSON only."""
 
 
-def generate_ai_record(context: str, model: str, account: str, token: str) -> dict[str, Any]:
+def generate_ai_record(context: str, model: str, api_key: str) -> dict[str, Any]:
     """Generate a valid-length record using at most two AI calls."""
-    output = extract_json(call_ai(context, model, account, token))
+    output = extract_json(call_ai(context, model, api_key))
     if output is None: raise RuntimeError("AI output was not valid JSON")
     count = word_count(output.get("summary"))
     if MIN_SUMMARY_WORDS <= count <= MAX_SUMMARY_WORDS: return output
     revision_context = f"{context}\n\nDRAFT JSON TO REVISE:\n{json.dumps(output, ensure_ascii=False)}\n\nThe draft summary contains {count} words. Rewrite it to exactly {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS} words."
-    revised = extract_json(call_ai(revision_context, model, account, token, system_prompt=EXPANSION_PROMPT))
+    revised = extract_json(call_ai(revision_context, model, api_key, system_prompt=EXPANSION_PROMPT))
     if revised is None: raise RuntimeError("AI expansion output was not valid JSON")
     revised_count = word_count(revised.get("summary"))
     if not MIN_SUMMARY_WORDS <= revised_count <= MAX_SUMMARY_WORDS:
@@ -209,8 +242,8 @@ def update_feed(path: Path) -> None:
 
 def main() -> int:
     load_dotenv(Path(".env")); args = parse_args(); bills = read_bills(args.input)
-    account, token = os.getenv("CLOUDFLARE_ACCOUNT_ID", "").strip(), os.getenv("CLOUDFLARE_API_TOKEN", "").strip()
-    if not account or not token: raise SystemExit("Cloudflare credentials are required; refusing to publish metadata-only placeholders")
+    api_key = os.getenv("BYTEZ_API_KEY", "").strip()
+    if not api_key: raise SystemExit("BYTEZ_API_KEY is required; refusing to publish metadata-only placeholders")
     existing: dict[str, dict[str, Any]] = {}
     if args.output.exists():
         try: existing = {str(x.get("identifier", "")).lower(): x for x in json.loads(args.output.read_text()) if isinstance(x, dict)}
@@ -222,7 +255,7 @@ def main() -> int:
             text, text_url = fetch_bill_text(bill); digest = hashlib.sha256(text.encode()).hexdigest()
             if old and old.get("bill_text_hash") == digest and 70 <= word_count(old.get("summary")) <= 150:
                 records.append(old); print(f"[{index}/{len(bills)}] {identifier} -> cached"); continue
-            output = generate_ai_record(bill_context(bill, text, text_url), args.model, account, token)
+            output = generate_ai_record(bill_context(bill, text, text_url), args.model, api_key)
             records.append(normalize(output, bill, text_url, digest)); print(f"[{index}/{len(bills)}] {identifier} -> AI")
             time.sleep(args.delay)
         except Exception as exc:
