@@ -19,8 +19,9 @@ from urllib.request import Request, urlopen
 
 DEFAULT_INPUT = "texas_bills.json"
 DEFAULT_OUTPUT = "Lariat-real/texas_bill_summaries.json"
-DEFAULT_MODEL = "Qwen/Qwen3-4B"
+DEFAULT_MODEL = "0-hero/Matter-0.1-Slim-7B-C"
 BYTEZ_API_URL = "https://api.bytez.com/models/v2/openai/v1/chat/completions"
+BYTEZ_MODELS_URL = "https://api.bytez.com/models/v2/list/models"
 MIN_SUMMARY_WORDS = 70
 MAX_SUMMARY_WORDS = 150
 FEED_META_PATTERN = re.compile(r'(<meta name="lariat-data-updated" content=")[^"]*(")')
@@ -125,6 +126,43 @@ def bill_context(bill: dict[str, Any], text: str, text_url: str) -> str:
     subjects = "; ".join(str(x) for x in (bill.get("subject") or []))
     metadata = "\n".join(f"{key}: {value}" for key, value in [("identifier", bill.get("identifier")), ("title", bill.get("title")), ("chamber", chamber), ("session", bill.get("session")), ("subjects", subjects), ("latest_action_date", bill.get("latest_action_date")), ("latest_action_description", bill.get("latest_action_description")), ("latest_passage_date", bill.get("latest_passage_date")), ("official_text_url", text_url)] if value)
     return f"RECORD METADATA:\n{metadata}\n\nOFFICIAL BILL TEXT:\n{text[:120000]}"
+
+
+def list_bytez_chat_models(api_key: str) -> list[dict[str, Any]]:
+    request = Request(
+        f"{BYTEZ_MODELS_URL}?task=chat",
+        headers={"Authorization": api_key, "Accept": "application/json"},
+    )
+    try:
+        with urlopen(request, timeout=30) as response:
+            parsed = json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")[:500]
+        raise RuntimeError(f"Bytez model catalog HTTP {exc.code}: {body}") from exc
+    except (URLError, TimeoutError, ConnectionError) as exc:
+        raise RuntimeError(f"Bytez model catalog request failed: {exc}") from exc
+    if not isinstance(parsed, dict) or parsed.get("error"):
+        raise RuntimeError(f"Bytez model catalog error: {str(parsed)[:500]}")
+    models = parsed.get("output")
+    if not isinstance(models, list):
+        raise RuntimeError("Bytez model catalog returned no model list")
+    return [model for model in models if isinstance(model, dict) and isinstance(model.get("modelId"), str)]
+
+
+def choose_model(api_key: str, requested: str | None) -> str:
+    models = list_bytez_chat_models(api_key)
+    available = {str(model["modelId"]): model for model in models}
+    if requested and requested in available:
+        return requested
+    if requested:
+        print(f"Requested Bytez model '{requested}' is not in the chat catalog; selecting an available model.", file=sys.stderr)
+    free = [model for model in models if str(model.get("meter", "")).endswith("free")]
+    candidates = free or models
+    if not candidates:
+        raise RuntimeError("Bytez returned no available chat models")
+    selected = str(candidates[0]["modelId"])
+    print(f"Selected Bytez chat model: {selected}")
+    return selected
 
 
 def call_ai(context: str, model: str, api_key: str, *, system_prompt: str = SYSTEM_PROMPT) -> str:
@@ -244,6 +282,7 @@ def main() -> int:
     load_dotenv(Path(".env")); args = parse_args(); bills = read_bills(args.input)
     api_key = os.getenv("BYTEZ_API_KEY", "").strip()
     if not api_key: raise SystemExit("BYTEZ_API_KEY is required; refusing to publish metadata-only placeholders")
+    model = choose_model(api_key, args.model)
     existing: dict[str, dict[str, Any]] = {}
     if args.output.exists():
         try: existing = {str(x.get("identifier", "")).lower(): x for x in json.loads(args.output.read_text()) if isinstance(x, dict)}
@@ -277,6 +316,6 @@ def write_output(records: list[dict[str, Any]], path: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or DEFAULT_MODEL); parser.add_argument("--delay", type=float, default=1.0); return parser.parse_args()
+    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or None); parser.add_argument("--delay", type=float, default=1.0); return parser.parse_args()
 
 if __name__ == "__main__": raise SystemExit(main())

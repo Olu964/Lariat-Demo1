@@ -22,7 +22,7 @@ No Cloudflare credentials are required by the current workflow.
 | Variable | Default | Purpose |
 |---|---|---|
 | `LARIAT_SESSION` | unset | Pin fetching to a particular Texas legislative session, such as `892`. |
-| `SUMMARIZER_MODEL` | `Qwen/Qwen3-4B` | Bytez model identifier. |
+| `SUMMARIZER_MODEL` | auto-discovered | Optional Bytez chat model identifier. The script verifies it against Bytez's live chat catalog; if unset or unavailable, it selects an available model, preferring free-meter models. |
 
 ## Run the workflow
 

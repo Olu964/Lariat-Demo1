@@ -43,13 +43,15 @@ jobs:
       - name: Summarize bills from official Texas bill text with Bytez AI
         env:
           BYTEZ_API_KEY: ${{ secrets.BYTEZ_API_KEY }}
-          # The summarizer retrieves official Texas bill text, caches by text
-          # hash, and enforces 70–150 words.
+          # The summarizer discovers an available Bytez chat model from the
+          # catalog, caches by text hash, and enforces 70–150 words.
           SUMMARIZER_MODEL: ${{ vars.SUMMARIZER_MODEL }}
         run: |
-          MODEL="${SUMMARIZER_MODEL:-Qwen/Qwen3-4B}"
-          echo "Using model: $MODEL"
-          python3 summarize_bills.py --model "$MODEL"
+          if [ -n "$SUMMARIZER_MODEL" ]; then
+            python3 summarize_bills.py --model "$SUMMARIZER_MODEL"
+          else
+            python3 summarize_bills.py
+          fi
 
       - name: Commit regenerated summaries (only when something changed)
         run: |
