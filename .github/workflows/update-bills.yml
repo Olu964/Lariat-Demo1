@@ -21,6 +21,12 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
 
+      - name: Verify workflow revision
+        run: |
+          echo "Workflow commit: $(git rev-parse --short HEAD)"
+          grep -q "containing exactly one key: summary" summarize_bills.py
+          echo "Summary-only prompt is active"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
