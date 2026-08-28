@@ -26,7 +26,7 @@ TEXT_CACHE_DIR = Path(os.getenv("LARIAT_TEXT_CACHE_DIR", ".cache/lariat-bill-tex
 REQUESTED_MODEL: str | None = None
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
-MIN_SUMMARY_WORDS = 70
+MIN_SUMMARY_WORDS = 50
 MAX_SUMMARY_WORDS = 150
 FEED_META_PATTERN = re.compile(r'(<meta name="lariat-data-updated" content=")[^"]*(")')
 
@@ -35,12 +35,12 @@ INDUSTRY_LIST = ", ".join(f'"{item}"' for item in INDUSTRIES)
 STATUS_VALUES = "alive, active, pending, passed, signed, enacted, adopted, failed, did not pass, died, replaced"
 SCRIPT_OWNED_FIELDS = ("id", "identifier", "session", "updated_at", "source_url")
 
-SYSTEM_PROMPT = f"""You are a neutral Texas legislative analyst. Use ONLY the supplied official bill text and record metadata. Never invent facts. Return one JSON object only, with no markdown or commentary, containing exactly one key: summary. The summary MUST be one neutral paragraph of 70-150 words, counting whitespace-separated words. Explain the bill's purpose, operative changes, affected parties, important requirements, exceptions, funding, effective date, and recorded legislative status when present. If full text is incomplete, say so explicitly and avoid guessing. For ceremonial resolutions, explain that they have no legal effect. This is informational, not legal advice."""
+SYSTEM_PROMPT = f"""You are a neutral Texas legislative analyst. Use ONLY the supplied official bill text and record metadata. Never invent facts. Return one JSON object only, with no markdown or commentary, containing exactly one key: summary. The summary MUST be one neutral paragraph of 50-150 words, counting whitespace-separated words. Explain the bill's purpose, operative changes, affected parties, important requirements, exceptions, funding, effective date, and recorded legislative status when present. If full text is incomplete, say so explicitly and avoid guessing. For ceremonial resolutions, explain that they have no legal effect. This is informational, not legal advice."""
 
 SUMMARY_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "summary": {"type": "string", "description": "One neutral paragraph of 70-150 words."},
+        "summary": {"type": "string", "description": "One neutral paragraph of 50-150 words."},
     },
     "required": ["summary"],
     "additionalProperties": False,
@@ -466,8 +466,8 @@ def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None
         "updated_at": date.today().isoformat(),
         "source_url": capitol_url(bill),
     })
-    if not 70 <= word_count(output["summary"]) <= 150:
-        raise ValueError(f"summary has {word_count(output['summary'])} words; expected 70-150")
+    if not MIN_SUMMARY_WORDS <= word_count(output["summary"]) <= MAX_SUMMARY_WORDS:
+        raise ValueError(f"summary has {word_count(output['summary'])} words; expected {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS}")
     if text_url: output["bill_text_source"] = text_url
     if text_hash:
         output["bill_text_hash"] = text_hash
@@ -501,18 +501,18 @@ def main() -> int:
         identifier = str(bill.get("identifier") or "Unknown"); old = existing.get(identifier.lower())
         try:
             text, text_url = fetch_bill_text(bill); digest = hashlib.sha256(text.encode()).hexdigest()
-            if old and old.get("bill_text_hash") == digest and 70 <= word_count(old.get("summary")) <= 150:
+            if old and old.get("bill_text_hash") == digest and MIN_SUMMARY_WORDS <= word_count(old.get("summary")) <= MAX_SUMMARY_WORDS:
                 records.append(old); print(f"[{index}/{len(bills)}] {identifier} -> cached"); continue
             output, active_model_index = generate_ai_record(bill_context(bill, text, text_url), models, active_model_index, api_key)
             records.append(normalize(output, bill, text_url, digest, old)); print(f"[{index}/{len(bills)}] {identifier} -> AI ({models[active_model_index]})")
             time.sleep(args.delay)
         except Exception as exc:
             failures += 1; deferred.append((bill, old, str(exc))); print(f"[{index}/{len(bills)}] {identifier} -> deferred: {exc}", file=sys.stderr)
-            if old and 70 <= word_count(old.get("summary")) <= 150: records.append(old)
+            if old and MIN_SUMMARY_WORDS <= word_count(old.get("summary")) <= MAX_SUMMARY_WORDS: records.append(old)
     # A failed bill is not retried with another full page crawl in this run.
     # This keeps the batch bounded and lets the next scheduled run try again.
     for bill, old, error in deferred:
-        if not old or not (70 <= word_count(old.get("summary")) <= 150):
+        if not old or not (MIN_SUMMARY_WORDS <= word_count(old.get("summary")) <= MAX_SUMMARY_WORDS):
             print(f"No valid summary available for {bill.get('identifier', 'Unknown')}; failing safely.", file=sys.stderr)
             return 1
     write_output(records, args.output); update_feed(Path("Lariat-real/feed.html"))
