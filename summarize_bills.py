@@ -99,25 +99,68 @@ def fetch_html(url: str, *, attempts: int = 2, timeout: int = 30) -> str:
     raise RuntimeError(f"official page request failed after {attempts} attempts: {last_error}")
 
 
+def official_document_urls(value: Any) -> list[str]:
+    """Collect official Texas document URLs from nested Open States fields."""
+    found: list[str] = []
+    if isinstance(value, dict):
+        for child in value.values():
+            found.extend(official_document_urls(child))
+    elif isinstance(value, list):
+        for child in value:
+            found.extend(official_document_urls(child))
+    elif isinstance(value, str) and value.startswith("https://capitol.texas.gov/"):
+        found.append(value)
+    return list(dict.fromkeys(found))
+
+
+def extract_document_text(url: str) -> str:
+    """Download an HTML bill document and extract visible text."""
+    raw = fetch_html(url, attempts=2, timeout=45)
+    extractor = TextExtractor(); extractor.feed(raw)
+    return extractor.text()
+
+
+def usable_bill_text(text: str, identifier: str) -> bool:
+    compact_identifier = identifier.lower().replace(" ", "")
+    lowered = text.lower().replace(" ", "")
+    return len(text.split()) >= 100 and (compact_identifier in lowered or "relatingto" in lowered or "resolution" in lowered)
+
+
 def fetch_bill_text(bill: dict[str, Any]) -> tuple[str, str]:
-    """Find and download a bill-text link from the official history page."""
-    history_url = capitol_url(bill); html = fetch_html(history_url); parser = LinkExtractor(); parser.feed(html)
+    """Prefer direct official document links, then use the history page."""
     identifier = re.sub(r"\s+", "", str(bill.get("identifier") or "")).lower()
+    direct_candidates = []
+    for url in official_document_urls(bill):
+        lowered = url.lower()
+        score = 0
+        for word, points in (("enrolled", 60), ("engrossed", 50), ("substitute", 40), ("introduced", 30), ("billtext", 20), ("html", 10), ("pdf", 5)):
+            if word in lowered: score += points
+        direct_candidates.append((score, url))
+    for _, url in sorted(direct_candidates, reverse=True)[:6]:
+        try:
+            text = extract_document_text(url)
+            if usable_bill_text(text, identifier): return text, url
+        except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError):
+            continue
+
+    history_url = capitol_url(bill)
+    html = fetch_html(history_url); parser = LinkExtractor(); parser.feed(html)
     candidates: list[tuple[int, str]] = []
     for label, href in parser.links:
         absolute = urljoin(history_url, href)
-        text = f"{label} {href}".lower()
+        link_text = f"{label} {href}".lower()
         if not absolute.startswith("https://capitol.texas.gov/"): continue
-        if any(word in text for word in ("text", "html", "pdf", "introduced", "engrossed", "enrolled", "substitute")):
+        if any(word in link_text for word in ("text", "html", "pdf", "introduced", "engrossed", "enrolled", "substitute")):
             score = 0
             for word, points in (("enrolled", 60), ("engrossed", 50), ("substitute", 40), ("introduced", 30), ("text", 10), ("pdf", 5)):
-                if word in text: score += points
+                if word in link_text: score += points
             candidates.append((score, absolute))
     for _, url in sorted(candidates, reverse=True)[:4]:
         try:
-            raw = fetch_html(url, attempts=2, timeout=45); extractor = TextExtractor(); extractor.feed(raw); text = extractor.text()
-            if len(text.split()) >= 100 and (identifier in text.lower().replace(" ", "") or "relating to" in text.lower()): return text, url
-        except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError): continue
+            text = extract_document_text(url)
+            if usable_bill_text(text, identifier): return text, url
+        except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError):
+            continue
     raise RuntimeError("no usable official bill-text document found")
 
 
@@ -266,17 +309,23 @@ EXPANSION_PROMPT = f"""You are revising a Texas legislative bill summary. Use ON
 
 
 def call_with_model_fallback(context: str, models: list[str], start_index: int, api_key: str, *, system_prompt: str = SYSTEM_PROMPT) -> tuple[str, int]:
-    """Retry one request with the next catalog model after a capacity failure."""
+    """Retry one request with the next model after capacity or malformed-output errors."""
     last_error: Exception | None = None
     for index in range(start_index, len(models)):
         model = models[index]
         try:
-            return call_ai(context, model, api_key, system_prompt=system_prompt), index
+            raw = call_ai(context, model, api_key, system_prompt=system_prompt)
+            if extract_json(raw) is None:
+                raise ValueError("AI output was not valid JSON")
+            return raw, index
         except ModelCapacityError as exc:
             last_error = exc
             print(f"Model unavailable due to capacity; switching from {model} to the next fallback.", file=sys.stderr)
+        except ValueError as exc:
+            last_error = exc
+            print(f"Model returned malformed JSON; switching from {model} to the next fallback.", file=sys.stderr)
     if last_error:
-        raise RuntimeError(f"All OpenRouter fallback models reached capacity: {last_error}") from last_error
+        raise RuntimeError(f"All OpenRouter fallback models failed: {last_error}") from last_error
     raise RuntimeError("No OpenRouter fallback models are available")
 
 
