@@ -22,7 +22,7 @@ No Bytez or Cloudflare credentials are required by the current workflow.
 | Variable | Default | Purpose |
 |---|---|---|
 | `LARIAT_SESSION` | unset | Pin fetching to a particular Texas legislative session, such as `892`. |
-| `SUMMARIZER_MODEL` | `nvidia/nemotron-3-ultra:free` | OpenRouter model identifier. |
+| `SUMMARIZER_MODEL` | auto-selected | Optional OpenRouter model identifier. If unset or unavailable, the script selects an available free model from OpenRouter's live catalog. |
 
 ## Run the workflow
 

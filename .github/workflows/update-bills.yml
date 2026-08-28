@@ -41,7 +41,11 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           SUMMARIZER_MODEL: ${{ vars.SUMMARIZER_MODEL }}
         run: |
-          python3 summarize_bills.py --model "${SUMMARIZER_MODEL:-nvidia/nemotron-3-ultra:free}"
+          if [ -n "$SUMMARIZER_MODEL" ]; then
+            python3 summarize_bills.py --model "$SUMMARIZER_MODEL"
+          else
+            python3 summarize_bills.py
+          fi
 
       - name: Commit regenerated summaries (only when something changed)
         run: |

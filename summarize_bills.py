@@ -19,8 +19,9 @@ from urllib.request import Request, urlopen
 
 DEFAULT_INPUT = "texas_bills.json"
 DEFAULT_OUTPUT = "Lariat-real/texas_bill_summaries.json"
-DEFAULT_MODEL = "nvidia/nemotron-3-ultra:free"
+REQUESTED_MODEL = "nvidia/nemotron-3-ultra:free"
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
+OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
 MIN_SUMMARY_WORDS = 70
 MAX_SUMMARY_WORDS = 150
 FEED_META_PATTERN = re.compile(r'(<meta name="lariat-data-updated" content=")[^"]*(")')
@@ -125,6 +126,44 @@ def bill_context(bill: dict[str, Any], text: str, text_url: str) -> str:
     subjects = "; ".join(str(x) for x in (bill.get("subject") or []))
     metadata = "\n".join(f"{key}: {value}" for key, value in [("identifier", bill.get("identifier")), ("title", bill.get("title")), ("chamber", chamber), ("session", bill.get("session")), ("subjects", subjects), ("latest_action_date", bill.get("latest_action_date")), ("latest_action_description", bill.get("latest_action_description")), ("latest_passage_date", bill.get("latest_passage_date")), ("official_text_url", text_url)] if value)
     return f"RECORD METADATA:\n{metadata}\n\nOFFICIAL BILL TEXT:\n{text[:120000]}"
+
+
+def choose_openrouter_model(api_key: str, requested: str | None) -> str:
+    request = Request(
+        OPENROUTER_MODELS_URL,
+        headers={"Authorization": f"Bearer {api_key}", "Accept": "application/json"},
+    )
+    try:
+        with urlopen(request, timeout=30) as response:
+            parsed = json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")[:500]
+        raise RuntimeError(f"OpenRouter model catalog HTTP {exc.code}: {body}") from exc
+    except (URLError, TimeoutError, ConnectionError) as exc:
+        raise RuntimeError(f"OpenRouter model catalog request failed: {exc}") from exc
+    models = parsed.get("data") if isinstance(parsed, dict) else None
+    if not isinstance(models, list):
+        raise RuntimeError(f"OpenRouter model catalog returned no model list: {str(parsed)[:300]}")
+    available = {
+        str(item.get("id")): item for item in models
+        if isinstance(item, dict) and isinstance(item.get("id"), str)
+    }
+    if requested and requested in available:
+        return requested
+    if requested:
+        print(f"Requested model '{requested}' is unavailable; selecting an available free model.", file=sys.stderr)
+    free_models = []
+    for model_id, item in available.items():
+        pricing = item.get("pricing") if isinstance(item, dict) else None
+        if isinstance(pricing, dict) and pricing.get("prompt") == "0" and pricing.get("completion") == "0":
+            free_models.append((model_id, item))
+    preferred_terms = ("instruct", "chat", "qwen", "llama", "mistral", "nemotron")
+    free_models.sort(key=lambda pair: (not any(term in pair[0].lower() for term in preferred_terms), pair[0]))
+    if not free_models:
+        raise RuntimeError("OpenRouter returned no free models")
+    selected = free_models[0][0]
+    print(f"Selected OpenRouter free model: {selected}")
+    return selected
 
 
 def call_ai(context: str, model: str, api_key: str, *, system_prompt: str = SYSTEM_PROMPT) -> str:
@@ -246,8 +285,7 @@ def main() -> int:
     load_dotenv(Path(".env")); args = parse_args(); bills = read_bills(args.input)
     api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
     if not api_key: raise SystemExit("OPENROUTER_API_KEY is required; refusing to publish metadata-only placeholders")
-    model = args.model or DEFAULT_MODEL
-    print(f"Using OpenRouter model: {model}")
+    model = choose_openrouter_model(api_key, args.model)
     existing: dict[str, dict[str, Any]] = {}
     if args.output.exists():
         try: existing = {str(x.get("identifier", "")).lower(): x for x in json.loads(args.output.read_text()) if isinstance(x, dict)}
@@ -281,6 +319,6 @@ def write_output(records: list[dict[str, Any]], path: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or DEFAULT_MODEL); parser.add_argument("--delay", type=float, default=1.0); return parser.parse_args()
+    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or REQUESTED_MODEL); parser.add_argument("--delay", type=float, default=1.0); return parser.parse_args()
 
 if __name__ == "__main__": raise SystemExit(main())
