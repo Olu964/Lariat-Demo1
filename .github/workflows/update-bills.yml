@@ -1,7 +1,5 @@
 name: Update bill summaries
 
-# Runs daily (13:00 UTC ≈ 7–8am Central) and can also be triggered manually
-# from the Actions tab ("Run workflow").
 on:
   schedule:
     - cron: '0 13 * * *'
@@ -31,8 +29,6 @@ jobs:
       - name: Fetch bills from Open States
         env:
           OPEN_STATES_API_KEY: ${{ secrets.OPEN_STATES_API_KEY }}
-          # Optional repo variable (Settings → Variables) pinning the session,
-          # e.g. 892. Leave unset to fetch the most recently updated bills.
           LARIAT_SESSION: ${{ vars.LARIAT_SESSION }}
           FETCH_LIMIT: ${{ inputs.limit || '25' }}
         run: |
@@ -40,18 +36,12 @@ jobs:
           if [ -n "$LARIAT_SESSION" ]; then ARGS+=(--session "$LARIAT_SESSION"); fi
           python3 fetch_texas_bills.py "${ARGS[@]}"
 
-      - name: Summarize bills from official Texas bill text with Bytez AI
+      - name: Summarize bills from official Texas bill text with OpenRouter AI
         env:
-          BYTEZ_API_KEY: ${{ secrets.BYTEZ_API_KEY }}
-          # The summarizer discovers an available Bytez chat model from the
-          # catalog, caches by text hash, and enforces 70–150 words.
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           SUMMARIZER_MODEL: ${{ vars.SUMMARIZER_MODEL }}
         run: |
-          if [ -n "$SUMMARIZER_MODEL" ]; then
-            python3 summarize_bills.py --model "$SUMMARIZER_MODEL"
-          else
-            python3 summarize_bills.py
-          fi
+          python3 summarize_bills.py --model "${SUMMARIZER_MODEL:-nvidia/nemotron-3-ultra:free}"
 
       - name: Commit regenerated summaries (only when something changed)
         run: |

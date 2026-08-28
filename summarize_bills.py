@@ -19,9 +19,8 @@ from urllib.request import Request, urlopen
 
 DEFAULT_INPUT = "texas_bills.json"
 DEFAULT_OUTPUT = "Lariat-real/texas_bill_summaries.json"
-DEFAULT_MODEL = "0-hero/Matter-0.1-Slim-7B-C"
-BYTEZ_API_URL = "https://api.bytez.com/models/v2/openai/v1/chat/completions"
-BYTEZ_MODELS_URL = "https://api.bytez.com/models/v2/list/models"
+DEFAULT_MODEL = "nvidia/nemotron-3-ultra:free"
+OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 MIN_SUMMARY_WORDS = 70
 MAX_SUMMARY_WORDS = 150
 FEED_META_PATTERN = re.compile(r'(<meta name="lariat-data-updated" content=")[^"]*(")')
@@ -128,45 +127,8 @@ def bill_context(bill: dict[str, Any], text: str, text_url: str) -> str:
     return f"RECORD METADATA:\n{metadata}\n\nOFFICIAL BILL TEXT:\n{text[:120000]}"
 
 
-def list_bytez_chat_models(api_key: str) -> list[dict[str, Any]]:
-    request = Request(
-        f"{BYTEZ_MODELS_URL}?task=chat",
-        headers={"Authorization": api_key, "Accept": "application/json"},
-    )
-    try:
-        with urlopen(request, timeout=30) as response:
-            parsed = json.loads(response.read().decode("utf-8"))
-    except HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")[:500]
-        raise RuntimeError(f"Bytez model catalog HTTP {exc.code}: {body}") from exc
-    except (URLError, TimeoutError, ConnectionError) as exc:
-        raise RuntimeError(f"Bytez model catalog request failed: {exc}") from exc
-    if not isinstance(parsed, dict) or parsed.get("error"):
-        raise RuntimeError(f"Bytez model catalog error: {str(parsed)[:500]}")
-    models = parsed.get("output")
-    if not isinstance(models, list):
-        raise RuntimeError("Bytez model catalog returned no model list")
-    return [model for model in models if isinstance(model, dict) and isinstance(model.get("modelId"), str)]
-
-
-def choose_model(api_key: str, requested: str | None) -> str:
-    models = list_bytez_chat_models(api_key)
-    available = {str(model["modelId"]): model for model in models}
-    if requested and requested in available:
-        return requested
-    if requested:
-        print(f"Requested Bytez model '{requested}' is not in the chat catalog; selecting an available model.", file=sys.stderr)
-    free = [model for model in models if str(model.get("meter", "")).endswith("free")]
-    candidates = free or models
-    if not candidates:
-        raise RuntimeError("Bytez returned no available chat models")
-    selected = str(candidates[0]["modelId"])
-    print(f"Selected Bytez chat model: {selected}")
-    return selected
-
-
 def call_ai(context: str, model: str, api_key: str, *, system_prompt: str = SYSTEM_PROMPT) -> str:
-    """Call Bytez's OpenAI-compatible chat endpoint and return its text."""
+    """Call OpenRouter's OpenAI-compatible chat endpoint and return its text."""
     payload = json.dumps({
         "model": model,
         "messages": [
@@ -177,12 +139,14 @@ def call_ai(context: str, model: str, api_key: str, *, system_prompt: str = SYST
         "max_tokens": 1800,
     }).encode("utf-8")
     request = Request(
-        BYTEZ_API_URL,
+        OPENROUTER_API_URL,
         data=payload,
         headers={
-            "Authorization": api_key,
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
             "Accept": "application/json",
+            "HTTP-Referer": "https://github.com/Olu964/Lariat-Demo1",
+            "X-Title": "Lariat Texas Bill Summaries",
         },
         method="POST",
     )
@@ -192,19 +156,19 @@ def call_ai(context: str, model: str, api_key: str, *, system_prompt: str = SYST
     except HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")[:500]
         if exc.code == 429:
-            raise RuntimeError(f"Bytez rate limit or quota reached (HTTP 429): {body}") from exc
-        raise RuntimeError(f"Bytez API HTTP {exc.code}: {body}") from exc
+            raise RuntimeError(f"OpenRouter rate limit or quota reached (HTTP 429): {body}") from exc
+        raise RuntimeError(f"OpenRouter API HTTP {exc.code}: {body}") from exc
     except (URLError, TimeoutError, ConnectionError) as exc:
-        raise RuntimeError(f"Bytez request failed: {exc}") from exc
+        raise RuntimeError(f"OpenRouter request failed: {exc}") from exc
     if not isinstance(parsed, dict):
-        raise RuntimeError("Bytez returned an unexpected response shape")
+        raise RuntimeError("OpenRouter returned an unexpected response shape")
     choices = parsed.get("choices")
     if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
-        raise RuntimeError(f"Bytez returned no choices: {str(parsed)[:300]}")
+        raise RuntimeError(f"OpenRouter returned no choices: {str(parsed)[:300]}")
     message = choices[0].get("message")
     output = message.get("content") if isinstance(message, dict) else None
     if not isinstance(output, str):
-        raise RuntimeError("Bytez returned no text content")
+        raise RuntimeError("OpenRouter returned no text content")
     return output
 
 
@@ -280,9 +244,10 @@ def update_feed(path: Path) -> None:
 
 def main() -> int:
     load_dotenv(Path(".env")); args = parse_args(); bills = read_bills(args.input)
-    api_key = os.getenv("BYTEZ_API_KEY", "").strip()
-    if not api_key: raise SystemExit("BYTEZ_API_KEY is required; refusing to publish metadata-only placeholders")
-    model = choose_model(api_key, args.model)
+    api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+    if not api_key: raise SystemExit("OPENROUTER_API_KEY is required; refusing to publish metadata-only placeholders")
+    model = args.model or DEFAULT_MODEL
+    print(f"Using OpenRouter model: {model}")
     existing: dict[str, dict[str, Any]] = {}
     if args.output.exists():
         try: existing = {str(x.get("identifier", "")).lower(): x for x in json.loads(args.output.read_text()) if isinstance(x, dict)}
@@ -316,6 +281,6 @@ def write_output(records: list[dict[str, Any]], path: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or None); parser.add_argument("--delay", type=float, default=1.0); return parser.parse_args()
+    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or DEFAULT_MODEL); parser.add_argument("--delay", type=float, default=1.0); return parser.parse_args()
 
 if __name__ == "__main__": raise SystemExit(main())

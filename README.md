@@ -6,10 +6,10 @@ Before exposing the site or subscription API publicly, read [`SECURITY.md`](SECU
 
 ## Setup
 
-The scripts use Python 3.10+ and the standard library only; no package installation is required. Bill summaries require `OPEN_STATES_API_KEY` and `BYTEZ_API_KEY`; the summarizer refuses to publish metadata-only placeholders when the Bytez key is missing.
+The scripts use Python 3.10+ and the standard library only; no package installation is required. Bill summaries require `OPEN_STATES_API_KEY` and `OPENROUTER_API_KEY`; the summarizer refuses to publish metadata-only placeholders when the OpenRouter key is missing.
 
 1. Copy `.env.example` to `.env`.
-2. Add your `OPEN_STATES_API_KEY` and `BYTEZ_API_KEY` to `.env`.
+2. Add your `OPEN_STATES_API_KEY` and `OPENROUTER_API_KEY` to `.env`.
 3. Keep `.env` private. It is ignored by Git.
 
 ## Run
