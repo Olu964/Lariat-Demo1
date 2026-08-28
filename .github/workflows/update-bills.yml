@@ -62,9 +62,9 @@ jobs:
           SUMMARIZER_MODEL: ${{ vars.SUMMARIZER_MODEL }}
         run: |
           if [ -n "$SUMMARIZER_MODEL" ]; then
-            python3 summarize_bills.py --model "$SUMMARIZER_MODEL"
+            python3 summarize_bills.py --model "$SUMMARIZER_MODEL" --write-partial
           else
-            python3 summarize_bills.py
+            python3 summarize_bills.py --write-partial
           fi
 
       - name: Commit regenerated summaries (only when something changed)

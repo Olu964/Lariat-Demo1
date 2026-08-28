@@ -511,10 +511,17 @@ def main() -> int:
             if old and MIN_SUMMARY_WORDS <= word_count(old.get("summary")) <= MAX_SUMMARY_WORDS: records.append(old)
     # A failed bill is not retried with another full page crawl in this run.
     # This keeps the batch bounded and lets the next scheduled run try again.
+    unresolved = []
     for bill, old, error in deferred:
         if not old or not (MIN_SUMMARY_WORDS <= word_count(old.get("summary")) <= MAX_SUMMARY_WORDS):
+            unresolved.append(bill.get('identifier', 'Unknown'))
             print(f"No valid summary available for {bill.get('identifier', 'Unknown')}; failing safely.", file=sys.stderr)
-            return 1
+    if unresolved and not args.write_partial:
+        print(f"{len(unresolved)} bill(s) could not be summarized: {', '.join(unresolved)}", file=sys.stderr)
+        print("Use --write-partial to publish successful bills anyway.", file=sys.stderr)
+        return 1
+    if unresolved:
+        print(f"Warning: publishing {len(records)} summaries; {len(unresolved)} bill(s) unresolved: {', '.join(unresolved)}", file=sys.stderr)
     write_output(records, args.output); update_feed(Path("Lariat-real/feed.html"))
     print(f"Saved {len(records)} summaries; unresolved failures: {failures}"); return 1 if failures else 0
 
@@ -525,6 +532,7 @@ def write_output(records: list[dict[str, Any]], path: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or REQUESTED_MODEL); parser.add_argument("--delay", type=float, default=1.0); return parser.parse_args()
+    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or REQUESTED_MODEL); parser.add_argument("--delay", type=float, default=1.0); parser.add_argument("--write-partial", action="store_true", help="Write output even when some bills fail")
+    return parser.parse_args()
 
 if __name__ == "__main__": raise SystemExit(main())
