@@ -91,7 +91,7 @@ def capitol_url(bill: dict[str, Any]) -> str:
     return str(bill.get("openstates_url") or "https://capitol.texas.gov/")
 
 
-def fetch_url_bytes(url: str, *, attempts: int = 2, timeout: int = 30) -> bytes:
+def fetch_url_bytes(url: str, *, attempts: int = 3, timeout: int = 60) -> bytes:
     """Fetch an official page with bounded retries for transient failures."""
     last_error: Exception | None = None
     for attempt in range(1, attempts + 1):
@@ -108,7 +108,7 @@ def fetch_url_bytes(url: str, *, attempts: int = 2, timeout: int = 30) -> bytes:
             if isinstance(exc, HTTPError) and exc.code not in {408, 425, 429} and exc.code < 500:
                 break
             if attempt < attempts:
-                time.sleep(min(3 * attempt, 12))
+                time.sleep(min(5 * attempt, 20))
     raise RuntimeError(f"official page request failed after {attempts} attempts: {last_error}")
 
 
@@ -167,7 +167,7 @@ def load_text_cache(bill: dict[str, Any]) -> tuple[str, str] | None:
 
 def extract_document_text(url: str) -> str:
     """Download an HTML or PDF bill document and extract visible text."""
-    raw = fetch_url_bytes(url, attempts=2, timeout=45)
+    raw = fetch_url_bytes(url, attempts=3, timeout=60)
     if url.lower().split("?", 1)[0].endswith(".pdf") or raw.startswith(b"%PDF"):
         if not shutil.which("pdftotext"):
             raise RuntimeError("official document is a PDF but pdftotext is unavailable")
@@ -532,7 +532,7 @@ def write_output(records: list[dict[str, Any]], path: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or REQUESTED_MODEL); parser.add_argument("--delay", type=float, default=1.0); parser.add_argument("--write-partial", action="store_true", help="Write output even when some bills fail")
+    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or REQUESTED_MODEL); parser.add_argument("--delay", type=float, default=2.0); parser.add_argument("--write-partial", action="store_true", help="Write output even when some bills fail")
     return parser.parse_args()
 
 if __name__ == "__main__": raise SystemExit(main())
