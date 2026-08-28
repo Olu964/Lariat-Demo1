@@ -68,6 +68,7 @@ jobs:
           fi
 
       - name: Commit regenerated summaries (only when something changed)
+        if: always()
         run: |
           git config user.name "lariat-bot"
           git config user.email "lariat-bot@users.noreply.github.com"
