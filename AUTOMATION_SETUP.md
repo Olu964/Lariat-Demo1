@@ -40,7 +40,7 @@ The scheduled run executes daily at 13:00 UTC and has a 45-minute maximum runtim
 2. The summarizer first checks the persistent GitHub Actions cache, then tries direct official document/version URLs from Open States, and finally uses the public Texas bill-history page.
 3. The document text is hashed with SHA-256.
 4. OpenRouter receives the official bill text and record metadata, not visitor information.
-5. The result must be valid JSON and its main summary must contain 70–150 words. If a model reaches its capacity, the same request is retried with the next available free model.
+5. OpenRouter generates only the `summary` field as JSON. The script validates that summary at 70–150 words and preserves existing display fields, so models do not need to generate the entire record schema. If a model reaches its capacity or returns unusable output, the request is retried with the next available free model.
 6. A short result receives one explicit expansion request using the same bill text.
 7. A matching text hash reuses the existing valid summary without another AI call.
 8. The output stores the bill-text URL, text hash, word count, and `summary_source`.

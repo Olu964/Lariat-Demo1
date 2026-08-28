@@ -35,23 +35,14 @@ INDUSTRY_LIST = ", ".join(f'"{item}"' for item in INDUSTRIES)
 STATUS_VALUES = "alive, active, pending, passed, signed, enacted, adopted, failed, did not pass, died, replaced"
 SCRIPT_OWNED_FIELDS = ("id", "identifier", "session", "updated_at", "source_url")
 
-SYSTEM_PROMPT = f"""You are a neutral Texas legislative analyst. Use ONLY the supplied official bill text and record metadata. Never invent facts. Return one JSON object only, with no markdown or commentary, containing exactly the requested structured fields. The summary MUST be one paragraph of 70-150 words, counting whitespace-separated words. It must explain the bill's purpose, operative changes, affected parties, important requirements/exceptions/funding/effective date when present, and recorded legislative status. If full text is unavailable or incomplete, say so explicitly and avoid guessing. For ceremonial resolutions, explain that they have no legal effect. This is informational, not legal advice."""
+SYSTEM_PROMPT = f"""You are a neutral Texas legislative analyst. Use ONLY the supplied official bill text and record metadata. Never invent facts. Return one JSON object only, with no markdown or commentary, containing exactly one key: summary. The summary MUST be one neutral paragraph of 70-150 words, counting whitespace-separated words. Explain the bill's purpose, operative changes, affected parties, important requirements, exceptions, funding, effective date, and recorded legislative status when present. If full text is incomplete, say so explicitly and avoid guessing. For ceremonial resolutions, explain that they have no legal effect. This is informational, not legal advice."""
 
-RECORD_SCHEMA: dict[str, Any] = {
+SUMMARY_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "title": {"type": "string", "description": "A concise 2-8 word title."},
         "summary": {"type": "string", "description": "One neutral paragraph of 70-150 words."},
-        "affects": {"type": "string"},
-        "changes": {"type": "string"},
-        "business_impact": {"type": "string"},
-        "impact_level": {"type": "string", "enum": ["High", "Moderate", "Low"]},
-        "industry": {"type": "string", "enum": INDUSTRIES},
-        "specific_industry": {"type": "string"},
-        "status": {"type": "string"},
-        "suggested_action": {"type": "string"},
     },
-    "required": ["title", "summary", "affects", "changes", "business_impact", "impact_level", "industry", "specific_industry", "status", "suggested_action"],
+    "required": ["summary"],
     "additionalProperties": False,
 }
 
@@ -409,19 +400,7 @@ def extract_json(text: str) -> dict[str, Any] | None:
 def word_count(value: Any) -> int: return len(re.findall(r"\b\w+(?:['’-]\w+)*\b", str(value or "")))
 
 
-def validate_ai_record(record: dict[str, Any]) -> dict[str, Any]:
-    """Reject incomplete model objects before they can become published data."""
-    required = (
-        "title", "summary", "affects", "changes", "business_impact",
-        "impact_level", "industry", "specific_industry", "status", "suggested_action",
-    )
-    missing = [field for field in required if not isinstance(record.get(field), str) or not record[field].strip()]
-    if missing:
-        raise ValueError(f"AI output is missing required fields: {', '.join(missing)}")
-    return record
-
-
-EXPANSION_PROMPT = f"""You are revising a Texas legislative bill summary. Use ONLY the supplied official bill text, metadata, and draft. Return the same JSON object with exactly the same keys. Replace only the summary with one neutral paragraph between {MIN_SUMMARY_WORDS} and {MAX_SUMMARY_WORDS} words. Add useful facts from the official text such as operative changes, affected parties, requirements, exceptions, funding, or effective dates when present. Do not pad with repetition or invent facts. Keep all other fields accurate and consistent with the text. Return JSON only."""
+EXPANSION_PROMPT = f"""You are revising a Texas legislative bill summary. Use ONLY the supplied official bill text, metadata, and draft. Return one JSON object containing exactly one key: summary. Replace the draft with one neutral paragraph between {MIN_SUMMARY_WORDS} and {MAX_SUMMARY_WORDS} words. Add useful facts from the official text such as operative changes, affected parties, requirements, exceptions, funding, or effective dates when present. Do not pad with repetition or invent facts. Return JSON only."""
 
 
 def generate_ai_record(context: str, models: list[str], start_index: int, api_key: str) -> tuple[dict[str, Any], int]:
@@ -431,17 +410,15 @@ def generate_ai_record(context: str, models: list[str], start_index: int, api_ke
         model = models[index]
         try:
             output = extract_json(call_ai(context, model, api_key))
-            if output is None:
-                raise ValueError("AI output was not valid JSON")
-            validate_ai_record(output)
+            if output is None or not isinstance(output.get("summary"), str):
+                raise ValueError("AI output was not a valid summary object")
             count = word_count(output.get("summary"))
             if MIN_SUMMARY_WORDS <= count <= MAX_SUMMARY_WORDS:
                 return output, index
             revision_context = f"{context}\n\nDRAFT JSON TO REVISE:\n{json.dumps(output, ensure_ascii=False)}\n\nThe draft summary contains {count} words. Rewrite it to exactly {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS} words."
             revised = extract_json(call_ai(revision_context, model, api_key, system_prompt=EXPANSION_PROMPT))
-            if revised is None:
-                raise ValueError("AI expansion output was not valid JSON")
-            validate_ai_record(revised)
+            if revised is None or not isinstance(revised.get("summary"), str):
+                raise ValueError("AI expansion output was not a valid summary object")
             revised_count = word_count(revised.get("summary"))
             if not MIN_SUMMARY_WORDS <= revised_count <= MAX_SUMMARY_WORDS:
                 raise ValueError(f"summary has {revised_count} words after expansion; expected {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS}")
@@ -453,19 +430,50 @@ def generate_ai_record(context: str, models: list[str], start_index: int, api_ke
     raise RuntimeError(f"All OpenRouter models failed to produce a valid summary: {last_error}") from last_error
 
 
-def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None, text_hash: str | None) -> dict[str, Any]:
-    for field in SCRIPT_OWNED_FIELDS:
-        record[field] = {"id": str(bill.get("id") or ""), "identifier": str(bill.get("identifier") or "Unknown"), "session": str(bill.get("session") or ""), "updated_at": date.today().isoformat(), "source_url": capitol_url(bill)}[field]
-    record["summary"] = str(record.get("summary") or "").strip()
-    if not 70 <= word_count(record["summary"]) <= 150: raise ValueError(f"summary has {word_count(record['summary'])} words; expected 70-150")
-    for field in ("title", "affects", "changes", "business_impact", "suggested_action"): record[field] = str(record.get(field) or "Not provided").strip()
-    record["impact_level"] = {"high": "High", "moderate": "Moderate", "low": "Low"}.get(str(record.get("impact_level") or "").lower(), "Low")
-    record["status"] = str(record.get("status") or "pending").lower()
-    record["industry"] = str(record.get("industry") or "N/A") if str(record.get("industry") or "N/A") in INDUSTRIES else "Government & Municipal Operations"
-    record["specific_industry"] = str(record.get("specific_industry") or "N/A")
-    if text_url: record["bill_text_source"] = text_url
-    if text_hash: record["bill_text_hash"] = text_hash; record["summary_word_count"] = word_count(record["summary"]); record["summary_source"] = "official bill text"
-    return record
+def fallback_display_fields(bill: dict[str, Any], old: dict[str, Any] | None) -> dict[str, str]:
+    """Provide non-AI display fields without inventing legislative details."""
+    identifier = str(bill.get("identifier") or "Unknown")
+    bill_title = str(bill.get("title") or identifier).strip().rstrip(".")
+    subjects = [str(subject).strip() for subject in (bill.get("subject") or []) if str(subject).strip()]
+    classification = {str(value).lower() for value in (bill.get("classification") or [])}
+    ceremonial = bool(classification.intersection({"resolution", "memorial", "congratulatory"}))
+    if old:
+        fields = {key: str(old.get(key) or "").strip() for key in (
+            "title", "affects", "changes", "business_impact", "impact_level",
+            "industry", "specific_industry", "status", "suggested_action",
+        )}
+    else:
+        fields = {}
+    fields["title"] = fields.get("title") or bill_title
+    fields["affects"] = fields.get("affects") or ("N/A - ceremonial resolution" if ceremonial else ", ".join(subjects[:3]) or "Affected parties identified in the official text")
+    fields["changes"] = fields.get("changes") or ("N/A - no substantive policy change" if ceremonial else f"See the official text for changes proposed by {identifier}.")
+    fields["business_impact"] = fields.get("business_impact") or ("N/A - no business impact" if ceremonial else "Practical effects should be determined from the official text and the bill's current status.")
+    fields["impact_level"] = fields.get("impact_level") or "Low"
+    fields["industry"] = fields.get("industry") if fields.get("industry") in INDUSTRIES else "N/A"
+    fields["specific_industry"] = fields.get("specific_industry") or "N/A"
+    fields["status"] = fields.get("status") or "pending"
+    fields["suggested_action"] = fields.get("suggested_action") or "Review the official bill text and monitor the recorded legislative status."
+    return fields
+
+
+def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None, text_hash: str | None, old: dict[str, Any] | None = None) -> dict[str, Any]:
+    fields = fallback_display_fields(bill, old)
+    output = {**fields, "summary": str(record.get("summary") or "").strip()}
+    output.update({
+        "id": str(bill.get("id") or ""),
+        "identifier": str(bill.get("identifier") or "Unknown"),
+        "session": str(bill.get("session") or ""),
+        "updated_at": date.today().isoformat(),
+        "source_url": capitol_url(bill),
+    })
+    if not 70 <= word_count(output["summary"]) <= 150:
+        raise ValueError(f"summary has {word_count(output['summary'])} words; expected 70-150")
+    if text_url: output["bill_text_source"] = text_url
+    if text_hash:
+        output["bill_text_hash"] = text_hash
+        output["summary_word_count"] = word_count(output["summary"])
+        output["summary_source"] = "official bill text"
+    return output
 
 
 def is_placeholder(record: dict[str, Any] | None) -> bool:
@@ -496,7 +504,7 @@ def main() -> int:
             if old and old.get("bill_text_hash") == digest and 70 <= word_count(old.get("summary")) <= 150:
                 records.append(old); print(f"[{index}/{len(bills)}] {identifier} -> cached"); continue
             output, active_model_index = generate_ai_record(bill_context(bill, text, text_url), models, active_model_index, api_key)
-            records.append(normalize(output, bill, text_url, digest)); print(f"[{index}/{len(bills)}] {identifier} -> AI ({models[active_model_index]})")
+            records.append(normalize(output, bill, text_url, digest, old)); print(f"[{index}/{len(bills)}] {identifier} -> AI ({models[active_model_index]})")
             time.sleep(args.delay)
         except Exception as exc:
             failures += 1; deferred.append((bill, old, str(exc))); print(f"[{index}/{len(bills)}] {identifier} -> deferred: {exc}", file=sys.stderr)
