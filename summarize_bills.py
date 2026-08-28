@@ -128,7 +128,7 @@ def bill_context(bill: dict[str, Any], text: str, text_url: str) -> str:
     return f"RECORD METADATA:\n{metadata}\n\nOFFICIAL BILL TEXT:\n{text[:120000]}"
 
 
-def choose_openrouter_model(api_key: str, requested: str | None) -> str:
+def choose_openrouter_models(api_key: str, requested: str | None) -> list[str]:
     request = Request(
         OPENROUTER_MODELS_URL,
         headers={"Authorization": f"Bearer {api_key}", "Accept": "application/json"},
@@ -148,22 +148,42 @@ def choose_openrouter_model(api_key: str, requested: str | None) -> str:
         str(item.get("id")): item for item in models
         if isinstance(item, dict) and isinstance(item.get("id"), str)
     }
-    if requested and requested in available:
-        return requested
-    if requested:
-        print(f"Requested model '{requested}' is unavailable; selecting an available free model.", file=sys.stderr)
     free_models = []
     for model_id, item in available.items():
         pricing = item.get("pricing") if isinstance(item, dict) else None
         if isinstance(pricing, dict) and pricing.get("prompt") == "0" and pricing.get("completion") == "0":
             free_models.append((model_id, item))
     preferred_terms = ("instruct", "chat", "qwen", "llama", "mistral", "nemotron")
-    free_models.sort(key=lambda pair: (not any(term in pair[0].lower() for term in preferred_terms), pair[0]))
-    if not free_models:
+    # Prefer ordinary instruction models over reasoning, multimodal, or audio models
+    # because the summarizer requires concise JSON text.
+    free_models.sort(key=lambda pair: (
+        any(term in pair[0].lower() for term in ("reasoning", "omni", "audio", "vision")),
+        not any(term in pair[0].lower() for term in preferred_terms),
+        pair[0],
+    ))
+    ordered = [model_id for model_id, _ in free_models]
+    if requested and requested in available:
+        ordered = [requested] + [model_id for model_id in ordered if model_id != requested]
+    elif requested:
+        print(f"Requested model '{requested}' is unavailable; selecting available free models.", file=sys.stderr)
+    if not ordered:
         raise RuntimeError("OpenRouter returned no free models")
-    selected = free_models[0][0]
-    print(f"Selected OpenRouter free model: {selected}")
-    return selected
+    # Keep the fallback chain bounded so a batch cannot spend its entire
+    # runtime probing every model in the catalog.
+    ordered = ordered[:8]
+    print(f"OpenRouter model fallback chain: {', '.join(ordered)}")
+    return ordered
+
+
+class ModelCapacityError(RuntimeError):
+    """The selected model cannot accept another request right now."""
+
+
+def is_capacity_error(message: str) -> bool:
+    lowered = message.lower()
+    return any(marker in lowered for marker in (
+        "rate limit", "quota", "resourceexhausted", "request limit", "worker local", "temporarily unavailable", "overloaded", "capacity",
+    ))
 
 
 def call_ai(context: str, model: str, api_key: str, *, system_prompt: str = SYSTEM_PROMPT) -> str:
@@ -194,16 +214,20 @@ def call_ai(context: str, model: str, api_key: str, *, system_prompt: str = SYST
             parsed = json.loads(response.read().decode("utf-8"))
     except HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")[:500]
-        if exc.code == 429:
-            raise RuntimeError(f"OpenRouter rate limit or quota reached (HTTP 429): {body}") from exc
-        raise RuntimeError(f"OpenRouter API HTTP {exc.code}: {body}") from exc
+        message = f"OpenRouter API HTTP {exc.code}: {body}"
+        if exc.code in {429, 502, 503, 504} or is_capacity_error(message):
+            raise ModelCapacityError(message) from exc
+        raise RuntimeError(message) from exc
     except (URLError, TimeoutError, ConnectionError) as exc:
         raise RuntimeError(f"OpenRouter request failed: {exc}") from exc
     if not isinstance(parsed, dict):
         raise RuntimeError("OpenRouter returned an unexpected response shape")
     choices = parsed.get("choices")
     if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
-        raise RuntimeError(f"OpenRouter returned no choices: {str(parsed)[:300]}")
+        message = str(parsed)[:500]
+        if is_capacity_error(message):
+            raise ModelCapacityError(f"OpenRouter model capacity error: {message}")
+        raise RuntimeError(f"OpenRouter returned no choices: {message}")
     message = choices[0].get("message")
     output = message.get("content") if isinstance(message, dict) else None
     if not isinstance(output, str):
@@ -241,19 +265,36 @@ def word_count(value: Any) -> int: return len(re.findall(r"\b\w+(?:['’-]\w+)*\
 EXPANSION_PROMPT = f"""You are revising a Texas legislative bill summary. Use ONLY the supplied official bill text, metadata, and draft. Return the same JSON object with exactly the same keys. Replace only the summary with one neutral paragraph between {MIN_SUMMARY_WORDS} and {MAX_SUMMARY_WORDS} words. Add useful facts from the official text such as operative changes, affected parties, requirements, exceptions, funding, or effective dates when present. Do not pad with repetition or invent facts. Keep all other fields accurate and consistent with the text. Return JSON only."""
 
 
-def generate_ai_record(context: str, model: str, api_key: str) -> dict[str, Any]:
-    """Generate a valid-length record using at most two AI calls."""
-    output = extract_json(call_ai(context, model, api_key))
+def call_with_model_fallback(context: str, models: list[str], start_index: int, api_key: str, *, system_prompt: str = SYSTEM_PROMPT) -> tuple[str, int]:
+    """Retry one request with the next catalog model after a capacity failure."""
+    last_error: Exception | None = None
+    for index in range(start_index, len(models)):
+        model = models[index]
+        try:
+            return call_ai(context, model, api_key, system_prompt=system_prompt), index
+        except ModelCapacityError as exc:
+            last_error = exc
+            print(f"Model unavailable due to capacity; switching from {model} to the next fallback.", file=sys.stderr)
+    if last_error:
+        raise RuntimeError(f"All OpenRouter fallback models reached capacity: {last_error}") from last_error
+    raise RuntimeError("No OpenRouter fallback models are available")
+
+
+def generate_ai_record(context: str, models: list[str], start_index: int, api_key: str) -> tuple[dict[str, Any], int]:
+    """Generate a valid-length record using a bounded model fallback chain."""
+    raw_output, model_index = call_with_model_fallback(context, models, start_index, api_key)
+    output = extract_json(raw_output)
     if output is None: raise RuntimeError("AI output was not valid JSON")
     count = word_count(output.get("summary"))
-    if MIN_SUMMARY_WORDS <= count <= MAX_SUMMARY_WORDS: return output
+    if MIN_SUMMARY_WORDS <= count <= MAX_SUMMARY_WORDS: return output, model_index
     revision_context = f"{context}\n\nDRAFT JSON TO REVISE:\n{json.dumps(output, ensure_ascii=False)}\n\nThe draft summary contains {count} words. Rewrite it to exactly {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS} words."
-    revised = extract_json(call_ai(revision_context, model, api_key, system_prompt=EXPANSION_PROMPT))
+    revised_raw, model_index = call_with_model_fallback(revision_context, models, model_index, api_key, system_prompt=EXPANSION_PROMPT)
+    revised = extract_json(revised_raw)
     if revised is None: raise RuntimeError("AI expansion output was not valid JSON")
     revised_count = word_count(revised.get("summary"))
     if not MIN_SUMMARY_WORDS <= revised_count <= MAX_SUMMARY_WORDS:
         raise ValueError(f"summary has {revised_count} words after expansion; expected {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS}")
-    return revised
+    return revised, model_index
 
 
 def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None, text_hash: str | None) -> dict[str, Any]:
@@ -285,7 +326,8 @@ def main() -> int:
     load_dotenv(Path(".env")); args = parse_args(); bills = read_bills(args.input)
     api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
     if not api_key: raise SystemExit("OPENROUTER_API_KEY is required; refusing to publish metadata-only placeholders")
-    model = choose_openrouter_model(api_key, args.model)
+    models = choose_openrouter_models(api_key, args.model)
+    active_model_index = 0
     existing: dict[str, dict[str, Any]] = {}
     if args.output.exists():
         try: existing = {str(x.get("identifier", "")).lower(): x for x in json.loads(args.output.read_text()) if isinstance(x, dict)}
@@ -297,8 +339,8 @@ def main() -> int:
             text, text_url = fetch_bill_text(bill); digest = hashlib.sha256(text.encode()).hexdigest()
             if old and old.get("bill_text_hash") == digest and 70 <= word_count(old.get("summary")) <= 150:
                 records.append(old); print(f"[{index}/{len(bills)}] {identifier} -> cached"); continue
-            output = generate_ai_record(bill_context(bill, text, text_url), model, api_key)
-            records.append(normalize(output, bill, text_url, digest)); print(f"[{index}/{len(bills)}] {identifier} -> AI")
+            output, active_model_index = generate_ai_record(bill_context(bill, text, text_url), models, active_model_index, api_key)
+            records.append(normalize(output, bill, text_url, digest)); print(f"[{index}/{len(bills)}] {identifier} -> AI ({models[active_model_index]})")
             time.sleep(args.delay)
         except Exception as exc:
             failures += 1; deferred.append((bill, old, str(exc))); print(f"[{index}/{len(bills)}] {identifier} -> deferred: {exc}", file=sys.stderr)
