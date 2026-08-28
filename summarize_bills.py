@@ -297,7 +297,7 @@ def main() -> int:
             text, text_url = fetch_bill_text(bill); digest = hashlib.sha256(text.encode()).hexdigest()
             if old and old.get("bill_text_hash") == digest and 70 <= word_count(old.get("summary")) <= 150:
                 records.append(old); print(f"[{index}/{len(bills)}] {identifier} -> cached"); continue
-            output = generate_ai_record(bill_context(bill, text, text_url), args.model, api_key)
+            output = generate_ai_record(bill_context(bill, text, text_url), model, api_key)
             records.append(normalize(output, bill, text_url, digest)); print(f"[{index}/{len(bills)}] {identifier} -> AI")
             time.sleep(args.delay)
         except Exception as exc:
