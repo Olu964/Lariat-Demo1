@@ -183,13 +183,47 @@ def extract_document_text(url: str) -> str:
                 raise RuntimeError("could not extract text from official PDF")
             return output_path.read_text(encoding="utf-8", errors="replace").strip()
     extractor = TextExtractor(); extractor.feed(raw.decode("utf-8", errors="replace"))
-    return extractor.text()
+    text = extractor.text()
+    # Detect if we got a website interface page instead of actual bill text
+    lowered = text.lower()
+    interface_signals = ["search for a bill", "bill lookup", "bill text", "session information",
+                        "committee information", "member information", "capitol.texas.gov"]
+    if sum(1 for signal in interface_signals if signal in lowered) >= 2:
+        raise RuntimeError("website returned interface page instead of bill text")
+    return text
 
 
 def usable_bill_text(text: str, identifier: str) -> bool:
+    """Check if extracted text is actual bill content, not just the website interface."""
     compact_identifier = identifier.lower().replace(" ", "")
     lowered = text.lower().replace(" ", "")
-    return len(text.split()) >= 100 and (compact_identifier in lowered or "relatingto" in lowered or "resolution" in lowered)
+    word_count = len(text.split())
+    if word_count < 100:
+        return False
+    # Reject if the text is mostly website interface elements
+    interface_indicators = [
+        "search for a bill", "bill lookup", "bill text", "legislative reference library",
+        "session information", "committee information", "member information",
+        "house of representatives", "senate of texas", "capitol.texas.gov",
+        "javascript", "function()", "var ", "document.", "window.",
+        "css", "style=", "class=", "<script", "<style", "<nav", "<header", "<footer",
+        "menu", "navigation", "sidebar", "login", "sign in", "register",
+        "about us", "contact us", "privacy policy", "terms of use",
+    ]
+    interface_matches = sum(1 for indicator in interface_indicators if indicator in lowered)
+    if interface_matches >= 3:
+        return False
+    # Must have bill-specific content
+    has_identifier = compact_identifier in lowered
+    has_relating = "relatingto" in lowered
+    has_resolution = "resolution" in lowered
+    has_bill_content = has_identifier or has_relating or has_resolution
+    # Additional check: look for typical bill text patterns
+    bill_patterns = ["section ", "sec. ", "amended by", "enacted by", "the legislature",
+                    "notwithstanding", "hereunder", "thereof", "pursuant to",
+                    "effective date", "takes effect", "this act"]
+    pattern_matches = sum(1 for pattern in bill_patterns if pattern in lowered)
+    return has_bill_content and pattern_matches >= 2
 
 
 def fetch_bill_text(bill: dict[str, Any]) -> tuple[str, str]:
