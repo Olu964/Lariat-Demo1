@@ -529,7 +529,10 @@ def main() -> int:
     if unresolved:
         print(f"Warning: publishing {len(records)} summaries; {len(unresolved)} bill(s) unresolved: {', '.join(unresolved)}", file=sys.stderr)
     write_output(records, args.output); update_feed(Path("Lariat-real/feed.html"))
-    print(f"Saved {len(records)} summaries; unresolved failures: {failures}"); return 1 if failures else 0
+    print(f"Saved {len(records)} summaries; unresolved failures: {failures}")
+    if failures and not args.write_partial:
+        return 1
+    return 0 if records else 1
 
 
 def write_output(records: list[dict[str, Any]], path: Path) -> None:
