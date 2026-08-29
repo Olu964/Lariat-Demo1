@@ -509,6 +509,12 @@ def main() -> int:
         except Exception as exc:
             failures += 1; deferred.append((bill, old, str(exc))); print(f"[{index}/{len(bills)}] {identifier} -> deferred: {exc}", file=sys.stderr)
             if old and MIN_SUMMARY_WORDS <= word_count(old.get("summary")) <= MAX_SUMMARY_WORDS: records.append(old)
+    # Merge with any existing bills that were not in this run's input.
+    # This preserves old summaries when the workflow fetches a different subset of bills.
+    processed_identifiers = {str(r.get("identifier", "")).lower() for r in records}
+    for identifier, old_record in existing.items():
+        if identifier not in processed_identifiers and MIN_SUMMARY_WORDS <= word_count(old_record.get("summary")) <= MAX_SUMMARY_WORDS:
+            records.append(old_record)
     # A failed bill is not retried with another full page crawl in this run.
     # This keeps the batch bounded and lets the next scheduled run try again.
     unresolved = []
