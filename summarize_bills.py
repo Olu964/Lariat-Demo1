@@ -91,6 +91,29 @@ def capitol_url(bill: dict[str, Any]) -> str:
     return str(bill.get("openstates_url") or "https://capitol.texas.gov/")
 
 
+def ftp_bill_url(bill: dict[str, Any]) -> str | None:
+    """Construct FTP URL for bill text if possible."""
+    session = str(bill.get("session") or "").strip()
+    identifier = str(bill.get("identifier") or "").strip()
+    if not session or not identifier:
+        return None
+    # Parse bill type and number (e.g., "SB 1" -> type="SB", number="1")
+    parts = identifier.split()
+    if len(parts) != 2:
+        return None
+    bill_type, bill_num = parts[0].upper(), parts[1]
+    # Map bill types to FTP directories
+    type_map = {"SB": "senate/bill", "HB": "house/bill", "SR": "senate/resolution",
+                "HR": "house/resolution", "SJR": "senate/jointresolution",
+                "HJR": "house/jointresolution"}
+    ftp_type = type_map.get(bill_type)
+    if not ftp_type:
+        return None
+    # Pad bill number to 4 digits
+    padded_num = bill_num.zfill(4)
+    return f"ftp://ftp.legis.state.tx.us/bills/{ftp_type}/{session}/{padded_num}/bill.doc"
+
+
 def fetch_url_bytes(url: str, *, attempts: int = 3, timeout: int = 60) -> bytes:
     """Fetch an official page with bounded retries for transient failures."""
     last_error: Exception | None = None
@@ -249,6 +272,17 @@ def fetch_bill_text(bill: dict[str, Any]) -> tuple[str, str]:
                 return text, url
         except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError):
             continue
+
+    # Try FTP site (more reliable than the website)
+    ftp_url = ftp_bill_url(bill)
+    if ftp_url:
+        try:
+            text = extract_document_text(ftp_url)
+            if usable_bill_text(text, identifier):
+                save_text_cache(bill, text, ftp_url)
+                return text, ftp_url
+        except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError):
+            pass
 
     history_url = capitol_url(bill)
     html = fetch_html(history_url); parser = LinkExtractor(); parser.feed(html)
