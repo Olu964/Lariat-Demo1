@@ -91,6 +91,43 @@ def capitol_url(bill: dict[str, Any]) -> str:
     return str(bill.get("openstates_url") or "https://capitol.texas.gov/")
 
 
+def capitol_text_url(bill: dict[str, Any]) -> str | None:
+    """Construct direct bill text page URL."""
+    session = str(bill.get("session") or "").strip()
+    identifier = str(bill.get("identifier") or "").strip()
+    if not session or not identifier:
+        return None
+    return f"https://capitol.texas.gov/BillLookup/Text.aspx?LegSess={session}&Bill={identifier.replace(' ', '')}"
+
+
+def capitol_pdf_urls(bill: dict[str, Any]) -> list[str]:
+    """Construct direct PDF bill text URLs from the known tlodocs pattern.
+    Returns enrolled, engrossed, introduced, and substitute variants."""
+    session = str(bill.get("session") or "").strip()
+    identifier = str(bill.get("identifier") or "").strip()
+    if not session or not identifier:
+        return []
+    parts = identifier.split()
+    if len(parts) != 2:
+        return []
+    bill_type, bill_num = parts[0].upper(), parts[1]
+    padded = f"{bill_type}{bill_num.zfill(4)}"
+    padded5 = f"{bill_type}{bill_num.zfill(5)}"
+    base = f"https://capitol.texas.gov/tlodocs/{session}/billtext/pdf/{padded}"
+    base5 = f"https://capitol.texas.gov/tlodocs/{session}/billtext/pdf/{padded5}"
+    # Try engrossed first (most complete), then introduced, then substitute
+    # Try both 4-digit and 5-digit zero padding
+    # HTML versions are easier to parse (no pdftotext needed)
+    urls = []
+    html_base = base.replace('/billtext/pdf/', '/billtext/html/')
+    html_base5 = base5.replace('/billtext/pdf/', '/billtext/html/')
+    for hb, pb in ((html_base, base), (html_base5, base5)):
+        for ver in ('E', 'I', 'S', 'H'):
+            urls.append(f"{hb}{ver}.htm")
+            urls.append(f"{pb}{ver}.pdf")
+    return urls
+
+
 def ftp_bill_url(bill: dict[str, Any]) -> str | None:
     """Construct FTP URL for bill text if possible."""
     session = str(bill.get("session") or "").strip()
@@ -272,6 +309,27 @@ def fetch_bill_text(bill: dict[str, Any]) -> tuple[str, str]:
                 return text, url
         except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError):
             continue
+
+    # Try direct PDF URLs from tlodocs (most reliable source for bill text)
+    for pdf_url in capitol_pdf_urls(bill):
+        try:
+            text = extract_document_text(pdf_url)
+            if usable_bill_text(text, identifier):
+                save_text_cache(bill, text, pdf_url)
+                return text, pdf_url
+        except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError):
+            continue
+
+    # Try direct Text.aspx page
+    text_page_url = capitol_text_url(bill)
+    if text_page_url:
+        try:
+            text = extract_document_text(text_page_url)
+            if usable_bill_text(text, identifier):
+                save_text_cache(bill, text, text_page_url)
+                return text, text_page_url
+        except (HTTPError, URLError, TimeoutError, ConnectionError, RuntimeError):
+            pass
 
     # Try FTP site (more reliable than the website)
     ftp_url = ftp_bill_url(bill)
