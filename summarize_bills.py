@@ -279,11 +279,13 @@ def usable_bill_text(text: str, identifier: str) -> bool:
     has_resolution = "resolution" in lowered
     has_bill_content = has_identifier or has_relating or has_resolution
     # Additional check: look for typical bill text patterns
+    # Check against lowered-with-spaces (not compact) since patterns contain spaces
+    lowered_with_spaces = text.lower()
     bill_patterns = ["section ", "sec. ", "amended by", "enacted by", "the legislature",
                     "notwithstanding", "hereunder", "thereof", "pursuant to",
                     "effective date", "takes effect", "this act"]
-    pattern_matches = sum(1 for pattern in bill_patterns if pattern in lowered)
-    return has_bill_content and pattern_matches >= 2
+    pattern_matches = sum(1 for pattern in bill_patterns if pattern in lowered_with_spaces)
+    return has_bill_content and pattern_matches >= 1
 
 
 def fetch_bill_text(bill: dict[str, Any]) -> tuple[str, str]:
