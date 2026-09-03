@@ -17,6 +17,10 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      # Both scheduled and manual runs use this same default. A manual run may
+      # override it intentionally through workflow_dispatch.inputs.limit.
+      FETCH_LIMIT: ${{ inputs.limit || '25' }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -50,7 +54,6 @@ jobs:
         env:
           OPEN_STATES_API_KEY: ${{ secrets.OPEN_STATES_API_KEY }}
           LARIAT_SESSION: ${{ vars.LARIAT_SESSION }}
-          FETCH_LIMIT: ${{ inputs.limit || '25' }}
         run: |
           ARGS=(--limit "$FETCH_LIMIT")
           if [ -n "$LARIAT_SESSION" ]; then ARGS+=(--session "$LARIAT_SESSION"); fi
@@ -61,11 +64,9 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           SUMMARIZER_MODEL: ${{ vars.SUMMARIZER_MODEL }}
         run: |
-          if [ -n "$SUMMARIZER_MODEL" ]; then
-            python3 summarize_bills.py --model "$SUMMARIZER_MODEL" --write-partial
-          else
-            python3 summarize_bills.py --write-partial
-          fi
+          ARGS=(--write-partial)
+          if [ -n "$SUMMARIZER_MODEL" ]; then ARGS+=(--model "$SUMMARIZER_MODEL"); fi
+          python3 summarize_bills.py "${ARGS[@]}"
 
       - name: Commit regenerated summaries (only when something changed)
         if: always()

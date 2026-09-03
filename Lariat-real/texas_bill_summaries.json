@@ -9,16 +9,14 @@
     "specific_industry": "N/A",
     "status": "enacted",
     "suggested_action": "Monitor the Department of State Health Services for updates on implementing the new safety measures.",
-    "summary": "The full text of SB 1 is not available in the provided output; only the Texas Legislature Online website interface and metadata were provided. Based on available metadata, this bill relates to campground and youth camp safety, is titled the 'Heaven's 27 Camp Safety Act' (likely in reference to fatalities during Hurricane Harvey), and passed the 89th Legislature Second Called Session on September 4, 2025, becoming effective immediately. The bill affects youth camps, campground operators, and organizations responsible for minors' safety. Subjects include emergency management, health and human services, recreational facilities, and disaster preparedness. Without access to the actual statutory text, the specific requirements, exceptions, funding provisions, and operative changes cannot be summarized. Interested parties should consult the official bill text directly at the provided URL for complete details.",
+    "summary": "SB 1 is a Texas legislative record titled campground and youth camp safety. Available metadata lists emergency management and records effective immediately. Official bill text was unavailable, so specific provisions require verification from the official source.",
     "id": "ocd-bill/af45d80f-4ff1-4a5e-8ec9-6dfa01241cf8",
     "identifier": "SB 1",
     "session": "892",
     "updated_at": "2026-08-29",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB1",
-    "bill_text_source": "https://capitol.texas.gov/BillLookup/Text.aspx?LegSess=892&Bill=SB1",
-    "bill_text_hash": "7251dedad5df28d1c483430fb2300ffdac4cd8d2ce2d825c371b99ba58e2dd23",
-    "summary_word_count": 129,
-    "summary_source": "official bill text"
+    "summary_word_count": 36,
+    "summary_source": "metadata"
   },
   {
     "title": "Voter-approval tax rate reform",
@@ -64,7 +62,7 @@
   },
   {
     "title": "Disaster Response and Recovery Licensing",
-    "summary": "This bill requires a license for disaster response and recovery activities and authorizes fees. The record shows the bill was passed by the Senate and House and is now in conference committee. Final status must be verified. The bill affects disaster response and recovery professionals and businesses involved in these activities. It changes the licensing requirements for disaster response and recovery activities and authorizes fees for these licenses. The practical impact on businesses is that they may need to obtain a license to operate in disaster response and recovery. The impact level is Moderate. The industry is Government & Municipal Operations. The specific industry is Disaster Preparedness & Relief. The status is pending. Businesses should watch for updates on the bill's final status and any changes to licensing requirements.",
+    "summary": "SB 2 is a Texas legislative record concerning disaster preparedness, response, and recovery, with metadata noting licensing and fees. Official bill text was unavailable, so specific provisions require verification from the official source.",
     "affects": "disaster response and recovery professionals and businesses",
     "changes": "requires a license for disaster response and recovery activities and authorizes fees",
     "business_impact": "may need to obtain a license to operate in disaster response and recovery",
@@ -77,7 +75,9 @@
     "identifier": "SB 2",
     "session": "892",
     "updated_at": "2026-08-24",
-    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB2"
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB2",
+    "summary_word_count": 33,
+    "summary_source": "metadata"
   },
   {
     "title": "Real Property Theft and Fraud Laws",
@@ -341,16 +341,14 @@
     "specific_industry": "N/A",
     "status": "pending",
     "suggested_action": "No action needed. Monitor the bill for updates on its status and potential implementation.",
-    "summary": "This is House Resolution 23 from the 89th Legislature, filed on July 22, 2025. The resolution is a legislative policy statement urging Governor Greg Abbott to return all federal funds received via a federal reconciliation bill to Texas taxpayers through property tax relief. As a House resolution rather than an enacted bill, this measure carries no binding legal authority and serves only to express the chamber's policy position. The resolution does not itself appropriate funds or create any legal requirements. It affects Texas property taxpayers potentially benefiting from property tax relief. No funding is allocated by this resolution, and its effectiveness depends entirely on the Governor's voluntary action. The full text of the resolution was not accessible at the time of this summary, so details regarding specific fund amounts, implementation mechanisms, or any exceptions are not available from the official record.",
+    "summary": "HR 23 is a Texas legislative record titled urging Governor to return tax relief. Available metadata identifies a proposed property-tax relief resolution. Official bill text was unavailable, so specific provisions require verification from the official source.",
     "id": "ocd-bill/59a205be-7898-4654-994b-e1a47c699216",
     "identifier": "HR 23",
     "session": "891",
     "updated_at": "2026-08-29",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=891&Bill=HR23",
-    "bill_text_source": "https://capitol.texas.gov/BillLookup/Text.aspx?LegSess=891&Bill=HR23",
-    "bill_text_hash": "dc6fc24c0863f249b1fb14caaca7c1c5d8e71a7e70b240fc65b08e57c8d78bc1",
-    "summary_word_count": 141,
-    "summary_source": "official bill text"
+    "summary_word_count": 36,
+    "summary_source": "metadata"
   },
   {
     "title": "Senate and House Quorum Rule Change",
@@ -362,16 +360,14 @@
     "specific_industry": "N/A",
     "status": "pending",
     "suggested_action": "No action is required at this time. Final status will be determined after the bill is passed or fails to pass.",
-    "summary": "HJR 40 is a House Joint Resolution filed on August 12, 2025, during the 89th Legislature Second Called Session. The resolution proposes a constitutional amendment relating to the determination of a quorum of the Texas Senate or House of Representatives. The full text of the resolution is not available in the provided record, preventing a detailed summary of its specific provisions, requirements, or scope. As a joint resolution proposing a constitutional amendment, if passed by two-thirds of the members of each chamber, the measure would be submitted to Texas voters for ratification. The bill's sponsors, fiscal implications, exceptions, and effective date provisions require access to the complete official text. Vote information for the measure is currently unavailable.",
+    "summary": "HJR 40 is a Texas legislative record concerning Senate and House quorum rules. Available metadata identifies a proposed constitutional amendment affecting legislative quorum requirements. Official bill text was unavailable, so specific provisions require verification from the official source.",
     "id": "ocd-bill/7d314116-aba8-4366-a153-77c655ea14f2",
     "identifier": "HJR 40",
     "session": "891",
     "updated_at": "2026-08-29",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=891&Bill=HJR40",
-    "bill_text_source": "https://capitol.texas.gov/BillLookup/Text.aspx?LegSess=891&Bill=HJR40",
-    "bill_text_hash": "f5d059cf2f9336485264eaf941877a86ef7dc53de95f79830b9df76f3bf60009",
-    "summary_word_count": 117,
-    "summary_source": "official bill text"
+    "summary_word_count": 38,
+    "summary_source": "metadata"
   },
   {
     "title": "Congratulating Fraternal Order of Eagles",
@@ -417,7 +413,7 @@
   },
   {
     "title": "Constitutional Amendment to Limit Commercial Property Taxes",
-    "summary": "This joint resolution proposes a constitutional amendment to allow the legislature to cap the maximum appraised value of certain commercial real property for ad valorem tax purposes. The record shows the bill was filed with no further action recorded. Final status must be verified. The bill proposes a change to the state constitution.",
+    "summary": "HJR 21 is a Texas legislative record concerning commercial property tax appraisal. Metadata identifies a proposed constitutional amendment with no further action recorded. Official bill text was unavailable, so specific provisions require verification from the official source.",
     "affects": "Commercial property owners",
     "changes": "Proposes a constitutional amendment to limit maximum appraised value of commercial real property for tax purposes.",
     "business_impact": "Businesses with commercial property may benefit from reduced tax liability if the amendment is passed.",
@@ -430,7 +426,9 @@
     "identifier": "HJR 21",
     "session": "891",
     "updated_at": "2026-08-24",
-    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=891&Bill=HJR21"
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=891&Bill=HJR21",
+    "summary_word_count": 37,
+    "summary_source": "metadata"
   },
   {
     "title": "Attorney General Enforcement Authority",

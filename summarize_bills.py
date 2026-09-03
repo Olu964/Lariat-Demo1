@@ -28,6 +28,8 @@ OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
 MIN_SUMMARY_WORDS = 50
 MAX_SUMMARY_WORDS = 200
+MIN_METADATA_SUMMARY_WORDS = 30
+MAX_METADATA_SUMMARY_WORDS = 40
 FEED_META_PATTERN = re.compile(r'(<meta name="lariat-data-updated" content=")[^"]*(")')
 
 INDUSTRIES = ["Energy & Utilities", "Government & Municipal Operations", "Emergency & Public Safety", "Real Estate & Land Use", "Insurance & Financial Services", "N/A"]
@@ -531,25 +533,35 @@ def word_count(value: Any) -> int: return len(re.findall(r"\b\w+(?:['’-]\w+)*\
 EXPANSION_PROMPT = f"""You are revising a Texas legislative bill summary. Use ONLY the supplied official bill text, metadata, and draft. Return one JSON object containing exactly one key: summary. Replace the draft with one neutral paragraph between {MIN_SUMMARY_WORDS} and {MAX_SUMMARY_WORDS} words. Add useful facts from the official text such as operative changes, affected parties, requirements, exceptions, funding, or effective dates when present. Do not pad with repetition or invent facts. Return JSON only."""
 
 
-def generate_ai_record(context: str, models: list[str], start_index: int, api_key: str) -> tuple[dict[str, Any], int]:
+def generate_ai_record(
+    context: str,
+    models: list[str],
+    start_index: int,
+    api_key: str,
+    *,
+    min_words: int = MIN_SUMMARY_WORDS,
+    max_words: int = MAX_SUMMARY_WORDS,
+    system_prompt: str = SYSTEM_PROMPT,
+    expansion_prompt: str = EXPANSION_PROMPT,
+) -> tuple[dict[str, Any], int]:
     """Try each model once, including one bounded expansion request."""
     last_error: Exception | None = None
     for index in range(start_index, len(models)):
         model = models[index]
         try:
-            output = extract_json(call_ai(context, model, api_key))
+            output = extract_json(call_ai(context, model, api_key, system_prompt=system_prompt))
             if output is None or not isinstance(output.get("summary"), str):
                 raise ValueError("AI output was not a valid summary object")
             count = word_count(output.get("summary"))
-            if MIN_SUMMARY_WORDS <= count <= MAX_SUMMARY_WORDS:
+            if min_words <= count <= max_words:
                 return output, index
-            revision_context = f"{context}\n\nDRAFT JSON TO REVISE:\n{json.dumps(output, ensure_ascii=False)}\n\nThe draft summary contains {count} words. Rewrite it to exactly {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS} words."
-            revised = extract_json(call_ai(revision_context, model, api_key, system_prompt=EXPANSION_PROMPT))
+            revision_context = f"{context}\n\nDRAFT JSON TO REVISE:\n{json.dumps(output, ensure_ascii=False)}\n\nThe draft summary contains {count} words. Rewrite it to exactly {min_words}-{max_words} words."
+            revised = extract_json(call_ai(revision_context, model, api_key, system_prompt=expansion_prompt))
             if revised is None or not isinstance(revised.get("summary"), str):
                 raise ValueError("AI expansion output was not a valid summary object")
             revised_count = word_count(revised.get("summary"))
-            if not MIN_SUMMARY_WORDS <= revised_count <= MAX_SUMMARY_WORDS:
-                raise ValueError(f"summary has {revised_count} words after expansion; expected {MIN_SUMMARY_WORDS}-{MAX_SUMMARY_WORDS}")
+            if not min_words <= revised_count <= max_words:
+                raise ValueError(f"summary has {revised_count} words after expansion; expected {min_words}-{max_words}")
             return revised, index
         except (ModelCapacityError, RuntimeError, ValueError) as exc:
             last_error = exc
@@ -584,6 +596,67 @@ def fallback_display_fields(bill: dict[str, Any], old: dict[str, Any] | None) ->
     return fields
 
 
+def metadata_summary(bill: dict[str, Any]) -> str:
+    """Create a short, explicitly limited summary when official text is unavailable."""
+    identifier = str(bill.get("identifier") or "Unknown").strip()
+    title = re.sub(r"\s+", " ", str(bill.get("title") or identifier).strip().rstrip(".,;:"))
+    subjects = [re.sub(r"\s+", " ", str(subject).strip()) for subject in (bill.get("subject") or []) if str(subject).strip()]
+    action = re.sub(r"\s+", " ", str(bill.get("latest_action_description") or "").strip().rstrip("."))
+    action_date = str(bill.get("latest_action_date") or bill.get("latest_passage_date") or "").strip()
+    title_words = title.split()[:8]
+    subject_words = " ".join(" ".join(subjects[:2]).split()[:5]) or "no specific subjects"
+    action_words = " ".join(action.split()[:6]) or "no recorded action"
+    date_phrase = f" on {action_date}" if action_date else ""
+
+    # Keep the candidate within the intentionally shorter metadata range while
+    # retaining the most useful public fields available from Open States.
+    for title_limit in range(len(title_words), 1, -1):
+        candidate = (
+            f"{identifier} is a Texas legislative record titled {' '.join(title_words[:title_limit])}. "
+            f"Available metadata lists {subject_words} and records this action: {action_words}{date_phrase}. "
+            "Official bill text was unavailable, so specific provisions require verification from the official source."
+        )
+        if MIN_METADATA_SUMMARY_WORDS <= word_count(candidate) <= MAX_METADATA_SUMMARY_WORDS:
+            return candidate
+
+    fallback = (
+        f"{identifier} is listed in Texas legislative metadata with the title {' '.join(title_words[:4])}. "
+        "Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source."
+    )
+    if word_count(fallback) < MIN_METADATA_SUMMARY_WORDS:
+        fallback += " This is informational, not legal advice."
+    return " ".join(fallback.split()[:MAX_METADATA_SUMMARY_WORDS])
+
+
+def is_valid_official_summary(record: dict[str, Any] | None) -> bool:
+    # A text hash is the durable source marker. The explicit source label was
+    # added later, so legacy hashed records must also remain official-text
+    # summaries rather than being downgraded during a source outage. Explicit
+    # statements that text was unavailable override a stale legacy hash.
+    summary = str(record.get("summary") or "").lower() if isinstance(record, dict) else ""
+    metadata_disclosure = "official bill text was unavailable" in summary or "full text" in summary and "not available" in summary
+    return bool(
+        isinstance(record, dict)
+        and record.get("bill_text_hash")
+        and not metadata_disclosure
+        and str(record.get("summary_source") or "official bill text") == "official bill text"
+        and MIN_SUMMARY_WORDS <= word_count(record.get("summary")) <= MAX_SUMMARY_WORDS
+    )
+
+
+def is_valid_metadata_summary(record: dict[str, Any] | None) -> bool:
+    return bool(
+        isinstance(record, dict)
+        and str(record.get("summary_source") or "") == "metadata"
+        and not record.get("bill_text_hash")
+        and MIN_METADATA_SUMMARY_WORDS <= word_count(record.get("summary")) <= MAX_METADATA_SUMMARY_WORDS
+    )
+
+
+def is_valid_summary(record: dict[str, Any] | None) -> bool:
+    return is_valid_official_summary(record) or is_valid_metadata_summary(record)
+
+
 def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None, text_hash: str | None, old: dict[str, Any] | None = None) -> dict[str, Any]:
     fields = fallback_display_fields(bill, old)
     output = {**fields, "summary": str(record.get("summary") or "").strip()}
@@ -604,6 +677,26 @@ def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None
     return output
 
 
+def normalize_metadata(bill: dict[str, Any], old: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Build a clearly labeled metadata-only record without inventing legal details."""
+    fields = fallback_display_fields(bill, old)
+    summary = metadata_summary(bill)
+    count = word_count(summary)
+    if not MIN_METADATA_SUMMARY_WORDS <= count <= MAX_METADATA_SUMMARY_WORDS:
+        raise ValueError(f"metadata summary has {count} words; expected {MIN_METADATA_SUMMARY_WORDS}-{MAX_METADATA_SUMMARY_WORDS}")
+    return {
+        **fields,
+        "summary": summary,
+        "id": str(bill.get("id") or ""),
+        "identifier": str(bill.get("identifier") or "Unknown"),
+        "session": str(bill.get("session") or ""),
+        "updated_at": date.today().isoformat(),
+        "source_url": capitol_url(bill),
+        "summary_word_count": count,
+        "summary_source": "metadata",
+    }
+
+
 def is_placeholder(record: dict[str, Any] | None) -> bool:
     return not isinstance(record, dict) or word_count(record.get("summary")) < 1 or "placeholder" in str(record.get("summary", "")).lower()
 
@@ -617,8 +710,9 @@ def update_feed(path: Path) -> None:
 def main() -> int:
     load_dotenv(Path(".env")); args = parse_args(); bills = read_bills(args.input)
     api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
-    if not api_key: raise SystemExit("OPENROUTER_API_KEY is required; refusing to publish metadata-only placeholders")
-    models = choose_openrouter_models(api_key, args.model)
+    # Metadata-only records do not need an AI key. Official-text summaries do,
+    # so a missing key causes those bills to use the explicit metadata fallback.
+    models = choose_openrouter_models(api_key, args.model) if api_key else []
     active_model_index = 0
     existing: dict[str, dict[str, Any]] = {}
     if args.output.exists():
@@ -629,27 +723,48 @@ def main() -> int:
         identifier = str(bill.get("identifier") or "Unknown"); old = existing.get(identifier.lower())
         try:
             text, text_url = fetch_bill_text(bill); digest = hashlib.sha256(text.encode()).hexdigest()
-            if old and old.get("bill_text_hash") == digest and MIN_SUMMARY_WORDS <= word_count(old.get("summary")) <= MAX_SUMMARY_WORDS:
-                records.append(old); print(f"[{index}/{len(bills)}] {identifier} -> cached"); continue
+            if old and old.get("bill_text_hash") == digest and is_valid_official_summary(old):
+                records.append(old); print(f"[{index}/{len(bills)}] {identifier} -> cached official text summary"); continue
+            if not api_key:
+                raise RuntimeError("OPENROUTER_API_KEY is unavailable for an official-text summary")
             output, active_model_index = generate_ai_record(bill_context(bill, text, text_url), models, active_model_index, api_key)
             records.append(normalize(output, bill, text_url, digest, old)); print(f"[{index}/{len(bills)}] {identifier} -> AI ({models[active_model_index]})")
             time.sleep(args.delay)
         except Exception as exc:
-            failures += 1; deferred.append((bill, old, str(exc))); print(f"[{index}/{len(bills)}] {identifier} -> deferred: {exc}", file=sys.stderr)
-            if old and MIN_SUMMARY_WORDS <= word_count(old.get("summary")) <= MAX_SUMMARY_WORDS: records.append(old)
+            failures += 1
+            deferred.append((bill, old, str(exc)))
+            print(f"[{index}/{len(bills)}] {identifier} -> deferred: {exc}", file=sys.stderr)
+            if is_valid_official_summary(old):
+                # Never downgrade a verified text-based summary because a later
+                # source request temporarily failed.
+                records.append(old)
+                print(f"{identifier}: retaining previous official-text summary", file=sys.stderr)
+            elif is_valid_metadata_summary(old):
+                # Metadata records stay short and metadata-based until official
+                # text becomes available on a later run.
+                records.append(old)
+                print(f"{identifier}: retaining previous metadata summary", file=sys.stderr)
+            else:
+                try:
+                    records.append(normalize_metadata(bill, old))
+                    print(f"{identifier}: using 30-40 word metadata summary", file=sys.stderr)
+                except ValueError as metadata_error:
+                    print(f"{identifier}: metadata fallback failed: {metadata_error}", file=sys.stderr)
     # Merge with any existing bills that were not in this run's input.
     # This preserves old summaries when the workflow fetches a different subset of bills.
     processed_identifiers = {str(r.get("identifier", "")).lower() for r in records}
     for identifier, old_record in existing.items():
-        if identifier not in processed_identifiers and MIN_SUMMARY_WORDS <= word_count(old_record.get("summary")) <= MAX_SUMMARY_WORDS:
+        if identifier not in processed_identifiers and is_valid_summary(old_record):
             records.append(old_record)
     # A failed bill is not retried with another full page crawl in this run.
     # This keeps the batch bounded and lets the next scheduled run try again.
+    resolved_identifiers = {str(record.get("identifier", "")).lower() for record in records}
     unresolved = []
     for bill, old, error in deferred:
-        if not old or not (MIN_SUMMARY_WORDS <= word_count(old.get("summary")) <= MAX_SUMMARY_WORDS):
-            unresolved.append(bill.get('identifier', 'Unknown'))
-            print(f"No valid summary available for {bill.get('identifier', 'Unknown')}; failing safely.", file=sys.stderr)
+        identifier = str(bill.get("identifier") or "Unknown")
+        if identifier.lower() not in resolved_identifiers:
+            unresolved.append(identifier)
+            print(f"No valid summary available for {identifier}; failing safely.", file=sys.stderr)
     if unresolved and not args.write_partial:
         print(f"{len(unresolved)} bill(s) could not be summarized: {', '.join(unresolved)}", file=sys.stderr)
         print("Use --write-partial to publish successful bills anyway.", file=sys.stderr)

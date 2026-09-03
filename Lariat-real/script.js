@@ -34,15 +34,32 @@
     });
   });
 
+  const openDialog = (dialog) => {
+    if (!dialog || typeof dialog.showModal !== 'function' || dialog.open) return;
+    dialog.classList.add('is-open');
+    dialog.showModal();
+    dialog.querySelector('.modal-close')?.focus();
+  };
+
   document.querySelectorAll('[data-modal-open]').forEach((button) => {
     button.addEventListener('click', () => {
-      const dialog = document.getElementById(button.dataset.modalOpen);
-      if (!dialog || typeof dialog.showModal !== 'function') return;
-      dialog.classList.add('is-open');
-      dialog.showModal();
-      dialog.querySelector('.modal-close')?.focus();
+      openDialog(document.getElementById(button.dataset.modalOpen));
     });
   });
+
+  const demoNotice = document.querySelector('#demo-notice');
+  const demoNoticeStorageKey = 'lariat-demo-notice-seen-v2';
+  let hasSeenDemoNotice = false;
+  try {
+    hasSeenDemoNotice = localStorage.getItem(demoNoticeStorageKey) === 'true';
+  } catch (error) {
+    // If storage is blocked, show the notice for the current visit.
+  }
+
+  if (document.body.classList.contains('landing-page') && !hasSeenDemoNotice) {
+    try { localStorage.setItem(demoNoticeStorageKey, 'true'); } catch (error) {}
+    openDialog(demoNotice);
+  }
 
   document.querySelectorAll('[data-modal-close]').forEach((button) => {
     button.addEventListener('click', () => {

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=pricing-demo-1">
   <script>try { if (localStorage.getItem('lariat-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (error) {}</script>
 </head>
 <body class="pricing-page">
@@ -33,7 +33,7 @@
     </div>
   </header>
 
-  <main class="pricing-shell page-reveal">
+  <main class="pricing-shell page-reveal pricing-demo-content" aria-hidden="true">
     <section class="pricing-hero">
       <div class="eyebrow"><span class="eyebrow-line"></span> Simple, transparent plans</div>
       <h1>Stay ahead of what’s next.</h1>
@@ -90,6 +90,13 @@
 
     <p class="pricing-footnote"><span aria-hidden="true">✦</span> Prototype pricing for concept exploration. No plans, billing, or payment processing are active.</p>
   </main>
+  <section class="pricing-demo-overlay" aria-labelledby="pricing-demo-title">
+    <div class="pricing-demo-message">
+      <span class="pricing-demo-kicker">Demo pricing</span>
+      <h1 id="pricing-demo-title">Because this is a demo, everything is free.</h1>
+      <p>When the site is polished and ready for publication, there will be tiers that require payment and come with superior benefits.</p>
+    </div>
+  </section>
   <div class="toast" role="status" aria-live="polite"></div>
   <script src="theme.js"></script>
   <script src="script.js"></script>
