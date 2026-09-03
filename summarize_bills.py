@@ -27,7 +27,7 @@ REQUESTED_MODEL: str | None = None
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
 MIN_SUMMARY_WORDS = 50
-MAX_SUMMARY_WORDS = 150
+MAX_SUMMARY_WORDS = 200
 FEED_META_PATTERN = re.compile(r'(<meta name="lariat-data-updated" content=")[^"]*(")')
 
 INDUSTRIES = ["Energy & Utilities", "Government & Municipal Operations", "Emergency & Public Safety", "Real Estate & Land Use", "Insurance & Financial Services", "N/A"]
@@ -35,12 +35,12 @@ INDUSTRY_LIST = ", ".join(f'"{item}"' for item in INDUSTRIES)
 STATUS_VALUES = "alive, active, pending, passed, signed, enacted, adopted, failed, did not pass, died, replaced"
 SCRIPT_OWNED_FIELDS = ("id", "identifier", "session", "updated_at", "source_url")
 
-SYSTEM_PROMPT = f"""You are a neutral Texas legislative analyst. Use ONLY the supplied official bill text and record metadata. Never invent facts. Return one JSON object only, with no markdown or commentary, containing exactly one key: summary. The summary MUST be one neutral paragraph of 50-150 words, counting whitespace-separated words. Explain the bill's purpose, operative changes, affected parties, important requirements, exceptions, funding, effective date, and recorded legislative status when present. If full text is incomplete, say so explicitly and avoid guessing. For ceremonial resolutions, explain that they have no legal effect. This is informational, not legal advice."""
+SYSTEM_PROMPT = f"""You are a neutral Texas legislative analyst. Use ONLY the supplied official bill text and record metadata. Never invent facts. Return one JSON object only, with no markdown or commentary, containing exactly one key: summary. The summary MUST be one neutral paragraph of 50-200 words, counting whitespace-separated words. Explain the bill's purpose, operative changes, affected parties, important requirements, exceptions, funding, effective date, and recorded legislative status when present. If full text is incomplete, say so explicitly and avoid guessing. For ceremonial resolutions, explain that they have no legal effect. This is informational, not legal advice."""
 
 SUMMARY_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "summary": {"type": "string", "description": "One neutral paragraph of 50-150 words."},
+        "summary": {"type": "string", "description": "One neutral paragraph of 50-200 words."},
     },
     "required": ["summary"],
     "additionalProperties": False,
