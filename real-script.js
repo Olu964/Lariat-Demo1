@@ -214,7 +214,7 @@
       ? bill.source_url
       : 'https://capitol.texas.gov/';
     const detailFields = Object.entries(bill)
-      .filter(([key]) => !['id', 'identifier', 'title', 'impact_level', 'industry', 'specific_industry', 'source_url', '__index', '__groupId'].includes(key))
+      .filter(([key]) => !['id', 'identifier', 'title', 'impact_level', 'industry', 'specific_industry', 'source_url', 'bill_text_source', 'bill_text_hash', 'summary_word_count', '__index', '__groupId'].includes(key))
       .slice(0, 30);
     modalBody.innerHTML = `
       <article class="modal-bill-card ${levelClass === 'high' ? 'high-impact' : ''}">
