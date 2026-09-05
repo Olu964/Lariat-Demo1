@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=texas-law-book-3">
   <script>try { if (localStorage.getItem('lariat-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (error) {}</script>
 </head>
 <body class="landing-page">
@@ -50,24 +50,15 @@
         <div class="hero-proof"><span class="proof-avatars"><i>AM</i><i>RS</i><i>KT</i></span><span>Built for teams watching the Capitol</span></div>
       </div>
 
-      <div class="legal-hero-art docket-art page-reveal delay-one" aria-hidden="true">
-        <div class="docket-label docket-label-top">Texas Legislature <span></span></div>
-        <div class="docket-label docket-label-right">Official filing <span></span></div>
-        <div class="docket-label docket-label-bottom">Plain-English review <span></span></div>
-        <div class="docket-sheet docket-sheet-back"></div>
-        <article class="docket-sheet docket-sheet-front">
-          <div class="docket-topline"><span>TX LEGISLATURE</span><span>89TH SESSION</span></div>
-          <div class="docket-heading"><span class="docket-number">HB 2214</span><span class="docket-status">REFERRED</span></div>
-          <h2>Public<br><em>record</em></h2>
-          <div class="docket-rule"></div>
-          <div class="docket-timeline" aria-hidden="true">
-            <div><span class="docket-dot"></span><b>Filed</b><small>Aug 12</small></div>
-            <div><span class="docket-dot"></span><b>Reviewed</b><small>Aug 19</small></div>
-            <div><span class="docket-dot"></span><b>Tracked</b><small>Now</small></div>
-          </div>
-          <div class="docket-footer"><span>VERIFIED SOURCE</span><span>§ TX</span></div>
-        </article>
-        <div class="docket-tab docket-tab-one"><span>Bill status</span><b>High impact</b></div>
+      <div class="legal-hero-art texas-book-art page-reveal delay-one">
+        <button class="texas-law-book-stage" type="button" data-law-book-stage data-modal-open="vision-modal" aria-haspopup="dialog" aria-label="Open Our vision">
+          <span class="texas-law-book" data-law-book>
+            <span class="book-pages"><span></span><span></span><span></span></span>
+            <span class="book-spine">TX</span>
+            <span class="book-cover"><strong>OUR<br>VISION</strong><small>LARIAT · TEXAS</small></span>
+          </span>
+          <span class="book-caption"><span class="book-caption-dot"></span> Our vision</span>
+        </button>
       </div>
     </section>
 
@@ -86,21 +77,50 @@
       </div>
     </section>
 
-    <section class="reviews-section">
-      <div class="reviews-heading"><div><div class="eyebrow gold-eyebrow"><span class="eyebrow-line"></span> Early believers</div><h2>Less chasing.<br><span>More knowing.</span></h2></div><p>Fictional feedback from the teams this prototype is designed for.</p></div>
-      <div class="reviews-grid">
-        <figure class="review-card"><div class="stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><blockquote>“We used to learn about a permitting change from a forwarded email. This gives our operations team the context before the scramble.”</blockquote><figcaption><span class="review-avatar">MC</span><span><strong>Maya Chen</strong><small>VP Operations · Lone Star Midstream <em>Demo quote</em></small></span></figcaption></figure>
-        <figure class="review-card review-card-dark"><div class="stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><blockquote>“The difference is not more alerts. It’s knowing which three alerts actually deserve a meeting.”</blockquote><figcaption><span class="review-avatar">DR</span><span><strong>David Ramirez</strong><small>General Counsel · Meridian Energy <em>Demo quote</em></small></span></figcaption></figure>
-        <figure class="review-card"><div class="stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><blockquote>“Finally, a legislative brief that speaks operations instead of only speaking legal.”</blockquote><figcaption><span class="review-avatar">AL</span><span><strong>Alexis Lee</strong><small>Public Affairs · Texas Field Co. <em>Demo quote</em></small></span></figcaption></figure>
-      </div>
-    </section>
-
     <section class="landing-cta"><div class="eyebrow gold-eyebrow"><span class="eyebrow-line"></span> Start with the signal</div><h2>See what your team<br><em>could know sooner.</em></h2><a class="hero-primary" href="feed.html">Open the demo feed <span aria-hidden="true">→</span></a></section>
   </main>
+
+  <dialog id="vision-modal" class="vision-modal" aria-labelledby="vision-modal-title">
+    <div class="vision-reader">
+      <div class="vision-reader-header">
+        <div><div class="modal-kicker">Lariat</div><h2 id="vision-modal-title">Our vision</h2></div>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close Our vision" title="Close">×</button>
+      </div>
+      <div class="vision-book" aria-label="Our vision from Lariat">
+        <div class="vision-book-cover" aria-hidden="true"><span class="vision-book-cover-mark">L</span><strong>Our<br>vision</strong><small>LARIAT · TEXAS</small></div>
+        <div class="vision-page vision-page-left">
+          <p>Texas moves fast when the Legislature is in session, and most businesses find out what changed only after it already has. Lariat exists to close that gap.</p>
+          <p>I started this because understanding what’s happening at the Texas State Capitol shouldn’t require a law degree or a lobbyist on retainer. A bill that reshapes permitting timelines or reporting requirements matters just as much to a small business owner as it does to a trade association with a government affairs team, but right now only one of those groups has the tools to see it coming.</p>
+        </div>
+        <div class="vision-page vision-page-right">
+          <p>I’m building Lariat to change that: plain English summaries of real bills, organized by the industries they actually touch, so a business can see what’s relevant to them without wading through legislative text written for lawyers.</p>
+          <p>Right now that means a free demo built on real, historical session data. Over time it means live tracking through every session, real automated alerts the moment something relevant is filed, and enough runway on the data side that I can go beyond bills to city ordinances and regulatory changes too.</p>
+          <p>The goal isn’t just to summarize what happens at the Texas State Capitol. It’s to give every business in Texas, not just the ones who can afford a lobbyist, a fair shot at seeing what’s coming before it’s already law.</p>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="demo-notice" class="demo-notice-modal" aria-labelledby="demo-notice-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Welcome to Lariat</div>
+          <h2 id="demo-notice-title">Free-use demo notice</h2>
+        </div>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close demo notice" title="Close">×</button>
+      </div>
+      <div class="modal-body demo-notice-body">
+        <p>This is a free-use demo to be used up until a select time of which it will be released behind an email.</p>
+        <p>Some bills in this demo are summarized from actual official bill text and are generally 50–200 words long. Other bills currently use available metadata because a viable source document was not found; these summaries are intentionally shorter at 30–40 words. Source coverage and automation are still being improved, and this issue is expected to be addressed before the full website release.</p>
+        <p>Any feedback that you may have should be directed to our email: <a href="mailto:lariatfeed@gmail.com">lariatfeed@gmail.com</a></p>
+      </div>
+    </div>
+  </dialog>
 
   <footer class="site-footer"><span>Lariat</span><span>Fictional prototype · Not legal advice or live legislative data</span><a href="pricing.html">View pricing <span aria-hidden="true">→</span></a></footer>
   <div class="toast" role="status" aria-live="polite"></div>
   <script src="theme.js"></script>
-  <script src="script.js"></script>
+  <script src="script.js?v=texas-law-book-trace-2"></script>
 </body>
 </html>

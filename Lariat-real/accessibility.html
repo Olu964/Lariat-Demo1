@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+  <meta name="description" content="Lariat's accessibility statement and ways to report an accessibility barrier.">
+  <title>Accessibility Statement — Lariat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=accessibility-1">
+  <script src="theme-init.js"></script>
+</head>
+<body class="pricing-page legal-page">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Lariat home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">Lariat</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="feed.html">Bill feed</a>
+      <a class="nav-link" href="pricing.html">Pricing</a>
+      <a class="nav-link" href="privacy.html">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <span class="demo-pill"><span class="status-dot"></span> Real data snapshot</span>
+      <button class="avatar-button" type="button" aria-label="Open account menu" title="Account menu — disabled in this prototype">OL</button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Switch to dark mode"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
+    </div>
+  </header>
+
+  <main class="legal-shell page-reveal">
+    <section class="legal-hero">
+      <div class="eyebrow"><span class="eyebrow-line"></span> Legal &amp; transparency</div>
+      <h1>Accessibility Statement</h1>
+      <p>Lariat is a real-data demo for reviewing Texas legislative records. This statement describes the accessibility support currently implemented, known limitations, and how to report a barrier.</p>
+      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Reviewed September 4, 2026</div>
+    </section>
+
+    <article class="legal-card">
+      <section class="legal-section">
+        <h2>Our commitment</h2>
+        <p>Lariat aims to support people with different access needs. We use the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA as a development target. This prototype has not been independently audited, formally certified, or evaluated across every browser, screen reader, and assistive technology, so we do not claim full conformance.</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>Current support</h2>
+        <ul>
+          <li>Pages use semantic landmarks, headings, lists, native links, native buttons, labeled controls, and native dialog elements where appropriate.</li>
+          <li>Interactive controls have visible <code>:focus-visible</code> styling and can be operated with a keyboard.</li>
+          <li>Bill cards, bill-detail dialogs, subscription forms, live status messages, and note-saving feedback include labels or announcements where implemented. The Pricing page's plan links are intentionally unavailable because the page is covered by the demo overlay.</li>
+          <li>Decorative animation and smooth scrolling are reduced or disabled when the browser requests reduced motion. The bill-feed jump control uses instant scrolling in that mode.</li>
+          <li>Decorative canvas and visual effects are hidden from assistive technology so they do not add unnecessary content to the accessibility tree.</li>
+          <li>The site does not require a mouse or pointer for the available primary navigation, bill filtering, bill details, notes, or subscription controls. The homepage's decorative book interaction is pointer-enhanced only. Pricing plan links are intentionally inert behind the demo overlay.</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h2>Known limitations</h2>
+        <ul>
+          <li>No independent WCAG audit, screen-reader certification, keyboard-only certification, or complete color-contrast review has been completed.</li>
+          <li>The landing page opens a demo notice on the first visit in a browser; it can be closed with its close button, but the interaction and native dialog behavior still need testing across browsers and assistive technologies.</li>
+          <li>Color contrast has not been measured in every light and dark visual state.</li>
+          <li>The subscription flow requires a reachable, correctly configured backend. In local development that is <code>node server/server.js</code>; the public site cannot complete subscriptions unless its API base is configured and the production infrastructure is available.</li>
+          <li>Opening the pages with <code>file://</code> is unsupported. Use the local backend or another HTTP server.</li>
+          <li>Pricing plan links are unavailable while the demo overlay is active. If that overlay is removed or the interaction is enabled, plan selection is demo-only browser state stored in localStorage; it is not an account, payment control, or server-side authorization feature.</li>
+          <li>Third-party websites and services linked from Lariat are outside Lariat's accessibility and content control.</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h2>Feedback and assistance</h2>
+        <p>Report an accessibility barrier to <a href="mailto:lariatfeed@gmail.com">lariatfeed@gmail.com</a>. Include the page address, the task you were trying to complete, the browser or assistive technology involved, and the problem you encountered. We will review reports and work toward an accessible fix.</p>
+        <p>For privacy requests, please see the <a href="privacy.html">Privacy Policy</a>.</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>Statement status</h2>
+        <p>This statement was reviewed September 4, 2026 and covers the current real-data bill feed, bill notes, industry filtering, subscription verification and welcome-email flow, access-code lockout messaging, pricing overlay, theme control, homepage demo notice, and homepage visual effects. The Pricing page's plan controls are intentionally inert in the current demo. It is a transparency statement, not a legal opinion or WCAG conformance certification.</p>
+      </section>
+    </article>
+
+    <p class="pricing-footnote"><span aria-hidden="true">✦</span> Lariat is a demo prototype. Bill summaries are informational — verify current status with official Texas legislative sources. This page is not legal advice.</p>
+  </main>
+
+  <footer class="site-footer"><span>Lariat</span><span>Real local bill summaries · Verify with official sources</span><a href="privacy.html">Privacy</a><a href="accessibility.html" aria-current="page">Accessibility</a></footer>
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script src="theme.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

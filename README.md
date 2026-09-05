@@ -6,7 +6,7 @@ Before exposing the site or subscription API publicly, read [`SECURITY.md`](SECU
 
 ## Setup
 
-The scripts use Python 3.10+ and the standard library only; no package installation is required. Bill summaries require `OPEN_STATES_API_KEY` and `OPENROUTER_API_KEY`; the summarizer refuses to publish metadata-only placeholders when the OpenRouter key is missing.
+The scripts use Python 3.10+ and the standard library only; no package installation is required. Bill summaries use `OPEN_STATES_API_KEY` to fetch records and `OPENROUTER_API_KEY` for official-text summaries when available; the summarizer can publish explicitly labeled 30–40 word metadata-only summaries when official text or the OpenRouter key is unavailable.
 
 1. Copy `.env.example` to `.env`.
 2. Add your `OPEN_STATES_API_KEY` and `OPENROUTER_API_KEY` to `.env`.

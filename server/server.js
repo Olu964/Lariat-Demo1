@@ -16,7 +16,7 @@
  *
  *        POST /api/subscriptions/request      { email, industry, accessCode }
  *        POST /api/subscriptions/verify       { email, industry, verificationCode }
- *        POST /api/subscriptions/unsubscribe  { email, industry, token }  (signed token from /verify)
+ *        POST /api/subscriptions/unsubscribe  { email, industry, token }  (signed token from the welcome email)
  *        GET  /api/subscriptions/unsubscribe?token=<signed>   (link in emails)
  *        GET  /api/health
  *
@@ -50,7 +50,7 @@ const zlib = require('node:zlib');
 const { URL } = require('node:url');
 
 const ROOT = path.resolve(__dirname, '..');
-const PUBLIC_DIR = path.join(ROOT, 'Lariat-real');
+const PUBLIC_DIR = ROOT;
 const DATA_DIR = path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'subscriptions.json');
 const BILL_DATA_FILE = process.env.LARIAT_DATA_FILE
@@ -91,6 +91,11 @@ loadDotEnv();
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '127.0.0.1';
+const ALLOW_NETWORK_BIND = process.env.ALLOW_NETWORK_BIND === 'true';
+
+function normalizeHostname(value) {
+  return String(value || '').trim().toLowerCase().replace(/^\[|\]$/g, '');
+}
 const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
 const BREVO_FROM_EMAIL = process.env.BREVO_FROM_EMAIL || '';
 const DEFAULT_ACCESS_CODE = 'LARIAT-TRIAL-2026';
@@ -98,18 +103,19 @@ const ACCESS_CODE = process.env.SUBSCRIPTION_ACCESS_CODE || DEFAULT_ACCESS_CODE;
 const PUBLIC_BASE_URL = (process.env.PUBLIC_BASE_URL || '').trim().replace(/\/+$/, '');
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const ALLOWED_HOSTS = new Set((process.env.ALLOWED_HOSTS || '127.0.0.1,localhost,::1')
-  .split(',').map((value) => value.trim().toLowerCase().replace(/^\\[|\\]$/g, '')).filter(Boolean));
+  .split(',').map(normalizeHostname).filter(Boolean));
 const ALLOWED_ORIGINS = new Set((process.env.ALLOWED_ORIGINS || '')
   .split(',').map((value) => {
     try { return new URL(value.trim()).origin; } catch (error) { return ''; }
   }).filter(Boolean));
-const CODE_EXPIRY_MS = (Math.max(1, Number(process.env.SUBSCRIPTION_CODE_EXPIRY_MINUTES) || 10)) * 60 * 1000;
+const CODE_EXPIRY_MINUTES = Math.min(24 * 60, Math.max(1, Number(process.env.SUBSCRIPTION_CODE_EXPIRY_MINUTES) || 10));
+const CODE_EXPIRY_MS = CODE_EXPIRY_MINUTES * 60 * 1000;
 const REQUEST_COOLDOWN_MS = 60 * 1000;          // min time between codes for one address
 const VERIFY_MAX_ATTEMPTS = 5;                   // wrong-code tries before the code is voided
 const ACCESS_CODE_MAX_ATTEMPTS = 3;              // wrong private-code tries before lockout
 const ACCESS_CODE_LOCKOUT_MS = 24 * 60 * 60 * 1000;
 const IP_RATE_LIMIT = { windowMs: 60 * 60 * 1000, max: 10 }; // /request calls per IP per hour
-const UNSUBSCRIBE_TOKEN_DAYS = Math.max(1, Number(process.env.SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS) || 90);
+const UNSUBSCRIBE_TOKEN_DAYS = Math.min(3650, Math.max(1, Number(process.env.SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS) || 90));
 const SIGNING_SECRET = process.env.SUBSCRIPTION_SIGNING_SECRET || crypto.randomBytes(32).toString('hex');
 // Keep local-development lockouts stable across restarts without reusing the
 // random unsubscribe-token secret; production uses the configured secret.
@@ -119,6 +125,7 @@ const MAX_EMAIL_LENGTH = 254;
 const MAX_INDUSTRY_LENGTH = 200;
 const MAX_ACCESS_CODE_LENGTH = 256;
 const MAX_TOKEN_LENGTH = 4096;
+const MAX_REQUEST_URL_LENGTH = 8 * 1024;
 const IS_PRODUCTION = NODE_ENV === 'production';
 
 /* Security headers applied to every response. The small HTML pages the server
@@ -151,7 +158,7 @@ function trustedOrigin(origin) {
   try {
     const url = new URL(origin);
     if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
-    const hostname = url.hostname.toLowerCase().replace(/^\\[|\\]$/g, '');
+    const hostname = normalizeHostname(url.hostname);
     const isLoopback = hostname === '127.0.0.1' || hostname === 'localhost' || hostname === '::1';
     return (((!IS_PRODUCTION && isLoopback) || ALLOWED_ORIGINS.has(url.origin))) ? origin : '';
   } catch (error) {
@@ -165,7 +172,7 @@ function hostnameFromHostHeader(hostHeader) {
   try {
     const parsed = new URL(`http://${host}`);
     if (parsed.username || parsed.password || parsed.pathname !== '/' || parsed.search || parsed.hash) return '';
-    return parsed.hostname.toLowerCase().replace(/^\\[|\\]$/g, '');
+    return normalizeHostname(parsed.hostname);
   } catch (error) {
     return '';
   }
@@ -183,18 +190,21 @@ function isTrustedHost(hostHeader) {
 
 /* Production runs behind a TLS-terminating proxy, so requests arrive on
  * loopback as plain HTTP and the proxy reports the real scheme in the
- * X-Forwarded-Proto header. Enforce HTTPS-only: any request the proxy
- * forwarded as plain HTTP is redirected to the same HTTPS URL. The query
- * string is preserved so unsubscribe links keep working; nothing here is
- * written to logs. Requests with no X-Forwarded-Proto header (local
- * development, or a proxy that does not set it) are passed through. */
+ * X-Forwarded-Proto header. Enforce HTTPS-only: only an explicit forwarded
+ * HTTPS request is accepted; plain HTTP and missing/malformed proxy scheme
+ * headers redirect to the configured HTTPS origin. The query string is
+ * preserved so unsubscribe links keep working; nothing here is logged. */
 function enforceHttps(req, res, url) {
   if (!IS_PRODUCTION) return false;
   const scheme = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim().toLowerCase();
-  if (scheme !== 'http') return false;
-  const target = new URL(url.href);
-  target.protocol = 'https:';
-  if (target.port === '80') target.port = '';
+  if (scheme === 'https') return false;
+  // Build the redirect from the configured public origin rather than the
+  // request Host header. This prevents an alternate allowlisted host from
+  // influencing passwordless unsubscribe links or cacheable redirects.
+  const target = new URL(PUBLIC_BASE_URL);
+  target.pathname = url.pathname;
+  target.search = url.search;
+  target.hash = '';
   res.writeHead(req.method === 'GET' || req.method === 'HEAD' ? 301 : 308, {
     Location: target.href,
     ...SECURITY_HEADERS,
@@ -217,7 +227,22 @@ function validateConfiguration() {
   if (!BREVO_API_KEY && BREVO_FROM_EMAIL) {
     throw new Error('BREVO_FROM_EMAIL requires BREVO_API_KEY, or remove the sender address.');
   }
+  if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
+    throw new Error('PORT must be an integer between 1 and 65535.');
+  }
+  const isLoopbackHost = ['127.0.0.1', 'localhost', '::1'].includes(normalizeHostname(HOST));
+  if (!isLoopbackHost) {
+    if (!ALLOW_NETWORK_BIND) {
+      throw new Error('HOST must bind to loopback by default. Set ALLOW_NETWORK_BIND=true only for an intentional protected network deployment.');
+    }
+    if (ACCESS_CODE === DEFAULT_ACCESS_CODE || ACCESS_CODE.length < 12) {
+      throw new Error('Network binding requires a unique SUBSCRIPTION_ACCESS_CODE of at least 12 characters.');
+    }
+  }
   if (IS_PRODUCTION) {
+    if (!isLoopbackHost) {
+      throw new Error('Production HOST must bind to loopback behind a trusted TLS reverse proxy.');
+    }
     if (ACCESS_CODE === DEFAULT_ACCESS_CODE || ACCESS_CODE.length < 12) {
       throw new Error('Production requires a unique SUBSCRIPTION_ACCESS_CODE of at least 12 characters.');
     }
@@ -232,10 +257,11 @@ function validateConfiguration() {
     }
     let publicUrl;
     try { publicUrl = new URL(PUBLIC_BASE_URL); } catch (error) { publicUrl = null; }
-    if (!publicUrl || publicUrl.protocol !== 'https:' || publicUrl.username || publicUrl.password || publicUrl.search || publicUrl.hash) {
-      throw new Error('Production PUBLIC_BASE_URL must be a clean https:// URL without credentials or query parameters.');
+    if (!publicUrl || publicUrl.protocol !== 'https:' || publicUrl.username || publicUrl.password
+      || publicUrl.pathname !== '/' || publicUrl.search || publicUrl.hash) {
+      throw new Error('Production PUBLIC_BASE_URL must be a clean https:// origin without credentials, path, or query parameters.');
     }
-    if (!ALLOWED_HOSTS.has(publicUrl.hostname.toLowerCase().replace(/^\\[|\\]$/g, ''))) {
+    if (!ALLOWED_HOSTS.has(normalizeHostname(publicUrl.hostname))) {
       throw new Error('Production PUBLIC_BASE_URL hostname must be included in ALLOWED_HOSTS.');
     }
   }
@@ -251,32 +277,67 @@ function defaultData() {
 }
 
 function loadData() {
+  let parsed;
   try {
-    const parsed = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    return {
-      subscriptions: Array.isArray(parsed.subscriptions) ? parsed.subscriptions : [],
-      // Discard records from the pre-scrypt format rather than retaining
-      // weakly protected six-digit verification hashes.
-      pendingCodes: Array.isArray(parsed.pendingCodes)
-        ? parsed.pendingCodes.filter((pending) => typeof pending?.codeHash === 'string' && pending.codeHash.startsWith('scrypt$'))
-        : [],
-      // Access-code lockouts are keyed by an HMAC of the client IP rather than
-      // storing the IP itself. They survive normal restarts when the signing
-      // secret is fixed, while keeping the raw network address out of storage.
-      accessCodeAttempts: Array.isArray(parsed.accessCodeAttempts)
-        ? parsed.accessCodeAttempts.filter((attempt) => typeof attempt?.key === 'string'
-          && Number.isFinite(Number(attempt.firstFailureAt))
-          && Number.isFinite(Number(attempt.attempts)))
-        : [],
-    };
+    parsed = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
   } catch (error) {
-    return defaultData();
+    if (error.code === 'ENOENT') return defaultData();
+    throw new Error(`Could not read subscription data safely: ${error.message}`);
   }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('Could not read subscription data safely: expected a JSON object');
+  }
+  return {
+    // Ignore malformed records rather than allowing corrupted local data to
+    // turn a normal subscription request into a server error. Stored values
+    // are still bounded because this file contains user-controlled email data.
+    subscriptions: Array.isArray(parsed.subscriptions)
+      ? parsed.subscriptions.filter((subscription) => subscription
+        && typeof subscription.email === 'string'
+        && subscription.email.length <= MAX_EMAIL_LENGTH
+        && EMAIL_PATTERN.test(subscription.email)
+        && typeof subscription.industry === 'string'
+        && subscription.industry.length <= MAX_INDUSTRY_LENGTH)
+        .map((subscription) => ({
+          email: subscription.email,
+          industry: subscription.industry,
+          ...(typeof subscription.verifiedAt === 'string' ? { verifiedAt: subscription.verifiedAt } : {}),
+          ...(typeof subscription.source === 'string' ? { source: subscription.source } : {}),
+          ...(typeof subscription.unsubscribeTokenId === 'string' && /^[0-9a-f]{32}$/i.test(subscription.unsubscribeTokenId)
+            ? { unsubscribeTokenId: subscription.unsubscribeTokenId }
+            : {}),
+        }))
+      : [],
+    // Discard records from the pre-scrypt format rather than retaining
+    // weakly protected six-digit verification hashes. Validate every field
+    // used by the verification path before it enters the in-memory store.
+    pendingCodes: Array.isArray(parsed.pendingCodes)
+      ? parsed.pendingCodes.filter((pending) => pending
+        && typeof pending.key === 'string' && pending.key.length <= MAX_EMAIL_LENGTH + MAX_INDUSTRY_LENGTH + 2
+        && typeof pending.email === 'string' && pending.email.length <= MAX_EMAIL_LENGTH && EMAIL_PATTERN.test(pending.email)
+        && typeof pending.industry === 'string' && pending.industry.length <= MAX_INDUSTRY_LENGTH
+        && typeof pending.salt === 'string' && /^[0-9a-f]{32}$/i.test(pending.salt)
+        && typeof pending.codeHash === 'string' && /^scrypt\$[0-9a-f]{64}$/i.test(pending.codeHash)
+        && Number.isFinite(Number(pending.expiresAt))
+        && Number.isInteger(Number(pending.attempts)) && Number(pending.attempts) >= 0 && Number(pending.attempts) <= VERIFY_MAX_ATTEMPTS)
+      : [],
+    // Access-code lockouts are keyed by an HMAC of the client IP rather than
+    // storing the IP itself. They survive normal restarts when the signing
+    // secret is fixed, while keeping the raw network address out of storage.
+    accessCodeAttempts: Array.isArray(parsed.accessCodeAttempts)
+      ? parsed.accessCodeAttempts.filter((attempt) => typeof attempt?.key === 'string'
+        && /^[0-9a-f]{64}$/i.test(attempt.key)
+        && Number.isFinite(Number(attempt.firstFailureAt))
+        && Number.isInteger(Number(attempt.attempts))
+        && Number(attempt.attempts) >= 0 && Number(attempt.attempts) <= ACCESS_CODE_MAX_ATTEMPTS
+        && (!attempt.lockedUntil || Number.isFinite(Number(attempt.lockedUntil))))
+      : [],
+  };
 }
 
 function saveData(store) {
-  // The file holds subscriber emails and unsubscribe tokens: keep it and its
-  // directory readable only by the user running the server.
+  // The file holds subscriber emails and token-generation identifiers: keep
+  // it and its directory readable only by the user running the server.
   fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
   fs.chmodSync(DATA_DIR, 0o700);
   const tmpFile = `${DATA_FILE}.tmp`;
@@ -345,8 +406,10 @@ function verifyToken(token) {
     if (received.length !== expectedBuffer.length) return null;
     if (!crypto.timingSafeEqual(received, expectedBuffer)) return null;
     const payload = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
-    if (typeof payload.email !== 'string' || typeof payload.industry !== 'string') return null;
-    if (typeof payload.exp !== 'number' || Date.now() > payload.exp) return null;
+    if (typeof payload.email !== 'string' || payload.email.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(payload.email)) return null;
+    if (typeof payload.industry !== 'string' || payload.industry.length > MAX_INDUSTRY_LENGTH || !payload.industry) return null;
+    if (typeof payload.tokenId !== 'string' || !/^[0-9a-f]{32}$/i.test(payload.tokenId)) return null;
+    if (typeof payload.exp !== 'number' || !Number.isFinite(payload.exp) || Date.now() >= payload.exp) return null;
     return payload;
   } catch (error) {
     return null;
@@ -354,7 +417,11 @@ function verifyToken(token) {
 }
 
 function makeUnsubscribeToken(email, industry) {
-  return signToken({ email, industry, exp: Date.now() + UNSUBSCRIBE_TOKEN_DAYS * 86_400_000 });
+  const tokenId = crypto.randomBytes(16).toString('hex');
+  return {
+    token: signToken({ email, industry, tokenId, exp: Date.now() + UNSUBSCRIBE_TOKEN_DAYS * 86_400_000 }),
+    tokenId,
+  };
 }
 
 function baseUrl() {
@@ -410,11 +477,11 @@ function safeEmailSubject(value) {
 function buildVerificationEmail({ industry, code, expiryMinutes }) {
   const safeIndustry = escapeHtml(industry);
   return {
-    subject: safeEmailSubject(`Confirm your Lariat subscription — ${industry} alerts`),
+    subject: safeEmailSubject(`Confirm your Lariat email updates — ${industry}`),
     html: `
       <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1c3a52;">
         <h1 style="font-size: 22px; margin: 0 0 14px;">Confirm your Lariat subscription</h1>
-        <p style="font-size: 14px; line-height: 1.6;">You requested bill alerts for the
+        <p style="font-size: 14px; line-height: 1.6;">You requested email updates for the
           <strong>${safeIndustry}</strong> industry.</p>
         <p style="font-size: 14px; line-height: 1.6;">Your verification code is:</p>
         <p style="font-size: 30px; font-weight: bold; letter-spacing: 4px; margin: 12px 0;">${code}</p>
@@ -431,21 +498,21 @@ function buildWelcomeEmail({ industry, unsubscribeUrl }) {
   const safeIndustry = escapeHtml(industry);
   const safeUnsubscribeUrl = escapeHtml(unsubscribeUrl);
   return {
-    subject: safeEmailSubject(`You're subscribed to Lariat ${industry} alerts`),
+    subject: safeEmailSubject(`You're subscribed to Lariat ${industry} email updates`),
     html: `
       <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1c3a52;">
         <h1 style="font-size: 22px; margin: 0 0 14px;">You're subscribed</h1>
-        <p style="font-size: 14px; line-height: 1.6;">You'll receive Lariat bill alerts for the
+        <p style="font-size: 14px; line-height: 1.6;">You'll receive Lariat email updates for the
           <strong>${safeIndustry}</strong> industry.</p>
-        <p style="font-size: 14px; line-height: 1.6;">To stop these alerts at any time, click the link below
+        <p style="font-size: 14px; line-height: 1.6;">To stop these email updates at any time, click the link below
           (no login needed):</p>
         <p style="margin: 18px 0;">
           <a href="${safeUnsubscribeUrl}" style="display: inline-block; padding: 11px 18px; border-radius: 6px; background: #16334f; color: #ffffff; font-size: 13px; font-weight: bold; text-decoration: none;">
-            Unsubscribe from ${safeIndustry} alerts
+            Unsubscribe from ${safeIndustry} email updates
           </a>
         </p>
         <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
-          If you did not request this subscription, you can unsubscribe with the link above.</p>
+          If you did not request these email updates, you can unsubscribe with the link above.</p>
       </div>
     `,
   };
@@ -517,11 +584,11 @@ const MIME_TYPES = {
  * assets download faster. Used for every response below. */
 function sendBody(res, status, headers, body) {
   const req = res.req || {};
-  const acceptsGzip = /gzip/.test(String((req.headers && req.headers['accept-encoding']) || ''));
+  const acceptsGzip = /(?:^|,)\s*gzip(?:\s*;|\s*,|\s*$)/i.test(String((req.headers && req.headers['accept-encoding']) || ''));
   if (acceptsGzip && body.length > 512) {
     const compressed = zlib.gzipSync(body);
     headers['Content-Encoding'] = 'gzip';
-    headers['Vary'] = 'Accept-Encoding';
+    headers['Vary'] = headers.Vary ? `${headers.Vary}, Accept-Encoding` : 'Accept-Encoding';
     headers['Content-Length'] = compressed.length;
     res.writeHead(status, headers);
     return res.end(compressed);
@@ -605,11 +672,41 @@ function sendUnsubscribeConfirmation(res, token, payload) {
   button { border: 0; border-radius: 6px; padding: 11px 18px; background: #16334f; color: #ffffff; font: inherit; font-weight: 700; cursor: pointer; }
 </style>
 </head>
-<body><main class="card"><span class="mark">Lariat</span><h1>Stop ${safeIndustry} alerts?</h1><p>Confirm below to unsubscribe from this industry's Lariat alerts.</p><form method="post" action="/api/subscriptions/unsubscribe?token=${safeToken}"><button type="submit">Confirm unsubscribe</button></form></main></body>
+<body><main class="card"><span class="mark">Lariat</span><h1>Stop ${safeIndustry} email updates?</h1><p>Confirm below to unsubscribe from this industry's Lariat email updates.</p><form method="post" action="/api/subscriptions/unsubscribe"><input type="hidden" name="token" value="${safeToken}"><button type="submit">Confirm unsubscribe</button></form></main></body>
 </html>`;
   return sendText(res, 200, 'text/html; charset=utf-8', body, {
     'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
     'Referrer-Policy': 'no-referrer',
+  });
+}
+
+function readFormBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    let finished = false;
+    req.on('data', (chunk) => {
+      if (finished) return;
+      size += chunk.length;
+      if (size > 8 * 1024) {
+        finished = true;
+        reject(Object.assign(new Error('Request body too large'), { status: 413 }));
+        req.resume();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
+      if (finished) return;
+      finished = true;
+      try {
+        const parsed = Object.fromEntries(new URLSearchParams(Buffer.concat(chunks).toString('utf8')));
+        resolve(parsed);
+      } catch (error) {
+        reject(Object.assign(new Error('Request body must be valid form data'), { status: 400 }));
+      }
+    });
+    req.on('error', reject);
   });
 }
 
@@ -624,7 +721,7 @@ function readJsonBody(req) {
       if (size > 100_000) {
         finished = true;
         reject(Object.assign(new Error('Request body too large'), { status: 413 }));
-        req.destroy();
+        req.resume();
         return;
       }
       chunks.push(chunk);
@@ -844,7 +941,7 @@ async function handleRequestCode(req, res, body) {
   });
   saveData(store);
 
-  const expiryMinutes = Math.round(CODE_EXPIRY_MS / 60_000);
+  const expiryMinutes = CODE_EXPIRY_MINUTES;
   try {
     await sendVerificationEmail(email, { industry, code, expiryMinutes });
   } catch (error) {
@@ -898,6 +995,12 @@ async function handleVerifyCode(req, res, body) {
   }
 
   const matches = await codeMatches(verificationCode, pending);
+  // Another concurrent request may have consumed this one-time code while
+  // scrypt was running. Re-check the live store before changing state so the
+  // same verification cannot create duplicate subscriptions or welcome emails.
+  if (findPending(email, industry) !== pending) {
+    return sendJsonError(res, 400, 'No pending verification was found for this address. Request a new code.', 'no_pending');
+  }
   if (!matches) {
     pending.attempts += 1;
     saveData(store);
@@ -907,6 +1010,8 @@ async function handleVerifyCode(req, res, body) {
   // Code verified: remove the pending record and upsert the subscription.
   store.pendingCodes = store.pendingCodes.filter((p) => p !== pending);
   let subscription = findSubscription(email, industry);
+  const createdSubscription = !subscription;
+  const previousSubscription = subscription ? { ...subscription } : null;
   if (subscription) {
     subscription.verifiedAt = new Date().toISOString();
     subscription.source = 'backend';
@@ -919,22 +1024,36 @@ async function handleVerifyCode(req, res, body) {
     };
     store.subscriptions.push(subscription);
   }
-  subscription.unsubscribeToken = makeUnsubscribeToken(email, industry);
   saveData(store);
 
   // Welcome email carries a signed unsubscribe link (no login); the link opens
   // a confirmation page so automated scanners cannot mutate subscription state.
-  const unsubscribeUrl = `${baseUrl()}/api/subscriptions/unsubscribe?token=${encodeURIComponent(subscription.unsubscribeToken)}`;
-  sendWelcomeEmail(email, { industry, unsubscribeUrl }).catch((error) => {
-    console.error('Could not send the welcome email:', error.message);
-  });
+  // Keep the bearer token out of the API response and browser storage; users
+  // can unsubscribe with the link delivered to their mailbox.
+  const { token, tokenId } = makeUnsubscribeToken(email, industry);
+  subscription.unsubscribeTokenId = tokenId;
+  saveData(store);
+  const unsubscribeUrl = `${baseUrl()}/api/subscriptions/unsubscribe?token=${encodeURIComponent(token)}`;
+  try {
+    await sendWelcomeEmail(email, { industry, unsubscribeUrl });
+  } catch (error) {
+    // Do not report a successful subscription when the required welcome email
+    // could not be delivered. Remove only the subscription created by this
+    // verification so the user can retry after the request cooldown.
+    if (createdSubscription && subscription && subscription.source === 'backend' && subscription.unsubscribeTokenId === tokenId) {
+      store.subscriptions = store.subscriptions.filter((entry) => entry !== subscription);
+      saveData(store);
+    } else if (previousSubscription && subscription) {
+      Object.assign(subscription, previousSubscription);
+      saveData(store);
+    }
+    return sendJsonError(res, 502, 'We could not send the welcome email. Please try again later.', 'email_delivery_failed');
+  }
 
   return sendJson(res, 200, {
     ok: true,
-    message: `You're subscribed to ${industry} alerts.`,
+    message: `You're subscribed to ${industry} email updates.`,
     subscription: { email, industry, verifiedAt: subscription.verifiedAt },
-    unsubscribeUrl,
-    unsubscribeToken: subscription.unsubscribeToken,
   });
 }
 
@@ -945,9 +1064,14 @@ async function handleVerifyCode(req, res, body) {
  */
 function removeSubscription(payload) {
   const before = store.subscriptions.length;
-  store.subscriptions = store.subscriptions.filter(
-    (subscription) => !(subscription.email.toLowerCase() === payload.email.toLowerCase() && subscription.industry === payload.industry),
-  );
+  store.subscriptions = store.subscriptions.filter((subscription) => {
+    if (subscription.email.toLowerCase() !== payload.email.toLowerCase() || subscription.industry !== payload.industry) return true;
+    // Tokens are bound to the current subscription generation. This revokes
+    // an older welcome-email link after a resubscription. Records created by
+    // the pre-audit implementation have no generation identifier and must be
+    // re-verified before they can be unsubscribed.
+    return subscription.unsubscribeTokenId !== payload.tokenId;
+  });
   const removed = store.subscriptions.length !== before;
   if (removed) saveData(store);
   return removed;
@@ -985,10 +1109,10 @@ function handleUnsubscribeToken(req, res, token) {
   return sendHtmlPage(
     res,
     200,
-    removed ? 'Unsubscribed from Lariat alerts' : 'Nothing to change',
+    removed ? 'Unsubscribed from Lariat email updates' : 'Nothing to change',
     removed
-      ? `${payload.email} is no longer subscribed to ${payload.industry} alerts. You can resubscribe anytime from the Lariat bill feed.`
-      : `${payload.email} was not subscribed to ${payload.industry} alerts — nothing to change.`,
+      ? `${payload.email} is no longer subscribed to ${payload.industry} email updates. You can resubscribe anytime from the Lariat bill feed.`
+      : `${payload.email} was not subscribed to ${payload.industry} email updates — nothing to change.`,
   );
 }
 
@@ -1013,9 +1137,9 @@ function handleUnsubscribe(req, res, body) {
     return sendJsonError(res, 403, 'Please use the unsubscribe link from your welcome email, or resubscribe to get a fresh one.', 'bad_token');
   }
 
-  removeSubscription({ email, industry });
+  removeSubscription(payload);
 
-  return sendJson(res, 200, { ok: true, message: `Unsubscribed from ${industry} alerts.` });
+  return sendJson(res, 200, { ok: true, message: `Unsubscribed from ${industry} email updates.` });
 }
 
 /* ---------------------------------------------------------------------------
@@ -1023,6 +1147,10 @@ function handleUnsubscribe(req, res, body) {
  * ------------------------------------------------------------------------- */
 
 function serveStatic(req, res, url) {
+  if (url.href.length > MAX_REQUEST_URL_LENGTH) {
+    return sendText(res, 414, 'text/plain; charset=utf-8', 'Request URI too long');
+  }
+
   let pathname;
   try {
     pathname = decodeURIComponent(url.pathname);
@@ -1037,14 +1165,28 @@ function serveStatic(req, res, url) {
     return sendText(res, 403, 'text/plain; charset=utf-8', 'Forbidden');
   }
 
-  fs.readFile(filePath, (error, content) => {
+  // The lexical path check above does not stop a symlink inside the public
+  // directory from pointing outside it. Resolve the final path before reading
+  // so a mistakenly added symlink cannot expose .env, source files, or data.
+  fs.realpath(filePath, (realpathError, resolvedPath) => {
+    if (realpathError) {
+      if (realpathError.code === 'ENOENT') {
+        return sendText(res, 404, 'text/plain; charset=utf-8', 'Not found');
+      }
+      return sendText(res, 403, 'text/plain; charset=utf-8', 'Forbidden');
+    }
+    if (resolvedPath !== publicRoot && !resolvedPath.startsWith(publicRoot + path.sep)) {
+      return sendText(res, 403, 'text/plain; charset=utf-8', 'Forbidden');
+    }
+
+    fs.readFile(resolvedPath, (error, content) => {
     if (error) {
       if (error.code === 'ENOENT') {
         return sendText(res, 404, 'text/plain; charset=utf-8', 'Not found');
       }
       return sendText(res, 500, 'text/plain; charset=utf-8', 'Server error');
     }
-    const ext = path.extname(filePath).toLowerCase();
+    const ext = path.extname(resolvedPath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
     // HTML + JSON revalidate (a 304 when unchanged); versioned assets (css/js
     // already use ?v=...) may be cached for a day.
@@ -1066,6 +1208,7 @@ function serveStatic(req, res, url) {
       'Vary': 'Accept-Encoding',
       ...SECURITY_HEADERS,
     }, content);
+    });
   });
 }
 
@@ -1075,6 +1218,9 @@ function serveStatic(req, res, url) {
 
 const server = http.createServer(async (req, res) => {
   try {
+    if (String(req.url || '').length > MAX_REQUEST_URL_LENGTH) {
+      return sendText(res, 414, 'text/plain; charset=utf-8', 'Request URI too long');
+    }
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
     // DNS-rebinding guard: only answer requests addressed to an allowlisted
@@ -1136,7 +1282,6 @@ async function handleApi(req, res, url) {
       return sendJson(res, 200, {
         ok: true,
         service: 'lariat-backend',
-        email: BREVO_API_KEY ? 'brevo' : 'console-mode',
       });
     }
 
@@ -1149,13 +1294,21 @@ async function handleApi(req, res, url) {
       return sendJsonError(res, 405, 'Method not allowed', 'method');
     }
 
-    // The confirmation form carries only the signed token in the query string;
-    // handling it separately avoids accepting browser form posts for the JSON API.
-    if (pathname === '/api/subscriptions/unsubscribe' && url.searchParams.has('token')) {
-      return handleUnsubscribeToken(req, res, url.searchParams.get('token') || '');
-    }
-
     const contentType = String(req.headers['content-type'] || '').toLowerCase();
+    const declaredLength = Number(req.headers['content-length']);
+    const maxBodyLength = pathname === '/api/subscriptions/unsubscribe' && /^application\/x-www-form-urlencoded(?:\s*;|$)/.test(contentType)
+      ? 8 * 1024
+      : 100_000;
+    if (Number.isFinite(declaredLength) && declaredLength > maxBodyLength) {
+      return sendJsonError(res, 413, 'Request body too large.', 'body_too_large');
+    }
+    // The browser confirmation form carries only the signed token. Keep the
+    // token out of the POST URL and bound the form body separately from JSON.
+    if (pathname === '/api/subscriptions/unsubscribe'
+      && /^application\/x-www-form-urlencoded(?:\s*;|$)/.test(contentType)) {
+      const body = await readFormBody(req);
+      return handleUnsubscribeToken(req, res, typeof body.token === 'string' ? body.token : '');
+    }
     if (!/^application\/json(?:\s*;|$)/.test(contentType)) {
       return sendJsonError(res, 415, 'Content-Type must be application/json.', 'unsupported_media_type');
     }
@@ -1174,7 +1327,7 @@ async function handleApi(req, res, url) {
     }
   } catch (error) {
     const status = error.status || 500;
-    if (status === 500) console.error(error);
+    if (status === 500) console.error('API request error:', error.message);
     return sendJsonError(res, status, status === 500 ? 'Internal server error' : error.message, status === 500 ? 'internal' : 'bad_request');
   }
 }
@@ -1190,7 +1343,7 @@ server.listen(PORT, HOST, () => {
   console.log(`  Email:       ${emailMode}`);
   console.log(`  Access code: ${process.env.SUBSCRIPTION_ACCESS_CODE ? 'configured' : 'default development code'}`);
   console.log(`  Data file:   ${DATA_FILE}`);
-  if (HOST !== '127.0.0.1' && HOST !== 'localhost' && HOST !== '[::1]' && HOST !== '::1') {
+  if (!['127.0.0.1', 'localhost', '[::1]', '::1'].includes(normalizeHostname(HOST))) {
     console.log('  Warning: bound to a non-loopback address — the API is reachable from your network.');
   }
   if (IS_PRODUCTION) {

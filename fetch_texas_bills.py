@@ -14,13 +14,46 @@ from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
 OPEN_STATES_BILLS_URL = "https://v3.openstates.org/bills"
 DEFAULT_JURISDICTION = "ocd-jurisdiction/country:us/state:tx/government"
 DEFAULT_OUTPUT = "texas_bills.json"
 DEFAULT_BILL_DIR = "texas_bills"
+MAX_JSON_RESPONSE_BYTES = 8 * 1024 * 1024
+
+
+class NoRedirectHandler(HTTPRedirectHandler):
+    """Do not forward API credentials to an unexpected redirect target."""
+
+    def redirect_request(self, *args: Any, **kwargs: Any) -> None:
+        raise URLError("redirects are not allowed for API requests")
+
+
+SAFE_OPENER = build_opener(NoRedirectHandler)
+
+
+def read_bounded_response(response: Any, max_bytes: int) -> bytes:
+    """Read an HTTP response without allowing an unbounded allocation."""
+    content_length = response.headers.get("Content-Length")
+    if content_length:
+        try:
+            if int(content_length) > max_bytes:
+                raise ApiError("API response exceeded the configured size limit")
+        except ValueError:
+            pass
+    chunks: list[bytes] = []
+    total = 0
+    while True:
+        chunk = response.read(64 * 1024)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > max_bytes:
+            raise ApiError("API response exceeded the configured size limit")
+        chunks.append(chunk)
+    return b"".join(chunks)
 
 
 class ApiError(RuntimeError):
@@ -66,8 +99,8 @@ def request_json(
     for attempt in range(retries):
         request = Request(url, headers=request_headers, method="GET")
         try:
-            with urlopen(request, timeout=timeout) as response:
-                parsed = json.loads(response.read().decode("utf-8"))
+            with SAFE_OPENER.open(request, timeout=timeout) as response:
+                parsed = json.loads(read_bounded_response(response, MAX_JSON_RESPONSE_BYTES).decode("utf-8"))
             if not isinstance(parsed, dict):
                 raise ApiError("API returned an unexpected JSON shape")
             return parsed
@@ -200,8 +233,10 @@ def write_bill_files(
 def main() -> int:
     load_dotenv(Path(__file__).resolve().parent / ".env")
     args = parse_args()
-    if args.limit < 1 or args.per_page < 1 or (args.max_pages is not None and args.max_pages < 1):
-        print("--limit, --per-page, and --max-pages must be positive", file=sys.stderr)
+    if (args.limit < 1 or args.limit > 1000
+            or args.per_page < 1 or args.per_page > 100
+            or (args.max_pages is not None and (args.max_pages < 1 or args.max_pages > 100))):
+        print("--limit must be 1-1000; --per-page must be 1-100; --max-pages must be 1-100", file=sys.stderr)
         return 2
 
     open_states_key = os.getenv("OPEN_STATES_API_KEY")

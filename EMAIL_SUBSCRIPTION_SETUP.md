@@ -9,8 +9,9 @@
 
 This document describes how to add an email-only subscription system that can be tested privately with one email address. It is documentation only and is not loaded by the website.
 
-> **Implementation status:** the backend described here is implemented in `server/server.js`, and the frontend in `Lariat-real/subscriptions.js` now talks to it. Run it with `node server/server.js` and open <http://127.0.0.1:3000>. Without a `RESEND_API_KEY` it runs in console mode and prints verification codes to the terminal, so the whole flow works with no accounts. See `server/README.md` for setup and testing.
+> **Implementation status:** the current backend is implemented in `server/server.js`, and the frontend in `Lariat-real/subscriptions.js` now talks to it. Run it with `node server/server.js` and open <http://127.0.0.1:3000>. Without a `BREVO_API_KEY` it runs in console mode and prints verification codes and unsubscribe links to the terminal. See `server/README.md` for current setup and testing instructions.
 
+The remainder of this file is retained as historical planning material only; its Resend, EmailJS, and browser-localStorage examples are not the current implementation.
 ---
 
 ## Recommended setup

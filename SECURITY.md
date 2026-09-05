@@ -1,8 +1,22 @@
 # Security audit and go-live checklist
 
-Audit scope: the `Lariat-real/` frontend, `server/server.js`, environment configuration, static-file serving, and the subscription flow. Audit date: August 19, 2026.
+Audit scope: the `Lariat-real/` frontend, `server/server.js`, environment configuration, static-file serving, automation workflow, and the subscription flow. Audit date: September 4, 2026.
 
-The code-level issues found in this audit have been fixed. The steps below cover the remaining deployment, operations, data, and legal work required before a public launch.
+The code-level issues found in this audit have been fixed or documented below. The remaining deployment, operations, data, accessibility, and legal work is still required before a public launch.
+
+## Remaining risks in this repository
+
+These are not claims that the prototype is production-safe. They are the material risks still requiring deployment or product work:
+
+- The subscription store is a local JSON file, not a transactional production database. A public deployment needs an encrypted managed database, restricted credentials, backups, restore testing, and a retention/deletion process.
+- Rate limits and request cooldowns are process-local. They do not provide reliable protection across multiple instances or after a restart; a production edge limit and shared store are required.
+- The shared subscription access code is an invitation gate, not authentication. Anyone who receives it can reuse it until it is rotated; public release needs per-user invitations or accounts.
+- Unsubscribe tokens remain bearer credentials in email URLs. They are signed, include a subscription-generation identifier, expire, and are no longer returned to frontend JavaScript or stored in localStorage; a production product should still use short-lived opaque tokens stored as hashes server-side and should minimize URL/log exposure.
+- The workflow publishes AI-assisted summaries to the repository. Official-source validation, prompt-injection review, rollback, branch protection, and human review remain operational requirements even though the workflow now avoids publishing failed partial runs.
+- The accessibility statement is transparent about limitations, but no independent WCAG, screen-reader, keyboard-only, or complete contrast audit has been completed.
+- The prototype records subscriptions and sends verification/welcome email, but it does not yet deliver recurring bill alerts. Any launch copy, consent language, and retention schedule must be updated when that feature is implemented.
+
+No secrets, subscriber records, or runtime caches are tracked by Git in the current worktree; verify repository history and remote settings before launch.
 
 ## Lowest-cost safe remediation plan
 
@@ -92,7 +106,7 @@ ALLOWED_HOSTS=your-domain.example
 3. Do not add passwords, payment information, API keys, or account sessions to localStorage.
 4. When real accounts are introduced, move authentication to secure HttpOnly, SameSite cookies and keep authorization server-side.
 5. Provide a clear way to clear local notes and preference data. Explain that the current reset button does not delete the backend subscription.
-6. If the product no longer needs in-app unsubscribe, stop storing the unsubscribe token in localStorage and require the email link instead.
+6. The current demo requires the email link for unsubscribe and does not store unsubscribe tokens in localStorage. Keep that design unless an authenticated, server-backed in-app flow replaces it.
 
 ### 8. Make the bill-data pipeline trustworthy
 
@@ -175,12 +189,13 @@ Update the deployed static site's CSP `connect-src` to contain only the exact AP
 - Three incorrect access-code attempts trigger a persisted 24-hour lockout keyed by an HMAC-derived network identifier; the frontend displays a live countdown and the backend enforces the lockout.
 - Inputs have size limits and browser API POSTs require JSON.
 - Verification codes use asynchronous salted scrypt hashes, expire, and have limited attempts.
-- Brevo requests have a timeout and email-template values are escaped.
+- Brevo requests have a timeout, email-template values are escaped, and verification does not report success if the required welcome email fails; a newly created subscription is rolled back so the user can retry.
 - Unsubscribe GET requests show a confirmation page; the state-changing action requires POST.
 - The default server binds to loopback and production configuration fails closed when required settings are missing.
 - Production is HTTPS-only: the server redirects plain-HTTP requests (as reported by the proxy's `X-Forwarded-Proto`) to the HTTPS URL and every response advertises HSTS.
 - API access logs record only the HTTP method and path; query strings, which can carry signed unsubscribe tokens, are never logged.
-- Signed unsubscribe tokens expire after 90 days by default (`SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS`).
+- Signed unsubscribe links expire after 90 days by default (`SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS`), are bound to a subscription-generation identifier, and are not returned to frontend JavaScript or stored in localStorage.
+- Static-file serving resolves real paths before reading and rejects symlink escapes; request URLs are bounded to 8 KiB.
 
 ## Release verification
 
@@ -190,7 +205,7 @@ Before launch:
 - Verify HTTPS redirects and HSTS at the reverse proxy.
 - Confirm the public host and frontend origin are the only allowed values.
 - Check response headers on HTML, JSON, API errors, and unsubscribe pages.
-- Test invalid access codes, the third-failure 24-hour lockout and live countdown, expired verification codes, five failed verification-code attempts, repeated requests, malformed JSON, oversized bodies, traversal paths, and invalid unsubscribe tokens.
+- Test invalid access codes, the third-failure 24-hour lockout and live countdown, expired verification codes, five failed verification-code attempts, repeated requests, malformed JSON, oversized bodies, traversal paths, Brevo delivery failures, and invalid unsubscribe tokens.
 - Test the Brevo verification and unsubscribe flow from a real mailbox, including link-scanner behavior.
 - Confirm no secret appears in Git, frontend assets, generated JSON, logs, backups, or error responses.
 - Review the public data for prompt injection or unsafe generated content before publishing it.

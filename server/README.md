@@ -26,10 +26,10 @@ email server-side, so no email API key ever reaches the browser.
 
 | Endpoint | Method | Body | Purpose |
 | --- | --- | --- | --- |
-| `/api/health` | GET | — | Public liveness status and email mode |
+| `/api/health` | GET | — | Public liveness status |
 | `/api/subscriptions/request` | POST | `{ email, industry, accessCode }` | Sends a 6-digit verification code |
 | `/api/subscriptions/verify` | POST | `{ email, industry, verificationCode }` | Confirms the code, activates the subscription |
-| `/api/subscriptions/unsubscribe` | POST | `{ email, industry, token }` | Removes the subscription (in-app button; `token` is the signed unsubscribe token returned by `/verify`) |
+| `/api/subscriptions/unsubscribe` | POST | `{ email, industry, token }` | Removes the subscription when called by an API client with a valid signed token; the web UI uses the email link |
 | `/api/subscriptions/unsubscribe?token=…` | GET | signed token | Shows a confirmation page; the follow-up POST performs unsubscribe |
 
 ## Email: two modes
@@ -79,10 +79,10 @@ curl -s -X POST http://127.0.0.1:3000/api/subscriptions/verify \
   -H 'Content-Type: application/json' \
   -d '{"email":"you@example.com","industry":"Energy & Utilities","verificationCode":"123456"}'
 
-# 3. Unsubscribe (use the `unsubscribeToken` from the verify response in step 2)
+# 3. Unsubscribe (use the signed token from a welcome email, or an API client that already has one)
 curl -s -X POST http://127.0.0.1:3000/api/subscriptions/unsubscribe \
   -H 'Content-Type: application/json' \
-  -d '{"email":"you@example.com","industry":"Energy & Utilities","token":"<unsubscribeToken from step 2>"}'
+  -d '{"email":"you@example.com","industry":"Energy & Utilities","token":"<signed token from the welcome email>"}'
 ```
 
 Subscriptions are persisted to `server/data/subscriptions.json` (gitignored).
@@ -104,12 +104,14 @@ payment provider.
 ## Unsubscribe link (signed token)
 
 After a successful verification, the backend sends a **welcome email** that
-contains an unsubscribe link. The link carries an HMAC-SHA256-signed token that
-encodes the address + industry and expires after `SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS`
-(default 90 days). Opening the link shows a confirmation page; only submitting
-that page unsubscribes the address. This prevents email security scanners and
-browser prefetchers from unsubscribing people automatically. In console mode the
-link is printed to the server terminal instead of emailed.
+contains an unsubscribe link. The link carries an HMAC-SHA256-signed token with
+a random subscription-generation identifier and expires after
+`SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS` (default 90 days). Opening the link shows a
+confirmation page; only submitting that page unsubscribes the address. This
+prevents email security scanners and browser prefetchers from unsubscribing
+people automatically. The token is not returned to frontend JavaScript or stored
+in localStorage. In console mode the link is printed to the server terminal
+instead of emailed.
 
 ## Notes
 

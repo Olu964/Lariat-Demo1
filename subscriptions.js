@@ -8,9 +8,10 @@
    *
    *   POST /api/subscriptions/request      { email, industry, accessCode }
    *   POST /api/subscriptions/verify       { email, industry, verificationCode }
-   *   POST /api/subscriptions/unsubscribe  { email, industry }
+   *   POST /api/subscriptions/unsubscribe  { email, industry, token }
    *
-   * When the page itself is served by the backend (http://127.0.0.1:3000) the
+   * The web UI uses the signed token delivered in the welcome email; it is not
+   * stored in browser storage.
    * API is same-origin. If the frontend is served separately (for example
    * `python3 -m http.server 8000`), the API base falls back to port 3000.
    * ========================================================================== */
@@ -130,7 +131,19 @@
 
   const getSubscriptions = () => {
     const stored = readJson(SUBSCRIPTIONS_STORAGE_KEY);
-    return Array.isArray(stored) ? stored : [];
+    if (!Array.isArray(stored)) return [];
+    const sanitized = stored
+      .filter((subscription) => subscription && typeof subscription.industry === 'string')
+      .map((subscription) => ({
+        email: typeof subscription.email === 'string' ? subscription.email : '',
+        industry: subscription.industry,
+        ...(typeof subscription.verifiedAt === 'string' ? { verifiedAt: subscription.verifiedAt } : {}),
+      }));
+    // Remove bearer tokens left by the pre-audit client implementation.
+    if (JSON.stringify(sanitized) !== JSON.stringify(stored)) {
+      try { localStorage.setItem(SUBSCRIPTIONS_STORAGE_KEY, JSON.stringify(sanitized)); } catch (error) { /* ignore */ }
+    }
+    return sanitized;
   };
 
   const getSelectedPlanId = () => {
@@ -257,7 +270,7 @@
         <p class="subscribe-lockout" data-access-lockout role="status" aria-live="polite" hidden></p>
         <p class="subscribe-status" data-subscribe-status role="status" aria-live="polite"></p>
         <button class="subscribe-button submit" type="submit" data-subscribe-send title="Email a 6-digit verification code">Send verification code</button>
-        <p class="subscribe-privacy">Your email is used only for Lariat bill alerts. Verification happens on your local Lariat backend — no email API keys are exposed in the browser. Free for you and for us — no payment or credit card required.</p>
+        <p class="subscribe-privacy">Your email is used for Lariat email updates. This demo sends verification and welcome emails; recurring bill alerts are not active yet. Verification happens on the backend — no email API keys are exposed in the browser. No payment or credit card is required.</p>
       </form>
     `;
     updateAccessCodeLockoutUi();
@@ -271,7 +284,7 @@
         <label class="subscribe-label" for="subscribe-code">Verification code</label>
         <input class="subscribe-input subscribe-code-input" id="subscribe-code" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" placeholder="123456" required>
         <p class="subscribe-status" data-subscribe-status role="status" aria-live="polite"></p>
-        <button class="subscribe-button submit" type="submit" data-subscribe-confirm title="Activate alerts for this industry">Confirm subscription</button>
+        <button class="subscribe-button submit" type="submit" data-subscribe-confirm title="Confirm email updates for this industry">Confirm subscription</button>
         <button class="subscribe-button link" type="button" data-subscribe-resend title="Send the verification code again">Resend code</button>
       </form>
     `;
@@ -397,55 +410,31 @@
         industry: currentIndustry,
         verifiedAt: data.subscription?.verifiedAt || new Date().toISOString(),
       };
-      // The signed token lets the in-app Unsubscribe button prove ownership of
-      // the address without asking for the verification code again.
-      if (typeof data.unsubscribeToken === 'string' && data.unsubscribeToken) {
-        storedSubscription.unsubscribeToken = data.unsubscribeToken;
-      }
+      // Keep only the local badge state. The passwordless unsubscribe link is
+      // delivered to the verified mailbox and is intentionally not stored in
+      // localStorage, where any same-origin script could read it.
       subscriptions.push(storedSubscription);
       try {
         localStorage.setItem(SUBSCRIPTIONS_STORAGE_KEY, JSON.stringify(subscriptions));
       } catch (error) {
         // The backend still has the subscription; only the local badge fails.
-        showToast("Subscribed — but the browser couldn't save the badge state.");
+        showToast("Subscribed to email updates, but the browser couldn't save the badge state.");
       }
     }
 
     updatePlanStatus();
     closeModal();
-    showToast(`You're subscribed to ${currentIndustry} alerts.`);
+    showToast(`You're subscribed to ${currentIndustry} email updates.`);
     document.dispatchEvent(new CustomEvent('lariat:subscriptions-changed', { detail: { industry: currentIndustry } }));
   };
 
   const unsubscribe = async (industry) => {
     const subscription = getSubscriptions().find((item) => item.industry === industry);
     if (!subscription) {
-      showToast(`You're not subscribed to ${industry} alerts in this browser.`);
+      showToast(`You're not subscribed to ${industry} email updates in this browser.`);
       return;
     }
-    if (!subscription.unsubscribeToken) {
-      showToast('Use the unsubscribe link from your welcome email, or subscribe again to get a fresh one.');
-      return;
-    }
-    try {
-      await api('/api/subscriptions/unsubscribe', {
-        email: subscription.email,
-        industry,
-        token: subscription.unsubscribeToken,
-      });
-    } catch (error) {
-      showToast(`Could not unsubscribe: ${error.message}`);
-      return;
-    }
-    try {
-      localStorage.setItem(
-        SUBSCRIPTIONS_STORAGE_KEY,
-        JSON.stringify(getSubscriptions().filter((item) => item.industry !== industry)),
-      );
-    } catch (error) { /* ignore */ }
-    updatePlanStatus();
-    showToast(`Unsubscribed from ${industry} alerts.`);
-    document.dispatchEvent(new CustomEvent('lariat:subscriptions-changed', { detail: { industry } }));
+    showToast('Use the unsubscribe link from your welcome email to stop these email updates.');
   };
 
   modalBody?.addEventListener('submit', (event) => {
@@ -484,7 +473,7 @@
     open(industry) {
       if (!modal) return;
       if (isSubscribed(industry)) {
-        showToast(`You're already subscribed to ${industry} alerts.`);
+        showToast(`You're already subscribed to ${industry} email updates.`);
         return;
       }
       if (!canAddIndustry(industry)) {

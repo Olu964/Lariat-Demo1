@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+  <meta name="description" content="How Lariat collects, uses, and protects your information. Read our privacy policy for email subscriptions, bill notes, and data handling.">
+  <meta name="author" content="Lariat">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://lariatdemo.com/privacy.html">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Privacy Policy — Lariat">
+  <meta property="og:description" content="How Lariat collects, uses, and protects your information.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://lariatdemo.com/privacy.html">
+  <meta property="og:image" content="https://lariatdemo.com/favicon-64.png">
+  <meta property="og:site_name" content="Lariat">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Privacy Policy — Lariat">
+  <meta name="twitter:description" content="How Lariat collects, uses, and protects your information.">
+  <meta name="twitter:image" content="https://lariatdemo.com/favicon-64.png">
+  <title>Privacy Policy — Lariat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="theme-init.js"></script>
+</head>
+<body class="pricing-page legal-page">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Lariat home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">Lariat</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="feed.html">Bill feed</a>
+      <a class="nav-link" href="pricing.html">Pricing</a>
+      <a class="nav-link active" href="privacy.html" aria-current="page">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <span class="demo-pill"><span class="status-dot"></span> Real data snapshot</span>
+      <button class="avatar-button" type="button" aria-label="Open account menu" title="Account menu — disabled in this prototype">OL</button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Switch to dark mode"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
+    </div>
+  </header>
+
+  <main class="legal-shell page-reveal">
+    <section class="legal-hero">
+      <div class="eyebrow"><span class="eyebrow-line"></span> Legal &amp; transparency</div>
+      <h1>Privacy Policy</h1>
+      <p>Lariat turns Texas bill summaries into clear, business-ready signals. This policy explains what information we collect, why we collect it, and the choices you have.</p>
+      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Effective September 4, 2026</div>
+    </section>
+
+    <article class="legal-card">
+      <section class="legal-section">
+        <h2>1. What this policy covers</h2>
+        <p>This policy applies to the Lariat site — including the landing page, the <strong>Bill feed</strong>, <strong>Pricing</strong>, and the optional email subscription flow. Browsing the feed does not require an account, payment, or login. Billing, customer accounts, and recurring bill-alert delivery are not active features in the current code.</p>
+        <p><strong>How the bill feed is produced.</strong> The feed is populated by an automated pipeline that fetches public Texas bill records from the <strong>Open States</strong> API and attempts to retrieve official Texas Legislature bill text over HTTPS. When usable official text is available, <strong>OpenRouter AI</strong> drafts a structured summary from that text and public record metadata. When usable official text cannot be obtained, the pipeline may publish a shorter, explicitly labeled metadata-only summary; it does not claim that metadata-only text is a substitute for bill text. The scheduled job runs through <strong>GitHub Actions</strong>, which can fetch, summarize, and commit updated public records. These pipeline steps are separate from visitor use of the site and do not intentionally include visitor personal information in AI requests.</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>2. Information we collect</h2>
+        <p>The current application collects or processes the following information:</p>
+        <ul>
+          <li><strong>Email address</strong> — entered when you request a subscription verification email and retained with a confirmed subscription. In the browser, the subscription badge record also contains the entered email address, industry, and verification timestamp.</li>
+          <li><strong>Industry preference</strong> — the industry selected for a subscription.</li>
+          <li><strong>Verification code and private access code</strong> — the verification code is checked by the backend and stored only as a salted scrypt hash while pending; it expires after the configured lifetime (10 minutes by default) and is never stored in plaintext. The private access code is checked and is not stored.</li>
+          <li><strong>Browser storage</strong> — bill notes, light/dark theme preference, selected demo plan, and subscription badge state are stored in localStorage on the device. The signed unsubscribe token is not stored in browser storage.</li>
+          <li><strong>Network and operational information</strong> — the backend reads the connecting IP address for rate limiting and access-code lockout. It keeps rate-limit data in process memory and stores an HMAC-derived key plus failure-count and lockout timestamps for the access-code lockout; the raw IP address is not written to the subscription JSON file. The server logs the HTTP method and path for API requests, while a hosting provider, reverse proxy, firewall, or server process may keep additional access logs. In local console mode, the server also prints the recipient email, verification code, and unsubscribe link needed for testing.</li>
+        </ul>
+        <p>We do not ask for your name, payment information, or precise location. Do not put confidential information into bill notes: localStorage is user-controlled and is not an encrypted workspace. If you use local console mode, treat the terminal output as sensitive because it can contain an email address, a verification code, and an unsubscribe link.</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>3. How we use your information</h2>
+        <ul>
+          <li>Your email address and industry are used to request and, when Brevo is configured, deliver the verification and welcome emails, and to retain your confirmed email-list subscription. Without Brevo credentials, local console mode prints the verification code and unsubscribe link to the server terminal instead of sending email. The current backend does not contain a scheduled recurring bill-alert delivery job, so no recurring bill alerts are sent by this demo. The current implementation sends a verification email and, after confirmation, a welcome email containing an unsubscribe link when email delivery is configured.</li>
+          <li>The verification code confirms control of the email address; it is used for no other purpose and is not stored in plaintext.</li>
+          <li>The IP address is used transiently for abuse prevention and rate limiting.</li>
+          <li>Bill notes, theme preference, selected demo plan, and subscription badge state remain in browser storage. The selected demo plan controls the number of industry subscriptions the demo UI permits; it is not payment or account authorization.</li>
+        </ul>
+        <p>We do not sell your information or use it for advertising or profiling.</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>4. Where your information lives</h2>
+        <p><strong>In your browser.</strong> The feed stores bill notes, theme preference, selected demo plan, and local subscription badge state in localStorage. The badge state includes the email address, industry, and verification timestamp returned after confirmation. The signed unsubscribe token is delivered by email and is intentionally not stored in browser storage.</p>
+        <p><strong>On the backend host.</strong> In the local prototype, the backend stores a subscription record containing the email address, industry, verification time, and a token-generation identifier in <code>server/data/subscriptions.json</code>, outside the public site directory. Pending verification codes are stored only as salted scrypt hashes with a 10-minute expiry. Failed access-code lockout records contain an HMAC-derived network key, a failure count, and timestamps; raw IP addresses are not written to the file. A production deployment must replace this local JSON file with the encrypted database and access controls described in the project's security checklist.</p>
+        <p><strong>With our email provider.</strong> To deliver verification and welcome emails, the backend sends the recipient email address, sender information, message content, selected industry, and the signed unsubscribe URL in the relevant welcome message to <a href="https://www.brevo.com/legal/privacypolicy/" target="_blank" rel="noopener noreferrer">Brevo</a>. Brevo's own privacy policy governs its processing. No payment information is collected by the current subscription flow.</p>
+        <p><strong>With hosting and infrastructure providers.</strong> A public deployment may expose request metadata, such as IP address, timestamps, user agent, and requested URL, to its hosting provider or reverse proxy according to that provider's logging policy.</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>5. Third-party services</h2>
+        <ul>
+          <li><strong>Brevo</strong> — delivers verification and welcome emails when Brevo email delivery is configured and a subscription flow is completed. In local console mode, the server prints testing values instead. See their <a href="https://www.brevo.com/legal/privacypolicy/" target="_blank" rel="noopener noreferrer">privacy policy</a>.</li>
+          <li><strong>Google Fonts</strong> — loads the site's typography. Google may log standard request information when the fonts load; see <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's privacy policy</a>.</li>
+          <li><strong>Texas Legislature</strong> — the feed links out to <a href="https://capitol.texas.gov/" target="_blank" rel="noopener noreferrer">capitol.texas.gov</a> so you can verify bill status with the official source. That site is outside our control.</li>
+          <li><strong>Open States</strong> — the public API that supplies the Texas bill records displayed in the feed. See their <a href="https://open.pluralpolicy.com/tos/" target="_blank" rel="noopener noreferrer">Terms of Use &amp; Privacy Policy</a>.</li>
+          <li><strong>OpenRouter AI</strong> — generates bill summaries from official legislative text and record metadata. No visitor personal information is included in these requests. See <a href="https://openrouter.ai/privacy" target="_blank" rel="noopener noreferrer">OpenRouter's privacy information</a> for provider details.</li>
+          <li><strong>GitHub Actions</strong> — runs the scheduled fetch-and-summarize job. It has access only to the public bill records and your repository's automation secrets; it never receives visitor personal information. See <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub's privacy statement</a>.</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h2>6. Cookies and tracking</h2>
+        <p>The current frontend does not set application cookies and does not include analytics, advertising trackers, or fingerprinting code. It uses localStorage for bill notes, theme, selected demo plan, and local subscription badge state; unsubscribe tokens are not stored there. The Free, Professional, and Business choices are demo-only browser state; billing, payment processing, customer accounts, and server-side plan authorization are not active. When the subscription flow is used, the browser sends the entered email, industry, access code, and later verification code to the configured Lariat backend. The browser does not send bill notes, theme preference, or plan selection to that backend. Hosting infrastructure, Brevo, and other linked third parties may maintain their own technical logs.</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>7. How long we keep information</h2>
+        <ul>
+          <li><strong>Verification codes</strong> expire after the configured lifetime (10 minutes by default), are stored only as salted scrypt hashes, and are removed when verified or when expired records are pruned during a later subscription request or verification.</li>
+          <li><strong>Access-code lockout records</strong> are removed after the 24-hour lockout window or after the associated failure window expires. They contain an HMAC-derived network key rather than the raw IP address.</li>
+          <li><strong>Subscriptions</strong> remain in the configured backend store until unsubscribed or deleted by the operator. The local prototype does not implement an automatic retention period. Signed unsubscribe links expire after the configured token lifetime, 90 days by default; expiration does not itself delete the subscription record.</li>
+          <li><strong>Browser data</strong> — bill notes, theme preference, selected demo plan, and subscription badge state remain until removed by the site, changed or cleared through the relevant demo controls, or cleared in browser settings. Unsubscribe tokens are delivered by email and are not stored in browser storage. The reset-subscriptions control removes the local subscription badge state but does not clear the selected demo plan, delete the backend subscription, or bypass a server-enforced access-code lockout.</li>
+          <li><strong>Infrastructure logs</strong> — retention is controlled by the hosting provider, reverse proxy, and operator's logging settings. The intended operational target is 365 days where the provider supports it, but the current local prototype does not implement automatic log retention or deletion.</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h2>8. Your choices and rights</h2>
+        <ul>
+          <li><strong>Stop receiving update emails:</strong> the Bill feed's <strong>Unsubscribe</strong> button only explains that the email link must be used; it does not remove the backend record. Open the unsubscribe link in a Lariat welcome email and explicitly confirm the action. This removes the matching record from the backend when the token is valid and current.</li>
+          <li><strong>Clear browser state:</strong> use <strong>Reset demo subscriptions</strong> on the Bill feed, or clear this site's data in your browser settings. Reset clears the browser subscription badge and local subscription state, but it does not clear the selected demo plan, delete the backend subscription, or bypass a server-enforced access-code lockout.</li>
+          <li><strong>Access or correct:</strong> in the local prototype, the operator can inspect the backend data file and users can inspect their browser storage. For a public deployment, contact the operator at the address below to request access, correction, or deletion.</li>
+        </ul>
+        <p>Unsubscribe requests require the signed token issued after email verification. The current demo sends verification and welcome emails but does not send recurring bill alerts. For privacy questions or requests, contact us using the details in section 11.</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>9. Children's privacy</h2>
+        <p>Lariat is not directed at children under 13, and we do not knowingly collect information from them. If you believe a child has shared information with us, contact us and we will remove it.</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>10. Security</h2>
+        <p>The backend uses salted scrypt hashes for pending verification codes, short expirations, limited verification attempts, three failed access-code attempts followed by a 24-hour lockout, request limits, strict input handling, signed expiring unsubscribe tokens, and server-side email delivery. Brevo requests use HTTPS. The development server binds to 127.0.0.1 by default and keeps subscription data outside the public site directory. Static-file serving rejects paths that escape the public directory, including through symlinks. A public deployment must use HTTPS, a maintained reverse proxy, secret management, a production database, backups, monitoring, and the full security checklist; the current prototype does not provide those infrastructure controls by itself.</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>11. Contact</h2>
+        <p>If you have questions about this policy or your information, contact us at <a href="mailto:lariatfeed@gmail.com">lariatfeed@gmail.com</a>.</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>12. Changes to this policy</h2>
+        <p>We may update this policy as the site evolves. The effective date at the top of this page reflects the latest version. Please check back here for changes. This policy describes the current prototype and is not legal advice; obtain a jurisdiction-specific privacy review before a public launch.</p>
+      </section>
+    </article>
+
+    <nav class="legal-policy-links" aria-label="Legal policies">
+      <a class="legal-access-link" href="#terms-modal" data-modal-open="terms-modal" aria-haspopup="dialog">Terms and Conditions <span aria-hidden="true">↗</span></a>
+      <a class="legal-access-link" href="#cookie-modal" data-modal-open="cookie-modal" aria-haspopup="dialog">Cookie Policy <span aria-hidden="true">↗</span></a>
+      <a class="legal-access-link" href="#security-modal" data-modal-open="security-modal" aria-haspopup="dialog">SSL / HTTPS Security <span aria-hidden="true">↗</span></a>
+      <a class="legal-access-link" href="#disclaimer-modal" data-modal-open="disclaimer-modal" aria-haspopup="dialog">Disclaimer <span aria-hidden="true">↗</span></a>
+      <a class="legal-access-link" href="#accessibility-modal" data-modal-open="accessibility-modal" aria-haspopup="dialog">Accessibility statement <span aria-hidden="true">↗</span></a>
+    </nav>
+    <p class="legal-access-link-wrap"><a class="legal-access-link" href="accessibility.html">Read the complete accessibility statement <span aria-hidden="true">↗</span></a></p>
+  </main>
+
+  <dialog id="terms-modal" class="legal-modal" aria-labelledby="terms-modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div><div class="modal-kicker">Legal</div><h2 id="terms-modal-title">Terms and Conditions</h2></div>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close Terms and Conditions" title="Close">×</button>
+      </div>
+      <div class="modal-body accessibility-body">
+        <section><h3>About Lariat</h3><p>Lariat is a demonstration site that presents Texas legislative records and AI-assisted summaries. The site and its subscription flow are provided as a prototype. Browsing does not require an account or payment. Billing, customer accounts, paid plans, and recurring bill-alert delivery are not active features.</p></section>
+        <section><h3>Using the site</h3><ul><li>Use the site lawfully and do not attempt to disrupt it, bypass its access controls, probe its infrastructure, or submit malicious code or content.</li><li>Do not submit confidential, sensitive, or regulated information in bill notes. Notes are stored in your browser's localStorage and are not an encrypted workspace.</li><li>Keep any subscription access code private. Email verification is required for the current subscription flow, but the shared access code is an invitation gate rather than an account or authentication system.</li><li>Verify important information with the linked official Texas legislative source before relying on it. The site may show metadata-only summaries when usable official bill text is unavailable.</li></ul></section>
+        <section><h3>Subscriptions and email</h3><p>The current backend can request email verification and send a welcome email through Brevo when configured. In local console mode, testing values are printed to the server terminal instead. The current implementation does not send recurring bill alerts. You may unsubscribe by opening a valid welcome-email link and confirming the action.</p></section>
+        <section><h3>Content and availability</h3><p>Bill records, summaries, links, and service availability may change or contain errors. Third-party services and linked websites are outside Lariat's control. These prototype terms do not create a customer account, paid service, professional relationship, or promise of future functionality. This summary is not legal advice; obtain legal review before using it as public terms.</p></section>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="cookie-modal" class="legal-modal" aria-labelledby="cookie-modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div><div class="modal-kicker">Privacy</div><h2 id="cookie-modal-title">Cookie Policy</h2></div>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close Cookie Policy" title="Close">×</button>
+      </div>
+      <div class="modal-body accessibility-body">
+        <section><h3>What Lariat uses</h3><p>The current Lariat frontend does not set application cookies. It does not include analytics, advertising trackers, or fingerprinting code. It uses browser localStorage—not cookies—for bill notes, the light/dark theme preference, the selected demo plan, local subscription badge state, and temporary display state for the access-code lockout.</p></section>
+        <section><h3>What localStorage means</h3><p>localStorage is controlled by your browser and is readable by scripts running on this site's origin. It is not encrypted and is not sent to Lariat's backend for notes, theme preference, or plan selection. Unsubscribe tokens are not stored there. You can inspect or delete this data with your browser's site-data controls; the Bill feed's reset control clears local subscription badge state but not every preference and does not delete the backend subscription.</p></section>
+        <section><h3>Third-party and hosting technology</h3><p>Google Fonts may receive standard technical information when the font files load. Hosting infrastructure, reverse proxies, Brevo, and linked third-party sites may use their own cookies or technical logs under their own policies. Lariat does not control those practices, and the current site does not provide a cookie-consent banner.</p></section>
+        <section><h3>Changes</h3><p>If analytics, advertising, cookies, or other tracking technologies are added, this policy must be updated before they are used. This prototype disclosure is not legal advice.</p></section>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="security-modal" class="legal-modal" aria-labelledby="security-modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div><div class="modal-kicker">Security</div><h2 id="security-modal-title">SSL / HTTPS Security</h2></div>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close SSL and HTTPS Security" title="Close">×</button>
+      </div>
+      <div class="modal-body accessibility-body">
+        <section><h3>What HTTPS does</h3><p>HTTPS uses TLS to encrypt traffic between a browser and the HTTPS endpoint, helping protect data in transit from interception or alteration. It does not make information secure after it reaches the browser, server, email provider, hosting provider, logs, or backups.</p></section>
+        <section><h3>Current deployment behavior</h3><p>In local development, Lariat intentionally runs on <code>http://127.0.0.1:3000</code>. In production configuration, the Node server requires an HTTPS public URL, redirects requests that the trusted reverse proxy reports as plain HTTP, and sends an HSTS header. The deployed static site also declares HSTS and security headers through its hosting configuration.</p></section>
+        <section><h3>What production still requires</h3><ul><li>A trusted reverse proxy or managed host must terminate TLS and maintain a valid certificate.</li><li>The proxy must pass a correct <code>X-Forwarded-Proto</code> value, protect the origin, and apply appropriate rate limits.</li><li>Secrets, subscription data, logs, backups, and infrastructure access must be protected separately from transport encryption.</li><li>Users should check the browser's secure-connection and certificate indicators before entering an email address.</li></ul></section>
+        <section><h3>Scope</h3><p>Lariat does not operate or warrant the TLS configuration of every host, proxy, browser, email provider, or linked third-party website. Confirm the actual deployed connection before collecting real subscriber information. This statement is informational, not a security certification.</p></section>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="disclaimer-modal" class="legal-modal" aria-labelledby="disclaimer-modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div><div class="modal-kicker">Important</div><h2 id="disclaimer-modal-title">Disclaimer</h2></div>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close Disclaimer" title="Close">×</button>
+      </div>
+      <div class="modal-body accessibility-body">
+        <section><h3>Informational content only</h3><p>Lariat's bill records, summaries, classifications, dates, impact labels, status labels, notes, and other content are provided for general information. Summaries may be drafted with OpenRouter AI from public records and official legislative text, or may be explicitly labeled metadata-only when official text is unavailable. AI-assisted and metadata-only content may be incomplete, outdated, or incorrect.</p></section>
+        <section><h3>Not professional advice</h3><p>Lariat does not provide legal, legislative, regulatory, financial, investment, tax, lobbying, or other professional advice. Nothing on this site creates an attorney-client, adviser-client, or other professional relationship. Consult a qualified professional for advice about your circumstances.</p></section>
+        <section><h3>Verify before relying</h3><p>Texas legislative status and bill text can change. Use the linked official Texas Legislature source to verify the current identifier, text, status, dates, and effective provisions before making a decision or taking action. A displayed “Alive” or “Dead” label is an application classification, not an official legal determination.</p></section>
+        <section><h3>External services and availability</h3><p>Links to Texas Legislature, Open States, Brevo, Google Fonts, OpenRouter, and other third parties lead to services outside Lariat's control. Lariat does not guarantee their accuracy, availability, accessibility, security, or privacy practices. The prototype may be unavailable, changed, or discontinued without notice. This disclaimer is a plain-language product disclosure, not a complete legal limitation of liability.</p></section>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="accessibility-modal" class="legal-modal" aria-labelledby="accessibility-modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Accessibility</div>
+          <h2 id="accessibility-modal-title">Accessibility statement</h2>
+        </div>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close accessibility statement" title="Close">×</button>
+      </div>
+      <div class="modal-body accessibility-body">
+        <section>
+          <h3>Accessibility</h3>
+          <p>This popup is a summary. The complete accessibility statement, including current support and known limitations, is <a href="accessibility.html">available on its own page</a>. Lariat has not claimed WCAG conformance.</p>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script src="theme.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

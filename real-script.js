@@ -24,8 +24,10 @@
     toastTimer = setTimeout(() => toast.classList.remove('visible'), 3200);
   };
 
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   document.querySelectorAll('[data-action="scroll-topics"]').forEach((button) => {
-    button.addEventListener('click', () => document.querySelector('#bill-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    button.addEventListener('click', () => document.querySelector('#bill-list')?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' }));
   });
 
   document.querySelectorAll('[data-action="reset-subscriptions"]').forEach((button) => {
@@ -155,8 +157,13 @@
   const formatLabel = (key) => key.replace(/_/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase());
   const formatValue = (value) => {
     if (value === null || value === undefined || value === '') return 'Not provided';
-    if (typeof value === 'object') return JSON.stringify(value);
-    return String(value);
+    let formatted;
+    try {
+      formatted = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    } catch (error) {
+      formatted = 'Not provided';
+    }
+    return formatted.length > 4000 ? `${formatted.slice(0, 4000)}…` : formatted;
   };
   const formatUpdatedOn = (bill) => {
     const rawDate = bill.updated_at || bill.updatedOn || bill.last_updated || bill.generated_at;
@@ -207,7 +214,8 @@
       ? bill.source_url
       : 'https://capitol.texas.gov/';
     const detailFields = Object.entries(bill)
-      .filter(([key]) => !['id', 'identifier', 'title', 'impact_level', 'industry', 'specific_industry', 'source_url', '__index', '__groupId'].includes(key));
+      .filter(([key]) => !['id', 'identifier', 'title', 'impact_level', 'industry', 'specific_industry', 'source_url', '__index', '__groupId'].includes(key))
+      .slice(0, 30);
     modalBody.innerHTML = `
       <article class="modal-bill-card ${levelClass === 'high' ? 'high-impact' : ''}">
         <div class="bill-topline"><span class="bill-number">${escapeHtml(identifier)}</span><span class="bill-date">${escapeHtml(displaySpecificIndustry(bill.specific_industry, bill.industry))}</span></div>
@@ -291,9 +299,9 @@
   const subscribeRowMarkup = (industry) => {
     const subscribed = typeof window.LariatSubscriptions !== 'undefined' && window.LariatSubscriptions.isSubscribed(industry);
     if (subscribed) {
-      return `<div class="subscribe-row subscribed"><span class="subscribe-check" aria-hidden="true">✓</span> Subscribed to ${escapeHtml(industry)} alerts<button class="subscribe-button link subscribe-unsubscribe" type="button" data-unsubscribe-industry="${escapeHtml(industry)}" title="Stop ${escapeHtml(industry)} alerts">Unsubscribe</button></div>`;
+      return `<div class="subscribe-row subscribed"><span class="subscribe-check" aria-hidden="true">✓</span> Subscribed to ${escapeHtml(industry)} email updates<button class="subscribe-button link subscribe-unsubscribe" type="button" data-unsubscribe-industry="${escapeHtml(industry)}" title="Stop ${escapeHtml(industry)} email updates">Unsubscribe</button></div>`;
     }
-    return `<div class="subscribe-row"><button class="subscribe-button" type="button" data-subscribe-industry="${escapeHtml(industry)}" title="Get an email when ${escapeHtml(industry)} bills move"><span class="subscribe-bell" aria-hidden="true"></span>Subscribe to ${escapeHtml(industry)} alerts</button></div>`;
+    return `<div class="subscribe-row"><button class="subscribe-button" type="button" data-subscribe-industry="${escapeHtml(industry)}" title="Get email updates when ${escapeHtml(industry)} bills move"><span class="subscribe-bell" aria-hidden="true"></span>Subscribe to ${escapeHtml(industry)} email updates</button></div>`;
   };
 
   const renderBills = (bills, viewTitle = 'All industries', showSpecificIndustry = false) => {
@@ -429,7 +437,7 @@
   canvas.setAttribute('aria-hidden', 'true');
   document.body.prepend(canvas);
   const context = canvas.getContext('2d');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduceMotion = prefersReducedMotion;
   const points = Array.from({ length: 18 }, (_, index) => ({
     x: Math.random(), y: Math.random(), radius: 1 + Math.random() * 1.5,
     speed: 0.00008 + Math.random() * 0.00013, phase: index * 0.8,
