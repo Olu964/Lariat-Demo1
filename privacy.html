@@ -48,7 +48,7 @@
     </nav>
     <div class="header-actions">
       <span class="demo-pill"><span class="status-dot"></span> Real data snapshot</span>
-      <button class="avatar-button" type="button" aria-label="Open account menu" title="Account menu — disabled in this prototype">OL</button>
+      <button class="avatar-button" type="button" aria-label="Open account menu" title="Account menu — disabled in this prototype">TX</button>
       <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Switch to dark mode"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
     </div>
   </header>
@@ -75,10 +75,10 @@
           <li><strong>Email address</strong> — entered when you request a subscription verification email and retained with a confirmed subscription. In the browser, the subscription badge record also contains the entered email address, industry, and verification timestamp.</li>
           <li><strong>Industry preference</strong> — the industry selected for a subscription.</li>
           <li><strong>Verification code and private access code</strong> — the verification code is checked by the backend and stored only as a salted scrypt hash while pending; it expires after the configured lifetime (10 minutes by default) and is never stored in plaintext. The private access code is checked and is not stored.</li>
-          <li><strong>Browser storage</strong> — bill notes, light/dark theme preference, selected demo plan, and subscription badge state are stored in localStorage on the device. The signed unsubscribe token is not stored in browser storage.</li>
+          <li><strong>Browser storage</strong> — the display name entered when you first open the site, bill notes, light/dark theme preference, selected demo plan, and subscription badge state are stored in localStorage on the device. The signed unsubscribe token is not stored in browser storage.</li>
           <li><strong>Network and operational information</strong> — the backend reads the connecting IP address for rate limiting and access-code lockout. It keeps rate-limit data in process memory and stores an HMAC-derived key plus failure-count and lockout timestamps for the access-code lockout; the raw IP address is not written to the subscription JSON file. The server logs the HTTP method and path for API requests, while a hosting provider, reverse proxy, firewall, or server process may keep additional access logs. In local console mode, the server also prints the recipient email, verification code, and unsubscribe link needed for testing.</li>
         </ul>
-        <p>We do not ask for your name, payment information, or precise location. Do not put confidential information into bill notes: localStorage is user-controlled and is not an encrypted workspace. If you use local console mode, treat the terminal output as sensitive because it can contain an email address, a verification code, and an unsubscribe link.</p>
+        <p>When you first open the site, we ask for a display name to personalize the greeting. The name is stored only in your browser's localStorage, is never sent to our backend, and is not used for any other purpose. We do not ask for payment information or precise location. Do not put confidential information into bill notes: localStorage is user-controlled and is not an encrypted workspace. If you use local console mode, treat the terminal output as sensitive because it can contain an email address, a verification code, and an unsubscribe link.</p>
       </section>
 
       <section class="legal-section">
@@ -94,7 +94,7 @@
 
       <section class="legal-section">
         <h2>4. Where your information lives</h2>
-        <p><strong>In your browser.</strong> The feed stores bill notes, theme preference, selected demo plan, and local subscription badge state in localStorage. The badge state includes the email address, industry, and verification timestamp returned after confirmation. The signed unsubscribe token is delivered by email and is intentionally not stored in browser storage.</p>
+        <p><strong>In your browser.</strong> The feed stores the display name entered on first visit, bill notes, theme preference, selected demo plan, and local subscription badge state in localStorage. The badge state includes the email address, industry, and verification timestamp returned after confirmation. The signed unsubscribe token is delivered by email and is intentionally not stored in browser storage.</p>
         <p><strong>On the backend host.</strong> In the local prototype, the backend stores a subscription record containing the email address, industry, verification time, and a token-generation identifier in <code>server/data/subscriptions.json</code>, outside the public site directory. Pending verification codes are stored only as salted scrypt hashes with a 10-minute expiry. Failed access-code lockout records contain an HMAC-derived network key, a failure count, and timestamps; raw IP addresses are not written to the file. A production deployment must replace this local JSON file with the encrypted database and access controls described in the project's security checklist.</p>
         <p><strong>With our email provider.</strong> To deliver verification and welcome emails, the backend sends the recipient email address, sender information, message content, selected industry, and the signed unsubscribe URL in the relevant welcome message to <a href="https://www.brevo.com/legal/privacypolicy/" target="_blank" rel="noopener noreferrer">Brevo</a>. Brevo's own privacy policy governs its processing. No payment information is collected by the current subscription flow.</p>
         <p><strong>With hosting and infrastructure providers.</strong> A public deployment may expose request metadata, such as IP address, timestamps, user agent, and requested URL, to its hosting provider or reverse proxy according to that provider's logging policy.</p>
@@ -114,7 +114,7 @@
 
       <section class="legal-section">
         <h2>6. Cookies and tracking</h2>
-        <p>The current frontend does not set application cookies and does not include analytics, advertising trackers, or fingerprinting code. It uses localStorage for bill notes, theme, selected demo plan, and local subscription badge state; unsubscribe tokens are not stored there. The Free, Professional, and Business choices are demo-only browser state; billing, payment processing, customer accounts, and server-side plan authorization are not active. When the subscription flow is used, the browser sends the entered email, industry, access code, and later verification code to the configured Lariat backend. The browser does not send bill notes, theme preference, or plan selection to that backend. Hosting infrastructure, Brevo, and other linked third parties may maintain their own technical logs.</p>
+        <p>The current frontend does not set application cookies and does not include analytics, advertising trackers, or fingerprinting code. It uses localStorage for the display name entered on first visit, bill notes, theme, selected demo plan, and local subscription badge state; unsubscribe tokens are not stored there. The Free, Professional, and Business choices are demo-only browser state; billing, payment processing, customer accounts, and server-side plan authorization are not active. When the subscription flow is used, the browser sends the entered email, industry, access code, and later verification code to the configured Lariat backend. The browser does not send the display name, bill notes, theme preference, or plan selection to that backend. Hosting infrastructure, Brevo, and other linked third parties may maintain their own technical logs.</p>
       </section>
 
       <section class="legal-section">
@@ -123,7 +123,7 @@
           <li><strong>Verification codes</strong> expire after the configured lifetime (10 minutes by default), are stored only as salted scrypt hashes, and are removed when verified or when expired records are pruned during a later subscription request or verification.</li>
           <li><strong>Access-code lockout records</strong> are removed after the 24-hour lockout window or after the associated failure window expires. They contain an HMAC-derived network key rather than the raw IP address.</li>
           <li><strong>Subscriptions</strong> remain in the configured backend store until unsubscribed or deleted by the operator. The local prototype does not implement an automatic retention period. Signed unsubscribe links expire after the configured token lifetime, 90 days by default; expiration does not itself delete the subscription record.</li>
-          <li><strong>Browser data</strong> — bill notes, theme preference, selected demo plan, and subscription badge state remain until removed by the site, changed or cleared through the relevant demo controls, or cleared in browser settings. Unsubscribe tokens are delivered by email and are not stored in browser storage. The reset-subscriptions control removes the local subscription badge state but does not clear the selected demo plan, delete the backend subscription, or bypass a server-enforced access-code lockout.</li>
+          <li><strong>Browser data</strong> — the display name entered on first visit, bill notes, theme preference, selected demo plan, and subscription badge state remain until removed by the site, changed or cleared through the relevant demo controls, or cleared in browser settings. Unsubscribe tokens are delivered by email and are not stored in browser storage. The reset-subscriptions control removes the local subscription badge state but does not clear the selected demo plan, delete the backend subscription, or bypass a server-enforced access-code lockout.</li>
           <li><strong>Infrastructure logs</strong> — retention is controlled by the hosting provider, reverse proxy, and operator's logging settings. The intended operational target is 365 days where the provider supports it, but the current local prototype does not implement automatic log retention or deletion.</li>
         </ul>
       </section>
@@ -191,8 +191,8 @@
         <button class="modal-close" type="button" data-modal-close aria-label="Close Cookie Policy" title="Close">×</button>
       </div>
       <div class="modal-body accessibility-body">
-        <section><h3>What Lariat uses</h3><p>The current Lariat frontend does not set application cookies. It does not include analytics, advertising trackers, or fingerprinting code. It uses browser localStorage—not cookies—for bill notes, the light/dark theme preference, the selected demo plan, local subscription badge state, and temporary display state for the access-code lockout.</p></section>
-        <section><h3>What localStorage means</h3><p>localStorage is controlled by your browser and is readable by scripts running on this site's origin. It is not encrypted and is not sent to Lariat's backend for notes, theme preference, or plan selection. Unsubscribe tokens are not stored there. You can inspect or delete this data with your browser's site-data controls; the Bill feed's reset control clears local subscription badge state but not every preference and does not delete the backend subscription.</p></section>
+        <section><h3>What Lariat uses</h3><p>The current Lariat frontend does not set application cookies. It does not include analytics, advertising trackers, or fingerprinting code. It uses browser localStorage—not cookies—for the display name entered on first visit, bill notes, the light/dark theme preference, the selected demo plan, local subscription badge state, and temporary display state for the access-code lockout.</p></section>
+        <section><h3>What localStorage means</h3><p>localStorage is controlled by your browser and is readable by scripts running on this site's origin. It is not encrypted and is not sent to Lariat's backend for the display name, notes, theme preference, or plan selection. Unsubscribe tokens are not stored there. You can inspect or delete this data with your browser's site-data controls; the Bill feed's reset control clears local subscription badge state but not every preference and does not delete the backend subscription.</p></section>
         <section><h3>Third-party and hosting technology</h3><p>Google Fonts may receive standard technical information when the font files load. Hosting infrastructure, reverse proxies, Brevo, and linked third-party sites may use their own cookies or technical logs under their own policies. Lariat does not control those practices, and the current site does not provide a cookie-consent banner.</p></section>
         <section><h3>Changes</h3><p>If analytics, advertising, cookies, or other tracking technologies are added, this policy must be updated before they are used. This prototype disclosure is not legal advice.</p></section>
       </div>
@@ -249,6 +249,7 @@
 
   <div class="toast" role="status" aria-live="polite"></div>
   <script src="theme.js"></script>
+  <script src="user-name.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
