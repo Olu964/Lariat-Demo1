@@ -59,24 +59,24 @@
       <div class="eyebrow"><span class="eyebrow-line"></span> Legal &amp; transparency</div>
       <h1>Accessibility Statement</h1>
       <p>Lariat is a real-data demo for reviewing Texas legislative records. This statement describes the accessibility support currently implemented, known limitations, and how to report a barrier.</p>
-      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Reviewed September 4, 2026</div>
+      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Reviewed September 6, 2026</div>
     </section>
 
     <article class="legal-card">
       <section class="legal-section">
         <h2>Our commitment</h2>
-        <p>Lariat aims to support people with different access needs. We use the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA as a development target. This prototype has not been independently audited, formally certified, or evaluated across every browser, screen reader, and assistive technology, so we do not claim full conformance.</p>
+        <p>Lariat aims to support people with different access needs. We use the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA as a development target. This prototype has not been independently audited, formally certified, or evaluated across every browser, screen reader, and assistive technology, so we do not claim full conformance.</p>
       </section>
 
       <section class="legal-section">
         <h2>Current support</h2>
         <ul>
-          <li>Pages use semantic landmarks, headings, lists, native links, native buttons, labeled controls, and native dialog elements where appropriate.</li>
+          <li>The site uses semantic landmarks, headings, lists, native links, native buttons, labeled controls, and native dialog elements where appropriate. Generated bill content is inserted as text-safe markup and interactive bill cards have accessible names.</li>
           <li>Interactive controls have visible <code>:focus-visible</code> styling and can be operated with a keyboard.</li>
-          <li>Bill cards, bill-detail dialogs, subscription forms, live status messages, and note-saving feedback include labels or announcements where implemented. The Pricing page's plan links are intentionally unavailable because the page is covered by the demo overlay.</li>
-          <li>Decorative animation and smooth scrolling are reduced or disabled when the browser requests reduced motion. The bill-feed jump control uses instant scrolling in that mode.</li>
-          <li>Decorative canvas and visual effects are hidden from assistive technology so they do not add unnecessary content to the accessibility tree.</li>
-          <li>The site does not require a mouse or pointer for the available primary navigation, bill filtering, bill details, notes, or subscription controls. The homepage's decorative book interaction is pointer-enhanced only. Pricing plan links are intentionally inert behind the demo overlay.</li>
+          <li>Bill cards, bill-detail dialogs, subscription forms, live status messages, and note-saving feedback include labels or announcements where implemented. The Pricing page is intentionally covered by a demo overlay, so its underlying plan controls are inert and unavailable in the current experience.</li>
+          <li>Decorative animation, the homepage book effect, and smooth scrolling are reduced or disabled when the browser requests reduced motion. The bill-feed jump control uses instant scrolling in that mode.</li>
+          <li>Decorative grid, orb, book, and other visual effects are marked or implemented so they do not add unnecessary content to the accessibility tree.</li>
+          <li>The primary navigation, bill filtering, bill details, notes, subscription controls, event cards, theme control, and policy dialogs are designed to work without a mouse or pointer. The homepage book interaction is pointer-enhanced only. Pricing plan controls remain inert behind the demo overlay.</li>
         </ul>
       </section>
 
@@ -84,11 +84,11 @@
         <h2>Known limitations</h2>
         <ul>
           <li>No independent WCAG audit, screen-reader certification, keyboard-only certification, or complete color-contrast review has been completed.</li>
-          <li>The landing page opens a demo notice on the first visit in a browser; it can be closed with its close button, but the interaction and native dialog behavior still need testing across browsers and assistive technologies.</li>
-          <li>Color contrast has not been measured in every light and dark visual state.</li>
+          <li>The homepage's first-visit notice uses a native dialog and can be closed with its close button, but focus behavior, announcements, and dialog presentation still need testing across browsers and assistive technologies.</li>
+          <li>Responsive layout, text resizing, browser zoom, color contrast, focus order, and screen-reader announcements have not been comprehensively tested in every light and dark visual state.</li>
           <li>The subscription flow requires a reachable, correctly configured backend. In local development that is <code>node server/server.js</code>; the public site cannot complete subscriptions unless its API base is configured and the production infrastructure is available.</li>
           <li>Opening the pages with <code>file://</code> is unsupported. Use the local backend or another HTTP server.</li>
-          <li>Pricing plan links are unavailable while the demo overlay is active. If that overlay is removed or the interaction is enabled, plan selection is demo-only browser state stored in localStorage; it is not an account, payment control, or server-side authorization feature.</li>
+          <li>The Pricing page is currently covered by a demo overlay. Its Free, Professional, and Business plan links are intentionally inert in the visible experience; the underlying demo selection is browser-only state, not an account, payment control, or server-side authorization feature.</li>
           <li>Third-party websites and services linked from Lariat are outside Lariat's accessibility and content control.</li>
         </ul>
       </section>
@@ -101,17 +101,16 @@
 
       <section class="legal-section">
         <h2>Statement status</h2>
-        <p>This statement was reviewed September 4, 2026 and covers the current real-data bill feed, bill notes, industry filtering, subscription verification and welcome-email flow, access-code lockout messaging, pricing overlay, theme control, homepage demo notice, and homepage visual effects. The Pricing page's plan controls are intentionally inert in the current demo. It is a transparency statement, not a legal opinion or WCAG conformance certification.</p>
+        <p>This statement was reviewed September 6, 2026 and covers the current landing page, bill feed, bill detail and notes dialogs, industry filtering, subscription verification and welcome-email flow, access-code lockout messaging, pricing overlay, theme control, calendar event dialogs, policy dialogs, homepage demo notice, and visual effects. It is a transparency statement, not a legal opinion or WCAG conformance certification.</p>
       </section>
     </article>
 
-    <p class="pricing-footnote"><span aria-hidden="true">✦</span> Lariat is a demo prototype.Bill summaries are informational; verify current status with official Texas legislative sources. This page is not legal advice.</p>
+    <p class="pricing-footnote"><span aria-hidden="true">✦</span> Lariat is a demo prototype. Bill summaries are informational; verify current status with official Texas legislative sources. This page is not legal advice.</p>
   </main>
 
   <footer class="site-footer"><span>Lariat</span><span>Real local bill summaries · Verify with official sources</span><a href="privacy.html">Privacy</a><a href="accessibility.html" aria-current="page">Accessibility</a></footer>
   <div class="toast" role="status" aria-live="polite"></div>
   <script src="theme.js?v=theme-3"></script>
-  <script src="user-name.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
