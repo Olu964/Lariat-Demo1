@@ -12,7 +12,7 @@
   // never ask again. Declining is also remembered so the prompt does not
   // reappear on every page load.
   if (!storedName) {
-    const entered = (window.prompt('Welcome to Lariat — what should we call you?') || '').trim();
+    const entered = (window.prompt('Welcome to Lariat! What should we call you?') || '').trim();
     storedName = entered || skippedValue;
     try {
       localStorage.setItem(storageKey, storedName);

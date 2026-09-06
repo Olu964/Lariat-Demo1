@@ -35,14 +35,14 @@ The session is optional, but providing it avoids mixing bills from multiple Texa
 
 ## Local backend (email subscriptions)
 
-The subscription flow on the Bill feed runs against a zero-dependency local Node.js backend (`server/server.js`) — no `npm install`, no hosting, no cost. It serves the site and the API from one process:
+The subscription flow on the Bill feed runs against a zero-dependency local Node.js backend (`server/server.js`)  -  no `npm install`, no hosting, no cost. It serves the site and the API from one process:
 
 ```bash
 node server/server.js
 # open http://127.0.0.1:3000
 ```
 
-Without a `BREVO_API_KEY` it runs in console mode and prints verification codes to the terminal, so the full subscribe → verify → unsubscribe flow works with no accounts at all. Add a free Brevo key to `.env` (Brevo verifies a sender address by email — no domain purchase required) to send real verification email to any address. See `server/README.md` for the API and configuration. The Node server is local-development software by default; do not expose it to the internet without completing `SECURITY.md`.
+Without a `BREVO_API_KEY` it runs in console mode and prints verification codes to the terminal, so the full subscribe → verify → unsubscribe flow works with no accounts at all. Add a free Brevo key to `.env` (Brevo verifies a sender address by email  -  no domain purchase required) to send real verification email to any address. See `server/README.md` for the API and configuration. The Node server is local-development software by default; do not expose it to the internet without completing `SECURITY.md`.
 
 The subscription access code allows three incorrect attempts per network address. A third failure starts a 24-hour server-enforced lockout; the Bill feed displays a live countdown in the subscription dialog. The lockout is persisted using an HMAC-derived network key rather than the raw IP address.
 

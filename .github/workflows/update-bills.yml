@@ -94,5 +94,5 @@ jobs:
             git commit -m "chore: refresh Texas bill summaries"
             git push
           else
-            echo "No changes — nothing to commit"
+            echo "No changes  -  nothing to commit"
           fi

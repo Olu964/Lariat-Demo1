@@ -48,7 +48,7 @@
   }[character]));
 
   // The curated set of industries Lariat tracks. Every option stays in the
-  // dropdown even when the current dataset has no bills for it — empty
+  // dropdown even when the current dataset has no bills for it  -  empty
   // industries show a "no bills recently passed" message.
   const ALL_INDUSTRIES = [
     'Energy & Utilities',
@@ -116,7 +116,7 @@
   const updateSessionCountdown = () => {
     if (!sessionCountdown) return;
     if (Number.isNaN(sessionStartDate.getTime())) {
-      sessionCountdown.textContent = '—';
+      sessionCountdown.textContent = '-';
       if (sessionDetail) sessionDetail.textContent = 'Session date unavailable';
       return;
     }
@@ -129,7 +129,7 @@
     sessionCountdown.textContent = days;
     if (sessionDetail) {
       const formattedDate = sessionStartDate.toLocaleDateString('en-US', {
-        timeZone: 'America/Chicago', month: 'short', day: 'numeric', year: 'numeric',
+        timeZone: 'America/Chicago', month: 'long', day: 'numeric', year: 'numeric',
       });
       sessionDetail.textContent = `${sessionName} begins ${formattedDate} · Central time`;
     }
@@ -155,8 +155,20 @@
       : specificIndustry;
   };
   const formatLabel = (key) => key.replace(/_/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase());
+  const formatDateString = (raw) => {
+    const match = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ].*)?$/);
+    if (!match) return null;
+    const [, year, month, day] = match.map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (Number.isNaN(date.getTime())) return null;
+    return date.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' });
+  };
   const formatValue = (value) => {
     if (value === null || value === undefined || value === '') return 'Not provided';
+    if (typeof value === 'string') {
+      const formattedDate = formatDateString(value);
+      if (formattedDate) return formattedDate;
+    }
     let formatted;
     try {
       formatted = typeof value === 'object' ? JSON.stringify(value) : String(value);
@@ -420,7 +432,7 @@
       document.addEventListener('lariat:subscriptions-changed', updateIndustryView);
       updateIndustryView();
     } catch (error) {
-      if (sessionCountdown) sessionCountdown.textContent = '—';
+      if (sessionCountdown) sessionCountdown.textContent = '-';
       document.querySelector('[data-stat="chip"]').textContent = 'Unavailable';
       const industrySelect = document.querySelector('#industry-select');
       if (industrySelect) {

@@ -18,11 +18,16 @@
   };
 
   const setTheme = (theme, persist = true) => {
+    const changing = getTheme() !== theme;
+    if (changing) root.classList.add('theme-transitioning');
     root.dataset.theme = theme;
     if (persist) {
       try { localStorage.setItem(storageKey, theme); } catch (error) {}
     }
     updateToggle(theme);
+    if (changing) {
+      window.setTimeout(() => root.classList.remove('theme-transitioning'), 400);
+    }
   };
 
   updateToggle(getTheme());

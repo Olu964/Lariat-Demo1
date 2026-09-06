@@ -1,6 +1,6 @@
 # Lariat local backend
 
-A zero-dependency Node.js server (Node 18+ — no `npm install` needed). It serves
+A zero-dependency Node.js server (Node 18+  -  no `npm install` needed). It serves
 the Lariat frontend **and** the subscription API from one process.
 
 For security findings and the production checklist, read [`../SECURITY.md`](../SECURITY.md) before exposing this server to the internet.
@@ -18,7 +18,7 @@ The default server binds to `127.0.0.1` only, so it is reachable just from your 
 ## What it replaces
 
 The old subscription flow called EmailJS from the browser and verified codes in
-localStorage — anyone could bypass it in DevTools. Now the browser only talks to
+localStorage  -  anyone could bypass it in DevTools. Now the browser only talks to
 this backend, which stores verification codes as salted scrypt hashes and sends
 email server-side, so no email API key ever reaches the browser.
 
@@ -26,7 +26,7 @@ email server-side, so no email API key ever reaches the browser.
 
 | Endpoint | Method | Body | Purpose |
 | --- | --- | --- | --- |
-| `/api/health` | GET | — | Public liveness status |
+| `/api/health` | GET |  -  | Public liveness status |
 | `/api/subscriptions/request` | POST | `{ email, industry, accessCode }` | Sends a 6-digit verification code |
 | `/api/subscriptions/verify` | POST | `{ email, industry, verificationCode }` | Confirms the code, activates the subscription |
 | `/api/subscriptions/unsubscribe` | POST | `{ email, industry, token }` | Removes the subscription when called by an API client with a valid signed token; the web UI uses the email link |
@@ -39,7 +39,7 @@ email server-side, so no email API key ever reaches the browser.
   Perfect for testing the whole flow for free.
 - **Brevo mode:** add your free Brevo API key to `.env` and codes are emailed
   to any recipient (free tier: 300 emails/day, no credit card). Brevo verifies
-  a sender address by clicking a confirmation email — **no domain purchase
+  a sender address by clicking a confirmation email  -  **no domain purchase
   required**.
 
 ```bash
@@ -52,7 +52,7 @@ cp .env.example .env
 | Variable | Default | Notes |
 | --- | --- | --- |
 | `BREVO_API_KEY` | *(empty → console mode)* | Free tier: https://app.brevo.com/settings/keys/api |
-| `BREVO_FROM_EMAIL` | *(empty)* | Sender address verified in Brevo (by email — no domain needed) |
+| `BREVO_FROM_EMAIL` | *(empty)* | Sender address verified in Brevo (by email  -  no domain needed) |
 | `SUBSCRIPTION_ACCESS_CODE` | `LARIAT-TRIAL-2026` | Private code visitors must enter |
 | `SUBSCRIPTION_CODE_EXPIRY_MINUTES` | `10` | Code lifetime |
 | `SUBSCRIPTION_SIGNING_SECRET` | random per boot | Signs unsubscribe links; set a fixed value so links survive restarts |
@@ -91,9 +91,9 @@ Subscriptions are persisted to `server/data/subscriptions.json` (gitignored).
 
 The frontend offers three demo-only tiers:
 
-- **Free** — up to 1 industry
-- **Professional** — up to 5 industries, displayed at $29/month
-- **Business** — all available industries, displayed at $99/month
+- **Free**  -  up to 1 industry
+- **Professional**  -  up to 5 industries, displayed at $29/month
+- **Business**  -  all available industries, displayed at $99/month
 
 The selected tier is stored in the browser's localStorage. The backend does not
 trust or enforce this tier because billing, accounts, and server-side plan
@@ -127,7 +127,7 @@ instead of emailed.
 - In production the server enforces HTTPS-only: plain-HTTP requests forwarded
   by the proxy (`X-Forwarded-Proto: http`) are redirected to the HTTPS URL, and
   every response carries HSTS. The API access log records only the HTTP method
-  and path — never the query string, which can carry an unsubscribe token.
+  and path  -  never the query string, which can carry an unsubscribe token.
 - The server only answers requests whose `Host` header is in `ALLOWED_HOSTS`
   (DNS-rebinding guard) and replies to CORS only for loopback or explicitly
   configured origins, so malicious websites cannot drive this API through a

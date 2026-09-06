@@ -57,7 +57,7 @@ const BILL_DATA_FILE = process.env.LARIAT_DATA_FILE
   || path.join(PUBLIC_DIR, 'texas_bill_summaries.json');
 
 /* ---------------------------------------------------------------------------
- * Environment (.env parser — tiny, no dependency)
+ * Environment (.env parser  -  tiny, no dependency)
  * ------------------------------------------------------------------------- */
 
 function loadDotEnv() {
@@ -151,7 +151,7 @@ if (IS_PRODUCTION) {
  * (the backend on :3000, or a local dev server on any port), so CORS replies
  * are restricted to loopback origins. Every other origin gets no CORS headers:
  * the browser then refuses cross-origin reads and (for JSON POSTs, which need
- * a preflight) refuses the request entirely — so malicious websites cannot
+ * a preflight) refuses the request entirely  -  so malicious websites cannot
  * drive this local server through a visitor's browser. */
 function trustedOrigin(origin) {
   if (!origin) return '';
@@ -362,7 +362,7 @@ function pruneExpiredPendingCodes() {
  * ------------------------------------------------------------------------- */
 
 /* Verification codes are hashed with asynchronous scrypt (memory-hard, built
- * into Node — no dependency) so a leaked data file cannot be brute-forced
+ * into Node  -  no dependency) so a leaked data file cannot be brute-forced
  * offline and code requests do not block the event loop. */
 function hashCode(code, salt) {
   return new Promise((resolve, reject) => {
@@ -467,7 +467,7 @@ function findSubscription(email, industry) {
 }
 
 /* ---------------------------------------------------------------------------
- * Email (Brevo REST API — uses global fetch, so no SDK needed)
+ * Email (Brevo REST API  -  uses global fetch, so no SDK needed)
  * ------------------------------------------------------------------------- */
 
 function safeEmailSubject(value) {
@@ -477,7 +477,7 @@ function safeEmailSubject(value) {
 function buildVerificationEmail({ industry, code, expiryMinutes }) {
   const safeIndustry = escapeHtml(industry);
   return {
-    subject: safeEmailSubject(`Confirm your Lariat email updates — ${industry}`),
+    subject: safeEmailSubject(`Confirm your Lariat email updates  -  ${industry}`),
     html: `
       <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1c3a52;">
         <h1 style="font-size: 22px; margin: 0 0 14px;">Confirm your Lariat subscription</h1>
@@ -637,7 +637,7 @@ function sendHtmlPage(res, status, title, message) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lariat — ${escapeHtml(title)}</title>
+<title>Lariat  -  ${escapeHtml(title)}</title>
 <style>
   body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f8fbfc; color: #1c3a52; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
   .card { width: min(440px, calc(100% - 48px)); padding: 34px 30px; border: 1px solid #d6e3ea; border-radius: 14px; background: #ffffff; box-shadow: 0 18px 50px rgba(7,26,45,.10); text-align: center; }
@@ -662,7 +662,7 @@ function sendUnsubscribeConfirmation(res, token, payload) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lariat — Confirm unsubscribe</title>
+<title>Lariat  -  Confirm unsubscribe</title>
 <style>
   body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f8fbfc; color: #1c3a52; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
   .card { width: min(440px, calc(100% - 48px)); padding: 34px 30px; border: 1px solid #d6e3ea; border-radius: 14px; background: #ffffff; box-shadow: 0 18px 50px rgba(7,26,45,.10); text-align: center; }
@@ -1112,7 +1112,7 @@ function handleUnsubscribeToken(req, res, token) {
     removed ? 'Unsubscribed from Lariat email updates' : 'Nothing to change',
     removed
       ? `${payload.email} is no longer subscribed to ${payload.industry} email updates. You can resubscribe anytime from the Lariat bill feed.`
-      : `${payload.email} was not subscribed to ${payload.industry} email updates — nothing to change.`,
+      : `${payload.email} was not subscribed to ${payload.industry}email updates; nothing to change.`,
   );
 }
 
@@ -1252,7 +1252,7 @@ const server = http.createServer(async (req, res) => {
     return serveStatic(req, res, url);
   } catch (error) {
     // Last-resort safety net: never let one bad request kill the server.
-    // Log only the method and the error message — never the request URL,
+    // Log only the method and the error message  -  never the request URL,
     // whose query string can carry a signed unsubscribe token.
     console.error('Unhandled request error:', req.method, error.message);
     if (!res.headersSent) {
@@ -1337,14 +1337,14 @@ async function handleApi(req, res, url) {
  * ------------------------------------------------------------------------- */
 
 server.listen(PORT, HOST, () => {
-  const emailMode = BREVO_API_KEY ? `Brevo (${BREVO_FROM_EMAIL || 'sender not set — add BREVO_FROM_EMAIL to .env'})` : 'console mode (set BREVO_API_KEY to send real email)';
+  const emailMode = BREVO_API_KEY ? `Brevo (${BREVO_FROM_EMAIL || 'sender not set  -  add BREVO_FROM_EMAIL to .env'})` : 'console mode (set BREVO_API_KEY to send real email)';
   console.log('Lariat backend running');
   console.log(`  Site + API:  http://${HOST}:${PORT}`);
   console.log(`  Email:       ${emailMode}`);
   console.log(`  Access code: ${process.env.SUBSCRIPTION_ACCESS_CODE ? 'configured' : 'default development code'}`);
   console.log(`  Data file:   ${DATA_FILE}`);
   if (!['127.0.0.1', 'localhost', '[::1]', '::1'].includes(normalizeHostname(HOST))) {
-    console.log('  Warning: bound to a non-loopback address — the API is reachable from your network.');
+    console.log('  Warning: bound to a non-loopback address  -  the API is reachable from your network.');
   }
   if (IS_PRODUCTION) {
     console.log('  HTTPS:     enforced (plain-HTTP requests redirected, HSTS advertised)');
@@ -1352,9 +1352,9 @@ server.listen(PORT, HOST, () => {
   if (!BREVO_API_KEY) {
     console.log('  Tip: add BREVO_API_KEY and BREVO_FROM_EMAIL to .env to send real verification emails.');
   } else if (!BREVO_FROM_EMAIL) {
-    console.log('  Tip: BREVO_FROM_EMAIL is empty — set it to a sender address you verified in Brevo.');
+    console.log('  Tip: BREVO_FROM_EMAIL is empty  -  set it to a sender address you verified in Brevo.');
   }
   if (!process.env.SUBSCRIPTION_SIGNING_SECRET) {
-    console.log('  Note: SUBSCRIPTION_SIGNING_SECRET not set — unsubscribe links reset on restart.');
+    console.log('  Note: SUBSCRIPTION_SIGNING_SECRET not set  -  unsubscribe links reset on restart.');
   }
 });

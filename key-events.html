@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://127.0.0.1:3000 https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+  <meta name="description" content="Key dates for the 90th Texas Legislature: from General Election Day and prefiling to Sine Die and the effective date for new laws. Click any event for why it matters.">
+  <meta name="keywords" content="Texas Legislature, 90th session, key events, legislative calendar, Sine Die, prefiling, Texas bills">
+  <meta name="author" content="Lariat">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://lariatdemo.com/key-events.html">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Calendar  -  Lariat">
+  <meta property="og:description" content="Key dates for the 90th Texas Legislature: from General Election Day and prefiling to Sine Die and the effective date for new laws.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://lariatdemo.com/key-events.html">
+  <meta property="og:image" content="https://lariatdemo.com/favicon-64.png">
+  <meta property="og:site_name" content="Lariat">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Calendar  -  Lariat">
+  <meta name="twitter:description" content="Key dates for the 90th Texas Legislature: from General Election Day and prefiling to Sine Die and the effective date for new laws.">
+  <meta name="twitter:image" content="https://lariatdemo.com/favicon-64.png">
+  <title>Calendar  -  Lariat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=glossy-8">
+  <script src="theme-init.js?v=theme-2"></script>
+</head>
+<body class="dashboard-page real-data-page">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Lariat home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">Lariat</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="feed.html">Bill feed</a><a class="nav-link active" href="key-events.html" aria-current="page">Calendar</a><a class="nav-link" href="pricing.html">Pricing</a><a class="nav-link" href="privacy.html">Privacy</a></nav>
+    <div class="header-actions">
+      <span class="demo-pill"><span class="status-dot"></span> Real data snapshot</span>
+      <button class="avatar-button" type="button" aria-label="Open account menu" title="Account menu  -  disabled in this prototype">TX</button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Switch to dark mode"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="key-events-section page-reveal">
+      <div class="key-events-ring" id="key-events-ring">
+        <div class="key-events-spinner" id="key-events-spinner"></div>
+        <div class="key-events-heading-cell">
+          <div class="eyebrow"><span class="eyebrow-line"></span> 90th Texas Legislature</div>
+          <h1>Calendar</h1>
+          <p>The dates that shape the session: from election day to sine die.</p>
+        </div>
+      </div>
+      <p class="prototype-note real-data-note" data-events-freshness><span aria-hidden="true">✦</span> Based on the official Texas legislative calendar. Confirm exact dates with official state sources; not legal advice.</p>
+    </section>
+  </main>
+
+  <dialog id="event-modal" class="bill-modal" aria-labelledby="event-modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <div class="modal-kicker">Key event details</div>
+          <h2 id="event-modal-title"></h2>
+        </div>
+        <button id="event-modal-close" class="modal-close" type="button" aria-label="Close event details" title="Close">×</button>
+      </div>
+      <div id="event-modal-body" class="modal-body"></div>
+    </div>
+  </dialog>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script src="theme.js?v=theme-3"></script>
+  <script src="key-events.js?v=3"></script>
+</body>
+</html>

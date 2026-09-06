@@ -162,7 +162,7 @@ If a problem is reported:
 
 ## Production configuration requirements
 
-Set these in the server's secret manager or environment—not in frontend JavaScript and not in Git:
+Set these in the server's secret manager or environment, not in frontend JavaScript and not in Git:
 
 ```env
 NODE_ENV=production

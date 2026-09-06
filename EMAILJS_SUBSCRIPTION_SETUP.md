@@ -15,8 +15,8 @@ The current flow is:
 
 Use these current instructions instead:
 
-- [`server/README.md`](server/README.md) — local setup, API, and testing
-- [`SECURITY.md`](SECURITY.md) — security and free pre-release checklist
-- [`README.md`](README.md) — project setup
+- [`server/README.md`](server/README.md)  -  local setup, API, and testing
+- [`SECURITY.md`](SECURITY.md)  -  security and free pre-release checklist
+- [`README.md`](README.md)  -  project setup
 
 Do not add EmailJS credentials to `Lariat-real/subscriptions.js`. Do not restore the old client-side verification flow: client-side verification is not a security boundary and exposes the email-sending integration to visitors.

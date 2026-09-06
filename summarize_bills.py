@@ -827,9 +827,21 @@ def main() -> int:
     return 0 if records else 1
 
 
+def _strip_em_dashes(value: Any) -> Any:
+    """Replace em dashes with hyphens in every published string so regenerated
+    summaries stay consistent with the site's punctuation style."""
+    if isinstance(value, str):
+        return value.replace("\u2014", "-")
+    if isinstance(value, dict):
+        return {key: _strip_em_dashes(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_strip_em_dashes(item) for item in value]
+    return value
+
+
 def write_output(records: list[dict[str, Any]], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True); temp = path.with_suffix(path.suffix + ".tmp")
-    temp.write_text(json.dumps(records, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"); temp.replace(path)
+    temp.write_text(json.dumps(_strip_em_dashes(records), indent=2, ensure_ascii=False) + "\n", encoding="utf-8"); temp.replace(path)
 
 
 def parse_args() -> argparse.Namespace:

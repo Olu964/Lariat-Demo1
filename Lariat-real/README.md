@@ -1,4 +1,4 @@
-# Lariat — real bill data
+# Lariat  -  real bill data
 
 This is an independent copy of the original Lariat prototype. The visual design and page structure are preserved, but the bill feed uses the real records in `texas_bill_summaries.json`.
 

@@ -2,7 +2,7 @@
   'use strict';
 
   /* ==========================================================================
-   * Lariat subscription flow — backed by the local Node.js backend
+   * Lariat subscription flow  -  backed by the local Node.js backend
    * (server/server.js). The browser never sees an email API key; it only talks
    * to the backend, which verifies codes and sends email server-side.
    *
@@ -270,7 +270,7 @@
         <p class="subscribe-lockout" data-access-lockout role="status" aria-live="polite" hidden></p>
         <p class="subscribe-status" data-subscribe-status role="status" aria-live="polite"></p>
         <button class="subscribe-button submit" type="submit" data-subscribe-send title="Email a 6-digit verification code">Send verification code</button>
-        <p class="subscribe-privacy">Your email is used for Lariat email updates. This demo sends verification and welcome emails; recurring bill alerts are not active yet. Verification happens on the backend — no email API keys are exposed in the browser. No payment or credit card is required.</p>
+        <p class="subscribe-privacy">Your email is used for Lariat email updates. This demo sends verification and welcome emails; recurring bill alerts are not active yet.Verification happens on the backend; no email API keys are exposed in the browser. No payment or credit card is required.</p>
       </form>
     `;
     updateAccessCodeLockoutUi();
@@ -280,7 +280,7 @@
     modalBody.innerHTML = `
       <form class="subscribe-form" data-subscribe-form novalidate>
         <p class="subscribe-industry-line"><span class="subscribe-industry-label">Industry</span><strong>${escapeHtml(currentIndustry)}</strong></p>
-        <p class="subscribe-hint">We sent a 6-digit code to <strong>${escapeHtml(currentEmail)}</strong>. Enter it below to confirm your subscription. The code expires in 10 minutes and can only be used once. If the email doesn't arrive, check your spam folder — it comes from the Lariat alerts address.</p>
+        <p class="subscribe-hint">We sent a 6-digit code to <strong>${escapeHtml(currentEmail)}</strong>. Enter it below to confirm your subscription. The code expires in 10 minutes and can only be used once. If the email doesn't arrive, check your spam folder  -  it comes from the Lariat alerts address.</p>
         <label class="subscribe-label" for="subscribe-code">Verification code</label>
         <input class="subscribe-input subscribe-code-input" id="subscribe-code" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" placeholder="123456" required>
         <p class="subscribe-status" data-subscribe-status role="status" aria-live="polite"></p>
@@ -466,7 +466,7 @@
     } catch (error) { /* ignore */ }
     updatePlanStatus();
     document.dispatchEvent(new CustomEvent('lariat:subscriptions-changed', { detail: {} }));
-    showToast('Demo subscriptions reset — the badge state is back to a clean slate. (Records already saved on the backend are kept.)');
+    showToast('Demo subscriptions reset. The badge state is back to a clean slate. (Records already saved on the backend are kept.)');
   };
 
   window.LariatSubscriptions = {

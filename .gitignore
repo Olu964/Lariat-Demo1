@@ -81,7 +81,7 @@ web_modules/
 texas_bills.json
 texas_bills/
 
-# Local backend subscription data (private — never commit)
+# Local backend subscription data (private  -  never commit)
 server/data/
 
 # parcel-bundler cache (https://parceljs.org/)

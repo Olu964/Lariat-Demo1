@@ -1,4 +1,4 @@
-# Lariat Project — Session Context (September 2, 2026)
+# Lariat Project  -  Session Context (September 2, 2026)
 
 ## What This Project Is
 
@@ -12,13 +12,13 @@ Lariat is a Texas bill tracking website that:
 ## Project Structure
 
 ```
-.github/workflows/update-bills.yml   — GitHub Actions workflow (daily + manual)
-fetch_texas_bills.py                  — Fetches bill metadata from Open States API
-summarize_bills.py                    — Fetches bill text + calls AI to generate summaries
-Lariat-real/texas_bill_summaries.json — The JSON file the website reads from
-Lariat-real/real-script.js            — Website frontend (line 367 loads the JSON)
-Lariat-real/feed.html                 — The bill feed page
-.env.example                          — Template for API keys
+.github/workflows/update-bills.yml    -  GitHub Actions workflow (daily + manual)
+fetch_texas_bills.py                   -  Fetches bill metadata from Open States API
+summarize_bills.py                     -  Fetches bill text + calls AI to generate summaries
+Lariat-real/texas_bill_summaries.json  -  The JSON file the website reads from
+Lariat-real/real-script.js             -  Website frontend (line 367 loads the JSON)
+Lariat-real/feed.html                  -  The bill feed page
+.env.example                           -  Template for API keys
 ```
 
 ## API Keys / Secrets in GitHub
@@ -41,8 +41,8 @@ Lariat-real/feed.html                 — The bill feed page
 - HB 161, HB 200, HB 188, SB 9, HB 194, HB 242, HB 294, HB 259
 
 **Bills that still failed:**
-- Resolutions (SR 76, HR 32, SR 60, HR 23, SR 23, HJR 40, HR 35, HJR 21, SR 95) — these may not have bill text documents
-- SB 2 — summary was too long (189 words, now fixed to allow 50-200 words)
+- Resolutions (SR 76, HR 32, SR 60, HR 23, SR 23, HJR 40, HR 35, HJR 21, SR 95)  -  these may not have bill text documents
+- SB 2  -  summary was too long (189 words, now fixed to allow 50-200 words)
 
 **Summary:**
 - 24 summaries saved (14 new AI-generated + 10 existing)
@@ -60,8 +60,8 @@ Lariat-real/feed.html                 — The bill feed page
 
 When you ran the workflow on GitHub, this is what happened:
 
-1. **Fetch bills step** — Works fine. Gets 25 bills from Open States.
-2. **Summarize bills step** — MIXED RESULTS:
+1. **Fetch bills step**  -  Works fine. Gets 25 bills from Open States.
+2. **Summarize bills step**  -  MIXED RESULTS:
    ```
    [2/25] SB 10 -> AI (liquid/lfm-2.5-2.6b:free)     ✅ SUCCESS
    [3/25] SB 8 -> AI (liquid/lfm-2.5-2.6b:free)       ✅ SUCCESS
@@ -69,9 +69,9 @@ When you ran the workflow on GitHub, this is what happened:
    [8/25] SR 76 -> deferred: no usable bill text        ❌ RESOLUTION (may not have text)
    ... (14 bills succeeded, 11 failed)
    ```
-3. **AI runs** — Successfully generated 50-150 word summaries from actual bill text
-4. **Commit step runs** — Published 24 summaries (14 new + 10 existing)
-5. **Website needs pull** — Run `git pull` to see updates
+3. **AI runs**  -  Successfully generated 50-150 word summaries from actual bill text
+4. **Commit step runs**  -  Published 24 summaries (14 new + 10 existing)
+5. **Website needs pull**  -  Run `git pull` to see updates
 
 ### Why It Happens (The Complete Explanation)
 
@@ -90,7 +90,7 @@ Result: "no usable official bill-text document found"
 
 ### The Fix (Two Bugs Fixed)
 
-**Bug 1 — Wrong bill text source:**
+**Bug 1  -  Wrong bill text source:**
 - The Open States API returns NO document URLs for Texas bills
 - The Texas Legislature website loads bill text via JavaScript, so scraping HTML pages doesn't get the content
 - The FTP site was unreliable
@@ -101,7 +101,7 @@ Result: "no usable official bill-text document found"
   - Versions tried: E (engrossed), I (introduced), S (substitute), H
   - Both 4-digit and 5-digit zero padding are tried (e.g., SB0001 and SB00001)
 
-**Bug 2 — Broken validation:**
+**Bug 2  -  Broken validation:**
 - `usable_bill_text()` checked for patterns like `"amended by"`, `"the legislature"`, `"section "` against text with ALL spaces removed
 - Multi-word patterns could NEVER match in space-removed text
 - Only single-word patterns like `"notwithstanding"` worked
@@ -110,15 +110,15 @@ Result: "no usable official bill-text document found"
 
 ### What Should Happen After Pushing the Fix
 
-1. **Fetch bills step** — Same, gets 25 bills
-2. **Summarize bills step** — Bills now show:
+1. **Fetch bills step**  -  Same, gets 25 bills
+2. **Summarize bills step**  -  Bills now show:
    ```
    [1/25] SB 1: using cached official bill text   (or: fetching from HTML URL)
    [1/25] SB 1 -> AI (minimax/minimax-m2.7:free)   ← THIS IS THE GOAL
    ```
-3. **AI runs** — Generates 50-200 word summaries from actual bill text
-4. **Commit step** — Publishes new longer summaries
-5. **Website updates** — Shows proper bill summaries
+3. **AI runs**  -  Generates 50-200 word summaries from actual bill text
+4. **Commit step**  -  Publishes new longer summaries
+5. **Website updates**  -  Shows proper bill summaries
 
 ### What Was Verified Locally
 - `fetch_bill_text()` successfully got 2,421 words for SB 1 from the HTML URL
@@ -170,7 +170,7 @@ git status -sb
 4. Enter `25` for the limit
 5. Click "Run workflow"
 6. Open the newest run
-7. Check the "Verify workflow revision" step — it should say "Summary-only prompt is active"
+7. Check the "Verify workflow revision" step  -  it should say "Summary-only prompt is active"
 8. Bills should now show `→ AI (model_name)` instead of `→ deferred`
 
 ## Other Changes Made in This Session
@@ -202,14 +202,14 @@ git status -sb
 
 ### Website Deployment (not yet done)
 The website needs a hosting service. Recommended options:
-1. **Netlify** (recommended) — free, auto-deploys on push
+1. **Netlify** (recommended)  -  free, auto-deploys on push
    - Base directory: `Lariat-real`
    - Publish directory: `.`
-2. **GitHub Pages** — free, simpler
+2. **GitHub Pages**  -  free, simpler
    - Settings → Pages → Source: Deploy from a branch → main → folder: /Lariat-real
-3. **Vercel** — similar to Netlify
+3. **Vercel**  -  similar to Netlify
 
-The workflow already works for deployment — it commits to main, and any hosting service that auto-deploys on push will pick up the changes.
+The workflow already works for deployment  -  it commits to main, and any hosting service that auto-deploys on push will pick up the changes.
 
 ### Browser Caching Fix (recommended for live site)
 In `Lariat-real/real-script.js`, change the fetch call to bust cache:
@@ -225,11 +225,11 @@ Hard refresh: Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows)
 
 | File | Line | What |
 |------|------|------|
-| summarize_bills.py | ~108 | `capitol_pdf_urls()` — constructs direct bill text URLs |
-| summarize_bills.py | ~253 | `usable_bill_text()` — validates extracted text |
-| summarize_bills.py | ~270 | `fetch_bill_text()` — main bill text retrieval chain |
-| summarize_bills.py | ~88 | `capitol_url()` — history page URL |
-| summarize_bills.py | ~94 | `capitol_pdf_urls()` / `fetch_bill_text()` — official HTTPS bill-text retrieval |
+| summarize_bills.py | ~108 | `capitol_pdf_urls()`  -  constructs direct bill text URLs |
+| summarize_bills.py | ~253 | `usable_bill_text()`  -  validates extracted text |
+| summarize_bills.py | ~270 | `fetch_bill_text()`  -  main bill text retrieval chain |
+| summarize_bills.py | ~88 | `capitol_url()`  -  history page URL |
+| summarize_bills.py | ~94 | `capitol_pdf_urls()` / `fetch_bill_text()`  -  official HTTPS bill-text retrieval |
 | .github/workflows/update-bills.yml | 1-75 | Full workflow definition |
 | Lariat-real/real-script.js | ~367 | Where website loads the JSON |
 | fetch_texas_bills.py | ~100 | Open States API request with `include: ["abstracts", "documents", "versions"]` |
@@ -256,10 +256,10 @@ Rate limits reset at midnight UTC. Free models have daily limits.
 | `no usable official bill-text document found` | Script couldn't find bill text from any source | Push the new PDF/HTML URL fix |
 | `official page request failed after N attempts: timed out` | Texas Legislature website is slow/down | Wait and retry, or increase timeout |
 | `website returned interface page instead of bill text` | Got the website navigation instead of bill content | The `extract_document_text` function rejected it |
-| `AI output is missing required fields` | AI didn't return valid JSON with a `summary` field | Model issue — fallback chain tries next model |
+| `AI output is missing required fields` | AI didn't return valid JSON with a `summary` field | Model issue  -  fallback chain tries next model |
 | `minimax/minimax-m3:free is temporarily rate-limited` | OpenRouter free model rate limit hit | Wait for rate limit reset (midnight UTC) |
 | `model does not exist or has yet to be added` | Wrong model name in SUMMARIZER_MODEL variable | Check the model name, or remove the variable to use defaults |
-| `Error: Process completed with exit code 1` | Some bills failed but `--write-partial` published successful ones | Normal when some bills fail — check if commit step ran |
+| `Error: Process completed with exit code 1` | Some bills failed but `--write-partial` published successful ones | Normal when some bills fail  -  check if commit step ran |
 
 ## What to Do When You Return
 
