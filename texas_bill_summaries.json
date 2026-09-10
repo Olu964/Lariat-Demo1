@@ -62,7 +62,6 @@
   },
   {
     "title": "Disaster Response and Recovery Licensing",
-    "summary": "SB 2 is a Texas legislative record concerning disaster preparedness, response, and recovery, with metadata noting licensing and fees. Official bill text was unavailable, so specific provisions require verification from the official source.",
     "affects": "disaster response and recovery professionals and businesses",
     "changes": "requires a license for disaster response and recovery activities and authorizes fees",
     "business_impact": "may need to obtain a license to operate in disaster response and recovery",
@@ -70,14 +69,17 @@
     "industry": "Government & Municipal Operations",
     "specific_industry": "Disaster Preparedness & Relief",
     "status": "pending",
-    "suggested_action": "Watch for updates on the bill's final status and any changes to licensing requirements.",
+    "suggested_action": "Stakeholders should carefully review the bill's implementation timeline, noting that Section 418.455 takes effect January 1, 2027, while the overall act becomes effective 91 days after the legislative session concludes. The Texas Commission on Fire Protection must verify its capacity to conduct criminal history checks under Subsection 418.459 and ensure compliance with the expanded autopsy certification requirements in Subsections (e-1) and (c-1). The Texas Division of Emergency Management needs to adopt the post-disaster after-action report form mandated by Section 29 and fully implement the statewide volunteer management system outlined in Section 418.482-484. Additionally, the small-business disaster recovery program under Section 481.452 should be monitored for compliance with loan eligibility criteria, including the minimum 50% allocation requirement for micro-business loans and interest rate caps. Organizations involved in mass fatality operations should prepare for the creation of a centralized fatality tracking system by December 1, 2026, as required by Section 675.005. Finally, all affected agencies should review their internal procedures to accommodate the new emergency management director designations and annual drill requirements before the January 2027 effective date.",
+    "summary": "SB 2 amends Texas law to strengthen disaster preparedness, response, and recovery across multiple domains. The bill expands the circumstances under which justices of the peace may certify autopsies unnecessary for deaths resulting from natural disasters, requiring clear and convincing evidence of natural causes and absence of unlawful acts. It mandates a training program for justices of the peace on mass fatality event management, covering decision-making protocols, body identification standards, and best practices for missing persons coordination and relative notification. The legislation introduces new licensing requirements for emergency managers, limiting their tenure without a valid license to six months, and establishes a statewide volunteer management system for disaster response. It also creates a small-business disaster recovery program funded through a dedicated account, sets requirements for post-disaster after-action reporting within 60 days, and addresses criminal history record access for license holders and volunteers. Additional provisions cover emergency management director designations during disasters, annual emergency management plan drills, and restrictions on unmanned aircraft in disaster zones.",
     "id": "ocd-bill/e3b77cbc-8961-47c5-9c6c-7bc8ba526073",
     "identifier": "SB 2",
     "session": "892",
-    "updated_at": "2026-08-24",
+    "updated_at": "2026-09-10",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB2",
-    "summary_word_count": 33,
-    "summary_source": "metadata"
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00002E.htm",
+    "bill_text_hash": "3731fbbb86b9948386d7640c2dfffbddffe4337743008eaa646bc157ac41e6e9",
+    "summary_word_count": 164,
+    "summary_source": "official bill text"
   },
   {
     "title": "Real Property Theft and Fraud Laws",
@@ -348,6 +350,25 @@
     "updated_at": "2026-08-29",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=891&Bill=HR23",
     "summary_word_count": 36,
+    "summary_source": "metadata"
+  },
+  {
+    "title": "In memory of Linda Walton Semlear of Longview",
+    "affects": "N/A - ceremonial resolution",
+    "changes": "N/A - no substantive policy change",
+    "business_impact": "N/A - no business impact",
+    "impact_level": "Low",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SR 23 is listed in Texas legislative metadata with the title In memory of Linda. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/454409ec-f7bc-4509-9806-fc69d6e1d411",
+    "identifier": "SR 23",
+    "session": "891",
+    "updated_at": "2026-09-10",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=891&Bill=SR23",
+    "summary_word_count": 34,
     "summary_source": "metadata"
   },
   {
