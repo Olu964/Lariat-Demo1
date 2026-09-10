@@ -821,8 +821,8 @@ def main() -> int:
     if unresolved:
         print(f"Warning: publishing {len(records)} summaries; {len(unresolved)} bill(s) unresolved: {', '.join(unresolved)}", file=sys.stderr)
     write_output(records, args.output); update_feed(Path("feed.html"))
-    print(f"Saved {len(records)} summaries; unresolved failures: {failures}")
-    if failures and not args.write_partial:
+    print(f"Saved {len(records)} summaries; deferred failures: {failures}; unresolved failures: {len(unresolved)}")
+    if unresolved and not args.write_partial:
         return 1
     return 0 if records else 1
 

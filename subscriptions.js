@@ -17,7 +17,8 @@
    * ========================================================================== */
 
   // Where the subscription API lives. Live deployments can point this at a
-  // real API by setting window.LARIAT_API_BASE before this script loads.
+  // real API in api-config.js, which sets window.LARIAT_API_BASE before this
+  // script loads.
   // Otherwise: same-origin when the page is served by the local backend
   // (:3000), or that backend on this machine for local dev servers. From any
   // other page (e.g. a deployed https site) there is no backend, so API calls

@@ -1,7 +1,6 @@
-# Lariat local backend
+# Lariat backend
 
-A zero-dependency Node.js server (Node 18+  -  no `npm install` needed). It serves
-the Lariat frontend **and** the subscription API from one process.
+A zero-dependency Node.js server (Node 18+  -  no `npm install` needed). In local development it serves the Lariat frontend **and** the subscription API from one process. For production, read [`../DEPLOYMENT.md`](../DEPLOYMENT.md): Vercel's static deployment cannot run this long-lived process or provide durable local JSON storage.
 
 For security findings and the production checklist, read [`../SECURITY.md`](../SECURITY.md) before exposing this server to the internet.
 
@@ -27,10 +26,21 @@ email server-side, so no email API key ever reaches the browser.
 | Endpoint | Method | Body | Purpose |
 | --- | --- | --- | --- |
 | `/api/health` | GET |  -  | Public liveness status |
+| `/api/legislators/lookup` | POST | `{ address }` | Geocodes a Texas address or ZIP and returns the current state senator and representative and recent major-bill voting history when available |
 | `/api/subscriptions/request` | POST | `{ email, industry, accessCode }` | Sends a 6-digit verification code |
 | `/api/subscriptions/verify` | POST | `{ email, industry, verificationCode }` | Confirms the code, activates the subscription |
 | `/api/subscriptions/unsubscribe` | POST | `{ email, industry, token }` | Removes the subscription when called by an API client with a valid signed token; the web UI uses the email link |
 | `/api/subscriptions/unsubscribe?token=…` | GET | signed token | Shows a confirmation page; the follow-up POST performs unsubscribe |
+
+## Find your legislator
+
+`POST /api/legislators/lookup` accepts a JSON body such as `{ "address": "1600 Pennsylvania Ave NW, Washington, DC 20500" }`. Full addresses are geocoded server-side through the free Census Bureau Geocoder. A five-digit ZIP code uses the Census Bureau's TIGERweb ZIP centroid as a fallback. The server confirms the resulting point is in Texas before calling Open States `people.geo`.
+
+The response contains only normalized frontend fields: `personId`, `name`, `chamber`, `party`, `district`, `photoUrl`, `votingHistoryStatus`, `votingHistoryChecked`, and `votingHistory`. The history is checked against the most recently updated high- or moderate-impact bills in the local Lariat snapshot. A record is included only when the Open States bill detail response includes an individual voter matching the legislator by ID or name; no missing vote is inferred. Legislator contact information is not requested or returned. The Open States key is read from the same `OPEN_STATES_API_KEY` environment variable used by the bill-fetching Python pipeline and is sent only in the server-side `X-API-KEY` header. It is never included in browser code or API responses.
+
+Successful lookups are stored in `server/data/legislator-lookups.json` for 24 hours, keyed by the normalized submitted address. The cache includes the returned profile and vote-history availability/results. Failed and no-match lookups are not cached. The endpoint is rate-limited to 30 requests per client IP per hour.
+
+If `OPEN_STATES_API_KEY` is missing, the page shows a configuration error rather than exposing an upstream error.
 
 ## Email: two modes
 
@@ -53,6 +63,7 @@ cp .env.example .env
 | --- | --- | --- |
 | `BREVO_API_KEY` | *(empty → console mode)* | Free tier: https://app.brevo.com/settings/keys/api |
 | `BREVO_FROM_EMAIL` | *(empty)* | Sender address verified in Brevo (by email  -  no domain needed) |
+| `OPEN_STATES_API_KEY` | *(empty)* | Required for Find your legislator; server-side only; register at https://open.pluralpolicy.com/accounts/signup/ |
 | `SUBSCRIPTION_ACCESS_CODE` | `LARIAT-TRIAL-2026` | Private code visitors must enter |
 | `SUBSCRIPTION_CODE_EXPIRY_MINUTES` | `10` | Code lifetime |
 | `SUBSCRIPTION_SIGNING_SECRET` | random per boot | Signs unsubscribe links; set a fixed value so links survive restarts |
@@ -85,7 +96,7 @@ curl -s -X POST http://127.0.0.1:3000/api/subscriptions/unsubscribe \
   -d '{"email":"you@example.com","industry":"Energy & Utilities","token":"<signed token from the welcome email>"}'
 ```
 
-Subscriptions are persisted to `server/data/subscriptions.json` (gitignored).
+Subscriptions are persisted to `server/data/subscriptions.json` and successful legislator lookups are cached in `server/data/legislator-lookups.json` (both gitignored). These files are for local development only; use managed persistent storage for production and never deploy `server/data/` as public static content.
 
 ## Demo pricing tiers
 
@@ -115,8 +126,9 @@ instead of emailed.
 
 ## Notes
 
-- Valid industries are read from `Lariat-real/texas_bill_summaries.json`; the
+- Valid industries are read from the repository's `texas_bill_summaries.json`; the
   backend rejects unknown industries.
+- `OPEN_STATES_API_KEY` is required by `/api/legislators/lookup`. The browser sends only an address/ZIP to the backend; the key is sent from the backend to Open States in `X-API-KEY` and is never returned.
 - Requests are rate-limited per IP. Three incorrect private access-code attempts
   trigger a 24-hour lockout for that network address; the frontend shows a live
   countdown and the backend returns the lockout expiry. There is also a

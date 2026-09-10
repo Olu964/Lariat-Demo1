@@ -24,4 +24,18 @@
 
   updateToggle(getTheme());
   toggle?.addEventListener('click', () => setTheme(getTheme() === 'dark' ? 'light' : 'dark'));
+
+  const header = document.querySelector('.site-header');
+  let scrollTicking = false;
+  const updateHeaderVisibility = () => {
+    header?.classList.toggle('is-scroll-hidden', window.scrollY > 12);
+    scrollTicking = false;
+  };
+  window.addEventListener('scroll', () => {
+    if (!scrollTicking) {
+      window.requestAnimationFrame(updateHeaderVisibility);
+      scrollTicking = true;
+    }
+  }, { passive: true });
+  updateHeaderVisibility();
 })();

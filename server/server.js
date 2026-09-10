@@ -8,8 +8,8 @@
  *
  * It does two things:
  *
- *   1. Serves the Lariat frontend from ../Lariat-real so the whole site runs
- *      from one command:  node server/server.js  →  http://127.0.0.1:3000
+ *   1. Serves the active Lariat frontend from the repository root so the whole
+ *      site runs from one command:  node server/server.js  →  http://127.0.0.1:3000
  *
  *   2. Provides the subscription API that the frontend calls instead of the
  *      old client-side EmailJS flow:
@@ -98,6 +98,7 @@ function normalizeHostname(value) {
 }
 const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
 const BREVO_FROM_EMAIL = process.env.BREVO_FROM_EMAIL || '';
+const OPEN_STATES_API_KEY = process.env.OPEN_STATES_API_KEY || '';
 const DEFAULT_ACCESS_CODE = 'LARIAT-TRIAL-2026';
 const ACCESS_CODE = process.env.SUBSCRIPTION_ACCESS_CODE || DEFAULT_ACCESS_CODE;
 const PUBLIC_BASE_URL = (process.env.PUBLIC_BASE_URL || '').trim().replace(/\/+$/, '');
@@ -138,7 +139,7 @@ const SECURITY_HEADERS = {
   'Cross-Origin-Resource-Policy': 'same-origin',
   'Cross-Origin-Opener-Policy': 'same-origin',
   'X-Permitted-Cross-Domain-Policies': 'none',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests",
 };
 
 // In production the site is served only over HTTPS behind the reverse proxy;
@@ -832,6 +833,7 @@ function makeRateLimiter(windowMs, max) {
 const requestRateLimiter = makeRateLimiter(IP_RATE_LIMIT.windowMs, IP_RATE_LIMIT.max);  // /request calls per IP per hour
 const verifyRateLimiter = makeRateLimiter(60 * 60 * 1000, 25);                           // /verify calls per IP per hour
 const unsubscribeRateLimiter = makeRateLimiter(60 * 60 * 1000, 25);                      // POST /unsubscribe per IP per hour
+const legislatorRateLimiter = makeRateLimiter(60 * 60 * 1000, 30);                         // legislator lookups per IP per hour
 
 const requestCooldowns = new Map(); // email::industry -> last request time
 function cooldownActive(email, industry) {
@@ -850,6 +852,7 @@ setInterval(() => {
   requestRateLimiter.prune();
   verifyRateLimiter.prune();
   unsubscribeRateLimiter.prune();
+  legislatorRateLimiter.prune();
   const now = Date.now();
   for (const [key, last] of requestCooldowns) {
     if (now - last >= REQUEST_COOLDOWN_MS * 2) requestCooldowns.delete(key);
@@ -858,8 +861,321 @@ setInterval(() => {
 }, 60 * 60 * 1000).unref();
 
 /* ---------------------------------------------------------------------------
- * API handlers
+ * Legislator lookup
  * ------------------------------------------------------------------------- */
+
+const CENSUS_GEOCODER_URL = 'https://geocoding.geo.census.gov/geocoder/locations/onelineaddress';
+const CENSUS_ZCTA_URL = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/PUMA_TAD_TAZ_UGA_ZCTA/MapServer/11/query';
+const CENSUS_GEOGRAPHIES_URL = 'https://geocoding.geo.census.gov/geocoder/geographies/coordinates';
+const OPEN_STATES_GEO_URL = 'https://v3.openstates.org/people.geo';
+const OPEN_STATES_BILL_URL = 'https://v3.openstates.org/bills';
+const LEGISLATOR_CACHE_FILE = path.join(DATA_DIR, 'legislator-lookups.json');
+const LEGISLATOR_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const MAX_ADDRESS_LENGTH = 240;
+const ZIP_PATTERN = /^\d{5}(?:-\d{4})?$/;
+const TEXAS_STATE_BOUNDS = { minLat: 25.8, maxLat: 36.6, minLng: -106.7, maxLng: -93.4 };
+const legislatorInFlight = new Map();
+
+function cachedLegislatorsAreUsable(legislators) {
+  return Array.isArray(legislators)
+    && legislators.length === 2
+    && ['Senate', 'House'].every((chamber) => legislators.some((person) => person?.chamber === chamber))
+    && legislators.every((person) => person && typeof person.name === 'string'
+      && person.chamber && typeof person.district === 'string'
+      && person.district !== 'Texas'
+      && typeof person.votingHistoryStatus === 'string'
+      && Array.isArray(person.votingHistory)
+      && !Object.prototype.hasOwnProperty.call(person, 'email')
+      && !Object.prototype.hasOwnProperty.call(person, 'links')
+      && !Object.prototype.hasOwnProperty.call(person, 'offices'));
+}
+
+function loadLegislatorCache() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(LEGISLATOR_CACHE_FILE, 'utf8'));
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    return Object.fromEntries(Object.entries(parsed).filter(([key, value]) => /^.{1,240}$/.test(key)
+      && value && typeof value === 'object' && Number.isFinite(Number(value.cachedAt))
+      && cachedLegislatorsAreUsable(value.legislators)));
+  } catch (error) {
+    if (error.code !== 'ENOENT') console.error('Could not read legislator cache:', error.message);
+    return {};
+  }
+}
+
+const legislatorCache = loadLegislatorCache();
+
+function saveLegislatorCache() {
+  fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
+  const tmpFile = `${LEGISLATOR_CACHE_FILE}.tmp`;
+  fs.writeFileSync(tmpFile, JSON.stringify(legislatorCache, null, 2) + '\n', 'utf8');
+  fs.chmodSync(tmpFile, 0o600);
+  fs.renameSync(tmpFile, LEGISLATOR_CACHE_FILE);
+}
+
+function lookupError(status, code, message) {
+  return Object.assign(new Error(message), { status, code });
+}
+
+function sanitizedLookupInput(value) {
+  return String(value || '').replace(/[<>\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function cacheKeyForAddress(address) {
+  return sanitizedLookupInput(address).toLowerCase();
+}
+
+function isZipAddress(address) {
+  return ZIP_PATTERN.test(address);
+}
+
+async function fetchJson(url, options = {}) {
+  const response = await fetch(url, { ...options, signal: AbortSignal.timeout(10_000) });
+  const body = await response.json().catch(() => null);
+  if (!response.ok) throw lookupError(502, 'upstream_error', `Lookup service returned HTTP ${response.status}`);
+  if (!body || typeof body !== 'object') throw lookupError(502, 'upstream_error', 'Lookup service returned an invalid response');
+  return body;
+}
+
+async function geocodeFullAddress(address) {
+  const url = new URL(CENSUS_GEOCODER_URL);
+  url.searchParams.set('address', address);
+  url.searchParams.set('benchmark', 'Public_AR_Current');
+  url.searchParams.set('format', 'json');
+  const body = await fetchJson(url);
+  const match = body.result?.addressMatches?.[0];
+  const longitude = Number(match?.coordinates?.x);
+  const latitude = Number(match?.coordinates?.y);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    throw lookupError(404, 'not_geocoded', 'We could not geocode that address.');
+  }
+  return { latitude, longitude, matchedAddress: typeof match.matchedAddress === 'string' ? match.matchedAddress : address };
+}
+
+async function geocodeZip(zip) {
+  // The Census Geocoder requires a structure number for address searches. For
+  // ZIP-only fallback, use the Census Bureau TIGERweb ZCTA centroid, then
+  // verify the resulting point with Census geographic lookup below.
+  const url = new URL(CENSUS_ZCTA_URL);
+  url.searchParams.set('where', `ZCTA5='${zip.slice(0, 5)}'`);
+  url.searchParams.set('outFields', 'CENTLAT,CENTLON');
+  url.searchParams.set('returnGeometry', 'false');
+  url.searchParams.set('f', 'json');
+  const body = await fetchJson(url);
+  const attributes = body.features?.[0]?.attributes;
+  const latitude = Number(attributes?.CENTLAT);
+  const longitude = Number(attributes?.CENTLON);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    throw lookupError(404, 'not_geocoded', 'We could not geocode that ZIP code.');
+  }
+  return { latitude, longitude, matchedAddress: `ZIP ${zip.slice(0, 5)}` };
+}
+
+async function isTexasCoordinate(latitude, longitude) {
+  if (latitude < TEXAS_STATE_BOUNDS.minLat || latitude > TEXAS_STATE_BOUNDS.maxLat
+    || longitude < TEXAS_STATE_BOUNDS.minLng || longitude > TEXAS_STATE_BOUNDS.maxLng) return false;
+  const url = new URL(CENSUS_GEOGRAPHIES_URL);
+  url.searchParams.set('x', String(longitude));
+  url.searchParams.set('y', String(latitude));
+  url.searchParams.set('benchmark', 'Public_AR_Current');
+  url.searchParams.set('vintage', 'Current_Current');
+  url.searchParams.set('layers', 'States');
+  url.searchParams.set('format', 'json');
+  const body = await fetchJson(url);
+  return body.result?.geographies?.States?.some((state) => state.STUSAB === 'TX' || state.NAME === 'Texas') === true;
+}
+
+function firstString(...values) {
+  return values.find((value) => typeof value === 'string' && value.trim())?.trim() || '';
+}
+
+function safeHttpUrl(value) {
+  if (typeof value !== 'string' || !/^https?:\/\//i.test(value)) return '';
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : '';
+  } catch (error) { return ''; }
+}
+
+function normalizeLegislator(person) {
+  const role = person && typeof person.current_role === 'object' ? person.current_role : {};
+  const orgClassification = firstString(role.org_classification, role.classification).toLowerCase();
+  const title = firstString(role.title).toLowerCase();
+  const chamber = orgClassification === 'upper' || title.includes('senat') ? 'Senate'
+    : orgClassification === 'lower' || title.includes('represent') ? 'House' : '';
+  if (!chamber) return null;
+
+  // people.geo can include federal officeholders at a coordinate. Require an
+  // explicit Texas state-legislature jurisdiction or state legislative-district
+  // division so a U.S. senator cannot be presented as a Texas state senator.
+  const jurisdiction = person.jurisdiction;
+  const jurisdictionId = firstString(
+    typeof jurisdiction === 'string' ? jurisdiction : jurisdiction?.id,
+    typeof jurisdiction === 'object' ? jurisdiction?.name : '',
+  ).toLowerCase();
+  const divisionId = firstString(role.division_id, person.division_id).toLowerCase();
+  const isTexasStateJurisdiction = jurisdictionId.includes('texas')
+    || jurisdictionId.includes('state:tx');
+  const isStateLegislativeDivision = divisionId.includes('/sldl:') || divisionId.includes('/sldu:');
+  if (!isTexasStateJurisdiction && !isStateLegislativeDivision) return null;
+
+  return {
+    personId: firstString(person.id),
+    name: firstString(person.name) || 'Name unavailable',
+    chamber,
+    party: firstString(person.party) || 'Party not listed',
+    district: role.district === null || role.district === undefined ? '' : String(role.district),
+    photoUrl: safeHttpUrl(person.image) || null,
+  };
+}
+
+function majorBillsForVoteHistory() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(BILL_DATA_FILE, 'utf8'));
+    const bills = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.bills) ? parsed.bills : [];
+    return bills
+      .filter((bill) => bill && typeof bill.id === 'string' && typeof bill.identifier === 'string'
+        && ['moderate', 'high'].includes(String(bill.impact_level || '').toLowerCase()))
+      .sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')))
+      .slice(0, 5)
+      .map((bill) => ({
+        id: bill.id,
+        identifier: bill.identifier,
+        title: firstString(bill.title) || 'Untitled bill',
+        updatedAt: firstString(bill.updated_at),
+        sourceUrl: safeHttpUrl(bill.source_url),
+      }));
+  } catch (error) {
+    return [];
+  }
+}
+
+function voteOption(voter) {
+  const option = firstString(voter?.option, voter?.vote, voter?.value, voter?.position).toLowerCase();
+  if (option === 'yes' || option === 'yea' || option === 'aye' || option === 'for') return 'Yes';
+  if (option === 'no' || option === 'nay' || option === 'against') return 'No';
+  if (option.includes('present')) return 'Present';
+  if (option.includes('absent')) return 'Absent';
+  if (option.includes('excused')) return 'Excused';
+  return firstString(voter?.option, voter?.vote, voter?.value, voter?.position) || 'Recorded';
+}
+
+function voterMatchesPerson(voter, person) {
+  const ids = [voter?.id, voter?.person_id, voter?.person?.id, voter?.voter?.id]
+    .filter((value) => typeof value === 'string');
+  if (person.personId && ids.includes(person.personId)) return true;
+  const names = [voter?.name, voter?.person?.name, voter?.voter?.name]
+    .filter((value) => typeof value === 'string')
+    .map((value) => value.trim().toLowerCase());
+  return Boolean(person.name && names.includes(person.name.trim().toLowerCase()));
+}
+
+function extractVoters(vote) {
+  if (Array.isArray(vote?.voters)) return vote.voters;
+  if (Array.isArray(vote?.votes)) return vote.votes;
+  return [];
+}
+
+async function fetchVotingHistory(person) {
+  const bills = majorBillsForVoteHistory();
+  if (!bills.length || !OPEN_STATES_API_KEY || !person.personId) {
+    return { status: 'unavailable', checkedBillCount: bills.length, records: [] };
+  }
+
+  let successfulResponses = 0;
+  const records = await Promise.all(bills.map(async (bill) => {
+    try {
+      // Open States' detail route expects the `ocd-bill/` path segment to
+      // remain a path segment, not be encoded as `%2F`.
+      if (!/^ocd-bill\/[A-Za-z0-9-]+$/.test(bill.id)) return null;
+      const url = new URL(`${OPEN_STATES_BILL_URL}/${bill.id}`);
+      url.searchParams.set('include', 'votes');
+      const body = await fetchJson(url, { headers: { 'X-API-KEY': OPEN_STATES_API_KEY, Accept: 'application/json' } });
+      successfulResponses += 1;
+      const votes = Array.isArray(body.votes) ? body.votes : [];
+      const matchingVote = votes.find((vote) => extractVoters(vote).some((voter) => voterMatchesPerson(voter, person)));
+      const matchingVoter = matchingVote && extractVoters(matchingVote).find((voter) => voterMatchesPerson(voter, person));
+      return {
+        identifier: bill.identifier,
+        title: bill.title,
+        date: firstString(matchingVote?.start_date, matchingVote?.end_date, bill.updatedAt),
+        vote: matchingVoter ? voteOption(matchingVoter) : 'Not recorded',
+        voteStatus: matchingVoter ? 'recorded' : 'not_recorded',
+        result: firstString(matchingVote?.result),
+        sourceUrl: bill.sourceUrl,
+      };
+    } catch (error) {
+      return null;
+    }
+  }));
+
+  const cleanRecords = records.filter(Boolean);
+  return {
+    status: successfulResponses ? 'available' : 'unavailable',
+    checkedBillCount: bills.length,
+    records: cleanRecords,
+  };
+}
+
+async function fetchLegislators(latitude, longitude) {
+  if (!OPEN_STATES_API_KEY) throw lookupError(503, 'not_configured', 'Legislator lookup is not configured yet.');
+  const url = new URL(OPEN_STATES_GEO_URL);
+  url.searchParams.set('lat', String(latitude));
+  url.searchParams.set('lng', String(longitude));
+  const body = await fetchJson(url, { headers: { 'X-API-KEY': OPEN_STATES_API_KEY, Accept: 'application/json' } });
+  const people = Array.isArray(body.results) ? body.results : Array.isArray(body.people) ? body.people : [];
+  const normalized = people.map(normalizeLegislator).filter(Boolean);
+  const byChamber = ['Senate', 'House'].map((chamber) => normalized.find((person) => person.chamber === chamber)).filter(Boolean);
+  if (byChamber.length !== 2) throw lookupError(404, 'no_match', 'No Texas legislators matched that location.');
+
+  return byChamber;
+}
+
+async function findLegislators(address) {
+  const key = cacheKeyForAddress(address);
+  const cached = legislatorCache[key];
+  if (cached && Date.now() - Number(cached.cachedAt) < LEGISLATOR_CACHE_TTL_MS
+    && cachedLegislatorsAreUsable(cached.legislators)) {
+    return { legislators: cached.legislators, cached: true };
+  }
+  if (legislatorInFlight.has(key)) return legislatorInFlight.get(key);
+  const lookup = (async () => {
+    const coordinates = isZipAddress(address) ? await geocodeZip(address) : await geocodeFullAddress(address);
+    if (!(await isTexasCoordinate(coordinates.latitude, coordinates.longitude))) {
+      throw lookupError(422, 'outside_texas', 'That location is outside Texas. Enter a Texas address or ZIP code.');
+    }
+    const legislators = await fetchLegislators(coordinates.latitude, coordinates.longitude);
+    await Promise.all(legislators.map(async (legislator) => {
+      const history = await fetchVotingHistory(legislator);
+      legislator.votingHistoryStatus = history.status;
+      legislator.votingHistoryChecked = history.checkedBillCount;
+      legislator.votingHistory = history.records;
+    }));
+    legislatorCache[key] = { cachedAt: Date.now(), legislators };
+    saveLegislatorCache();
+    return { legislators, cached: false };
+  })();
+  legislatorInFlight.set(key, lookup);
+  try { return await lookup; } finally { legislatorInFlight.delete(key); }
+}
+
+async function handleLegislatorLookup(req, res, body) {
+  if (legislatorRateLimiter(clientIp(req))) return sendJsonError(res, 429, 'Too many lookup requests. Please try again later.', 'rate_limited');
+  const address = typeof body.address === 'string' ? sanitizedLookupInput(body.address) : '';
+  if (!address) return sendJsonError(res, 400, 'Enter a Texas address or ZIP code.', 'invalid_address');
+  if (address.length > MAX_ADDRESS_LENGTH) return sendJsonError(res, 400, 'That address is too long.', 'invalid_address');
+  if (!isZipAddress(address) && !/[A-Za-z0-9]/.test(address)) return sendJsonError(res, 400, 'Enter a valid address or ZIP code.', 'invalid_address');
+  try {
+    const result = await findLegislators(address);
+    return sendJson(res, 200, { ok: true, address, legislators: result.legislators, cached: result.cached });
+  } catch (error) {
+    const status = Number(error.status) || 502;
+    const code = error.code || 'lookup_failed';
+    const message = status >= 500 ? 'We could not complete that lookup right now. Please try again later.' : error.message;
+    return sendJsonError(res, status, message, code);
+  }
+}
+
 
 async function handleRequestCode(req, res, body) {
   pruneExpiredPendingCodes();
@@ -1316,6 +1632,8 @@ async function handleApi(req, res, url) {
     const body = await readJsonBody(req);
 
     switch (pathname) {
+      case '/api/legislators/lookup':
+        return await handleLegislatorLookup(req, res, body);
       case '/api/subscriptions/request':
         return await handleRequestCode(req, res, body);
       case '/api/subscriptions/verify':

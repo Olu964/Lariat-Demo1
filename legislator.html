@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+  <meta name="description" content="Find the Texas state senator and state representative who represent your address.">
+  <meta name="author" content="Lariat">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://lariatdemo.com/legislator.html">
+  <title>Find your legislator - Lariat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=header-scroll-1">
+  <script src="theme-init.js?v=theme-2"></script>
+  <script src="api-config.js?v=1"></script>
+</head>
+<body class="dashboard-page legislator-page">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Lariat home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">Lariat</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="feed.html">Bill feed</a>
+      <a class="nav-link active" href="legislator.html" aria-current="page">Find your legislator</a>
+      <a class="nav-link" href="key-events.html">Calendar</a>
+      <a class="nav-link" href="pricing.html">Pricing</a>
+      <a class="nav-link" href="privacy.html">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <span class="demo-pill"><span class="status-dot"></span> Real data snapshot</span>
+      <button class="avatar-button" type="button" aria-label="Open account menu" title="Account menu - disabled in this prototype">TX</button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Switch to dark mode"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
+    </div>
+  </header>
+
+  <main class="page-shell legislator-shell">
+    <section class="legislator-hero page-reveal">
+      <div class="eyebrow"><span class="eyebrow-line"></span> Texas Capitol · Your district</div>
+      <h1>Find your legislator</h1>
+      <p class="hero-copy">See who represents you at the Texas Capitol.</p>
+    </section>
+
+    <section class="legislator-lookup-card page-reveal delay-one" aria-labelledby="lookup-title">
+      <div class="section-kicker">Start with your location</div>
+      <h2 id="lookup-title">Who speaks for your address?</h2>
+      <p class="lookup-help">Use a full Texas street address for the most precise result, or enter a five-digit ZIP code as a fallback.</p>
+      <form id="legislator-form" class="legislator-form">
+        <label class="visually-hidden" for="address-input">Address or ZIP code</label>
+        <input id="address-input" name="address" class="legislator-input" type="text" maxlength="240" autocomplete="street-address" placeholder="Enter your address or ZIP code" required>
+        <button class="lookup-button" type="submit"><span>Find my legislator</span><span aria-hidden="true">→</span></button>
+      </form>
+      <p id="lookup-status" class="lookup-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="legislator-results" class="legislator-results page-reveal delay-two" aria-live="polite" aria-labelledby="results-title" hidden>
+      <div class="section-heading">
+        <div>
+          <div class="section-kicker">Your Texas delegation</div>
+          <h2 id="results-title">The legislators for your location</h2>
+        </div>
+        <span class="lookup-address" data-lookup-address></span>
+      </div>
+      <div class="legislator-card-grid" data-legislator-list></div>
+      <!-- TODO: Add a “Bills they've sponsored” section here when sponsor data is linked to the bill dataset. -->
+      <p class="prototype-note"><span aria-hidden="true">✦</span> Results come from Census geocoding and current Open States records. Verify details with the official Texas Legislature.</p>
+    </section>
+  </main>
+
+  <dialog id="legislator-modal" class="bill-modal legislator-modal" aria-labelledby="legislator-modal-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div><div class="modal-kicker">Legislator profile</div><h2 id="legislator-modal-title">Legislator details</h2></div>
+        <button class="modal-close" type="button" data-legislator-modal-close aria-label="Close legislator profile" title="Close">×</button>
+      </div>
+      <div id="legislator-modal-body" class="legislator-modal-body"></div>
+    </div>
+  </dialog>
+
+  <script src="theme.js?v=header-scroll-1"></script>
+  <script src="legislator.js?v=lookup-5"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Security audit and go-live checklist
 
-Audit scope: the `Lariat-real/` frontend, `server/server.js`, environment configuration, static-file serving, automation workflow, and the subscription flow. Audit date: September 4, 2026.
+Audit scope: the root frontend served by the current local backend, `server/server.js`, environment configuration, static-file serving, automation workflow, subscription flow, and Find your legislator lookup. Audit date: September 7, 2026. This document is an engineering checklist, not a security certification or legal advice.
 
 The code-level issues found in this audit have been fixed or documented below. The remaining deployment, operations, data, accessibility, and legal work is still required before a public launch.
 
@@ -8,13 +8,13 @@ The code-level issues found in this audit have been fixed or documented below. T
 
 These are not claims that the prototype is production-safe. They are the material risks still requiring deployment or product work:
 
-- The subscription store is a local JSON file, not a transactional production database. A public deployment needs an encrypted managed database, restricted credentials, backups, restore testing, and a retention/deletion process.
+- The subscription store and legislator lookup cache are local JSON files, not a transactional production database or durable shared cache. A public deployment needs an encrypted managed database/cache, restricted credentials, backups, restore testing, and a retention/deletion process. Vercel's serverless runtime must not be treated as durable local storage.
 - Rate limits and request cooldowns are process-local. They do not provide reliable protection across multiple instances or after a restart; a production edge limit and shared store are required.
 - The shared subscription access code is an invitation gate, not authentication. Anyone who receives it can reuse it until it is rotated; public release needs per-user invitations or accounts.
 - Unsubscribe tokens remain bearer credentials in email URLs. They are signed, include a subscription-generation identifier, expire, and are no longer returned to frontend JavaScript or stored in localStorage; a production product should still use short-lived opaque tokens stored as hashes server-side and should minimize URL/log exposure.
 - The workflow publishes AI-assisted summaries to the repository. Official-source validation, prompt-injection review, rollback, branch protection, and human review remain operational requirements even though the workflow now avoids publishing failed partial runs.
 - The accessibility statement is transparent about limitations, but no independent WCAG, screen-reader, keyboard-only, or complete contrast audit has been completed.
-- The prototype records subscriptions and sends verification/welcome email, but it does not yet deliver recurring bill alerts. Any launch copy, consent language, and retention schedule must be updated when that feature is implemented.
+- The prototype records subscriptions and sends verification/welcome email, but it does not yet deliver recurring bill alerts. Any launch copy, consent language, and retention schedule must be updated when that feature is implemented. The Find your legislator lookup sends submitted address/ZIP data to the configured backend, Census, and Open States and caches successful results for up to 24 hours.
 
 No secrets, subscriber records, or runtime caches are tracked by Git in the current worktree; verify repository history and remote settings before launch.
 
@@ -22,8 +22,8 @@ No secrets, subscriber records, or runtime caches are tracked by Git in the curr
 
 ### 0. Choose a simple deployment shape
 
-1. Keep the static frontend and Node API on the same HTTPS origin if possible. This avoids unnecessary CORS and cross-domain configuration.
-2. Run Node behind a maintained reverse proxy or managed hosting platform. Do not expose the raw HTTP process directly to the internet.
+1. Keep the static frontend and Node API on the same HTTPS origin if possible. This avoids unnecessary CORS and cross-domain configuration. If Vercel hosts only the static frontend, deploy the API separately and configure the exact API origin in `api-config.js`, CSP, and `ALLOWED_ORIGINS`.
+2. Run Node behind a maintained reverse proxy or managed hosting platform. Do not expose the raw HTTP process directly to the internet. The current `node server/server.js` process is a local Node server, not a Vercel serverless function; do not assume Vercel will keep its process or local JSON files alive.
 3. Keep the Node process bound to `127.0.0.1` behind the proxy. The proxy should terminate TLS, redirect HTTP to HTTPS, renew certificates, and apply request-size/rate limits.
 4. Use one application instance until there is a real need to scale. The current in-memory rate limiter is safer and easier to reason about in one instance.
 5. Set the production environment variables below and verify that the process refuses to start if required values are missing.
@@ -34,6 +34,7 @@ SUBSCRIPTION_ACCESS_CODE=<unique random value, at least 12 characters>
 SUBSCRIPTION_SIGNING_SECRET=<random value, at least 32 characters>
 BREVO_API_KEY=<private key>
 BREVO_FROM_EMAIL=<verified sender>
+OPEN_STATES_API_KEY=<private Open States key; server-side only>
 PUBLIC_BASE_URL=https://your-domain.example
 ALLOWED_HOSTS=your-domain.example
 ```
@@ -110,7 +111,7 @@ ALLOWED_HOSTS=your-domain.example
 
 ### 8. Make the bill-data pipeline trustworthy
 
-1. Fetch Open States data only from the backend or a controlled job; never place the Open States API key in frontend code.
+1. Fetch Open States data only from the backend or a controlled job; never place the Open States API key in frontend code. The legislator lookup uses `POST /api/legislators/lookup`, Census geocoding, and Open States `people.geo`; the browser should see only normalized public results.
 2. Validate response size, JSON shape, bill identifiers, dates, URLs, and allowed field lengths before publishing data.
 3. Convert raw Open States records into the frontend's expected summary schema in a separate server-side transformation step.
 4. Treat titles, summaries, and other fetched fields as untrusted data. Escape them at every HTML sink and never execute them as markup or scripts.
@@ -196,6 +197,15 @@ Update the deployed static site's CSP `connect-src` to contain only the exact AP
 - API access logs record only the HTTP method and path; query strings, which can carry signed unsubscribe tokens, are never logged.
 - Signed unsubscribe links expire after 90 days by default (`SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS`), are bound to a subscription-generation identifier, and are not returned to frontend JavaScript or stored in localStorage.
 - Static-file serving resolves real paths before reading and rejects symlink escapes; request URLs are bounded to 8 KiB.
+
+## Vercel/GitHub deployment boundary
+
+The repository currently contains a static frontend plus a standalone Node server. Vercel can deploy the static files directly from GitHub, but the current `server/server.js` is not automatically converted into a Vercel Function, and its JSON subscription/cache files are not suitable for serverless persistence. Choose one of these before launch:
+
+- **Recommended for the current code:** deploy the frontend to Vercel and deploy the Node API to a persistent backend host or protected VM. Point `api-config.js` at that API, set the API's `ALLOWED_ORIGINS` to the exact Vercel production origin, update the frontend CSP `connect-src`, and set all backend secrets there.
+- **Vercel-only:** refactor the API into Vercel Functions and replace filesystem data with a managed database/cache. Do not copy `server/server.js` into a function unchanged; `listen()`, local JSON writes, in-memory rate limits, and local cache files need a serverless-compatible design.
+
+In both cases, `OPEN_STATES_API_KEY` is a backend secret. The frontend does not need it and must never receive it.
 
 ## Release verification
 

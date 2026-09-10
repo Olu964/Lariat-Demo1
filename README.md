@@ -2,7 +2,7 @@
 
 Fetch Texas bills directly from the Open States API and save the raw bill records to JSON.
 
-Before exposing the site or subscription API publicly, read [`SECURITY.md`](SECURITY.md) for the audit results and production checklist.
+Before exposing the site, subscription API, or Find your legislator lookup publicly, read [`SECURITY.md`](SECURITY.md) and [`DEPLOYMENT.md`](DEPLOYMENT.md). The current repository is a static frontend plus a standalone Node API; Vercel does not automatically make `server/server.js` or its local JSON files production-ready.
 
 ## Setup
 
@@ -33,7 +33,10 @@ python3 fetch_texas_bills.py \
 
 The session is optional, but providing it avoids mixing bills from multiple Texas legislative sessions. Confirm the current Texas session identifier in Open States before running a large fetch.
 
-## Local backend (email subscriptions)
+## Find your legislator
+
+The site includes a **Find your legislator** page linked after **Bill feed**. Users can submit a Texas street address or five-digit ZIP code; the backend geocodes it with the Census Bureau, confirms it is in Texas, and calls Open States `people.geo` to return the current state senator and state representative. Clicking either result opens an accessible profile dialog with recent major-bill vote records when Open States provides individual voter data; unavailable history is labeled rather than inferred. Successful results are cached privately on the server for 24 hours. The Open States key uses the existing `OPEN_STATES_API_KEY` environment variable and is never sent to the browser. See `server/README.md` for the lookup endpoint and runtime details, and `DEPLOYMENT.md` for the GitHub/Vercel production boundary.
+
 
 The subscription flow on the Bill feed runs against a zero-dependency local Node.js backend (`server/server.js`)  -  no `npm install`, no hosting, no cost. It serves the site and the API from one process:
 
@@ -48,4 +51,4 @@ The subscription access code allows three incorrect attempts per network address
 
 The Pricing page has three demo tiers: Free (1 industry), Professional ($29/month, up to 5 industries), and Business ($99/month, all industries). Because this is a single-user demo, the selected tier is stored in that browser's localStorage and limits new industry subscriptions in the frontend; billing, accounts, and server-side plan authorization are not active.
 
-Before sharing the site, use the free pre-release checks in [`SECURITY.md`](SECURITY.md): back up and test restoring local data, verify each bill against its official source, run keyboard/accessibility checks, test hostile data values, test the full subscription flow, and review public claims for accuracy.
+Before sharing the site, use the release steps in [`DEPLOYMENT.md`](DEPLOYMENT.md) and the free pre-release checks in [`SECURITY.md`](SECURITY.md): back up and test restoring local data, verify each bill against its official source, run keyboard/accessibility checks, test hostile data values, test the full subscription flow, and review public claims for accuracy.

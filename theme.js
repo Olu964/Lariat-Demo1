@@ -32,4 +32,22 @@
 
   updateToggle(getTheme());
   toggle?.addEventListener('click', () => setTheme(getTheme() === 'dark' ? 'light' : 'dark'));
+
+  // Keep the header in normal document flow, but hide it while the user is
+  // reading lower on the page. It returns as soon as the viewport reaches the
+  // top, preventing the navigation from covering page content.
+  const header = document.querySelector('.site-header');
+  let scrollTicking = false;
+  const updateHeaderVisibility = () => {
+    const currentScrollY = window.scrollY;
+    header?.classList.toggle('is-scroll-hidden', currentScrollY > 12);
+    scrollTicking = false;
+  };
+  window.addEventListener('scroll', () => {
+    if (!scrollTicking) {
+      window.requestAnimationFrame(updateHeaderVisibility);
+      scrollTicking = true;
+    }
+  }, { passive: true });
+  updateHeaderVisibility();
 })();
