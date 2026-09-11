@@ -8,15 +8,17 @@
     "industry": "N/A",
     "specific_industry": "N/A",
     "status": "enacted",
-    "suggested_action": "Monitor the Department of State Health Services for updates on implementing the new safety measures.",
-    "summary": "SB 1 is a Texas legislative record titled campground and youth camp safety. Available metadata lists emergency management and records effective immediately. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "suggested_action": "Youth camp operators, campground managers, and emergency management agencies should review their current operations against the new floodplain restrictions and licensing requirements. Those operating in or near floodplains must evaluate whether their sites meet the minimum distance criteria or qualify for exceptions. The Texas Division of Emergency Management and the Health and Human Services Commission should monitor the January 1, 2026 deadline for adopting implementing rules under Section 141.0091. Operators should initiate emergency plan development now to meet the April 1, 2026 submission requirement. Municipal and county emergency management directors should coordinate with camp operators to ensure proper reporting and compliance with the new confidentiality and documentation standards outlined in the act.",
+    "summary": "The Heaven's 27 Camp Safety Act (SB 1) amends Texas Health and Safety Code to enhance safety regulations for youth camps and campgrounds. It prohibits youth camp licenses in floodplains except where cabins are near non-connected still water bodies or at least 1,000 feet from floodways. The act requires annual emergency plans with detailed evacuation procedures, online registry listings, redundant internet connectivity, and comprehensive safety protocols including pre-session orientations, staff training, and documented compliance. It also mandates floodplain safety features such as emergency ladders and disaster-specific evacuation plans. Implementing rules must be adopted by January 1, 2026, and youth camp operators will not be required to submit emergency plans until April 1, 2026.",
     "id": "ocd-bill/af45d80f-4ff1-4a5e-8ec9-6dfa01241cf8",
     "identifier": "SB 1",
     "session": "892",
-    "updated_at": "2026-08-29",
+    "updated_at": "2026-09-11",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB1",
-    "summary_word_count": 36,
-    "summary_source": "metadata"
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00001E.htm",
+    "bill_text_hash": "8dffe5c47ed02f900c82a453a1ff50f5fa284f1060fd8f259c3779a443d9286e",
+    "summary_word_count": 114,
+    "summary_source": "official bill text"
   },
   {
     "title": "Voter-approval tax rate reform",
