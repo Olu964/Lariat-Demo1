@@ -211,6 +211,114 @@
     }
   };
 
+  // "Your legislator's vote" badges. Reads the snapshot saved by
+  // legislator.js after a successful Find Your Legislator lookup — no new
+  // network calls. Matches are exact identifier + session only; anything
+  // missing or unrecorded is omitted, never inferred.
+  const MY_LEGISLATORS_STORAGE_KEY = 'lariat-my-legislators-v1';
+
+  const normalizeVoteIdentifier = (value) => String(value ?? '')
+    .trim().toUpperCase().replace(/\s+/g, ' ');
+  const normalizeVoteSession = (value) => String(value ?? '').trim();
+
+  const readMyLegislators = () => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(MY_LEGISLATORS_STORAGE_KEY) || 'null');
+      const people = Array.isArray(parsed) ? parsed : parsed?.legislators;
+      if (!Array.isArray(people)) return [];
+      return people.filter((person) => person && typeof person === 'object');
+    } catch (error) {
+      return [];
+    }
+  };
+
+  const isRecordedVote = (record) => {
+    const vote = String(record?.vote ?? '').trim();
+    return record?.voteStatus === 'recorded'
+      && vote !== ''
+      && vote.toLowerCase() !== 'not recorded';
+  };
+
+  const voteMatchesBill = (record, billIdentifier, billSession) => {
+    if (!isRecordedVote(record)) return false;
+    if (normalizeVoteIdentifier(record.identifier) !== billIdentifier) return false;
+    const recordSession = normalizeVoteSession(record.session);
+    // Records saved before session was tracked carry no session; match those
+    // on identifier only. Whenever both sides have a session, require equality.
+    if (!recordSession || !billSession) return true;
+    return recordSession === billSession;
+  };
+
+  const myVotesForBill = (bill) => {
+    const billIdentifier = normalizeVoteIdentifier(bill?.identifier);
+    if (!billIdentifier) return [];
+    const billSession = normalizeVoteSession(bill?.session);
+    const matches = [];
+    for (const person of readMyLegislators()) {
+      const chamber = String(person.chamber || '').toLowerCase();
+      const role = chamber === 'senate' ? 'senator' : chamber === 'house' ? 'rep' : '';
+      if (!role) continue;
+      // One badge per chamber: first recorded match wins.
+      if (matches.some((match) => match.role === role)) continue;
+      const records = Array.isArray(person.votingHistory) ? person.votingHistory : [];
+      const match = records.find((record) => voteMatchesBill(record, billIdentifier, billSession));
+      if (match) {
+        matches.push({
+          role,
+          vote: String(match.vote).trim(),
+          name: String(person.name || '').trim(),
+          photoUrl: String(person.photoUrl || ''),
+        });
+      }
+    }
+    return matches;
+  };
+
+  const myVoteBadges = (bill) => myVotesForBill(bill).map(({ role, vote }) => (
+    `<span class="vote-badge"><span class="badge-dot"></span>Your ${escapeHtml(role)} voted ${escapeHtml(vote)}</span>`
+  )).join('');
+
+  // Verdict wording for the large popup hero. Yes-like votes read as support
+  // for the bill, No-like votes as opposition; anything else (Present,
+  // Absent, …) falls back to the verbatim vote so nothing is inferred.
+  const voteVerdict = (vote) => {
+    const normalized = String(vote || '').toLowerCase().replace(/·.*$/, '').trim();
+    if (['yes', 'yea', 'aye', 'for'].includes(normalized)) return 'For the passing of this Bill';
+    if (['no', 'nay', 'against'].includes(normalized)) return 'Against the passing of this Bill';
+    return '';
+  };
+
+  const roleTitle = (role) => (role === 'senator' ? 'senator' : role === 'rep' ? 'representative' : 'legislator');
+
+  // Large signifier pinned to the very top of the bill detail popup: the
+  // selected legislator's actual name, and the for/against verdict.
+  // Returns '' when there is nothing recorded — never rendered, never guessed.
+  const myVoteHero = (bill) => {
+    const matches = myVotesForBill(bill);
+    if (!matches.length) return '';
+    return `
+      <section class="my-vote-hero" aria-label="How your legislators voted on this bill">
+        ${matches.map((match) => {
+          const verdict = voteVerdict(match.vote);
+          const verdictText = verdict
+            ? `Voted ${verdict}`
+            : `Voted ${match.vote} on this Bill`;
+          const name = String(match.name || '').trim();
+          const kickerText = name
+            ? `${name} · your ${roleTitle(match.role)}`
+            : `Your ${roleTitle(match.role)}`;
+          return `
+            <div class="my-vote-row">
+              <div class="my-vote-text">
+                <p class="my-vote-kicker">${escapeHtml(kickerText)}</p>
+                <p class="my-vote-verdict">${escapeHtml(verdictText)}</p>
+              </div>
+            </div>`;
+        }).join('')}
+      </section>
+    `;
+  };
+
   const openBillModal = (bill, trigger) => {
     if (!modal || !modalTitle || !modalBody) return;
     lastFocusedElement = trigger;
@@ -230,6 +338,7 @@
       .slice(0, 30);
     modalBody.innerHTML = `
       <article class="modal-bill-card ${levelClass === 'high' ? 'high-impact' : ''}">
+        ${myVoteHero(bill)}
         <div class="bill-topline"><span class="bill-number">${escapeHtml(identifier)}</span><span class="bill-date">${escapeHtml(displaySpecificIndustry(bill.specific_industry, bill.industry))}</span></div>
         <div class="bill-heading"><h3>${escapeHtml(title)}</h3><div class="bill-badges">${statusBadge(bill)}<span class="impact-badge ${levelClass}"><span class="badge-dot"></span>${escapeHtml(level)} impact</span></div></div>
         <button class="updated-on-button" type="button" data-updated-on="${escapeHtml(updatedOn)}" aria-label="Summary updated on ${escapeHtml(updatedOn)}" title="This summary's dataset refresh date"><span aria-hidden="true">↻</span> Updated on · ${escapeHtml(updatedOn)}</button>
@@ -351,7 +460,7 @@
             return `
               <button class="bill-card bill-card-button ${levelClass === 'high' ? 'high-impact' : ''}" type="button" data-bill-index="${bill.__index}" aria-label="Open full summary for ${identifier}" title="Open the full summary for ${identifier}">
                 <div class="bill-topline"><span class="bill-number">${identifier}</span><span class="bill-date">${escapeHtml(cardIndustry)}</span></div>
-                <div class="bill-heading"><h3>${title}</h3><div class="bill-badges">${statusBadge(bill)}<span class="impact-badge ${levelClass}"><span class="badge-dot"></span>${escapeHtml(safe(bill.impact_level))} impact</span></div></div>
+                <div class="bill-heading"><h3>${title}</h3><div class="bill-badges">${statusBadge(bill)}<span class="impact-badge ${levelClass}"><span class="badge-dot"></span>${escapeHtml(safe(bill.impact_level))} impact</span>${myVoteBadges(bill)}</div></div>
                 <span class="bill-card-action">Click to view full summary <span aria-hidden="true">↗</span></span>
               </button>
             `;

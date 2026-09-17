@@ -14,6 +14,72 @@
   let legislators = [];
   let lastFocusedElement = null;
 
+  // Shared with the bill feed (real-script.js). A legislator only becomes
+  // "yours" when the visitor explicitly clicks "Make them your legislator"
+  // on that person's card — a lookup alone saves nothing. One entry per
+  // chamber; picking replaces that chamber's entry, never duplicates.
+  // A new successful lookup clears prior picks, since the delegation for a
+  // different address may be different people.
+  const MY_LEGISLATORS_STORAGE_KEY = 'lariat-my-legislators-v1';
+
+  const truncateStoredString = (value, max = 200) => {
+    const text = typeof value === 'string' ? value : String(value ?? '');
+    return text.length > max ? text.slice(0, max) : text;
+  };
+
+  const sanitizeStoredPerson = (person) => ({
+    personId: truncateStoredString(person?.personId || '', 120),
+    name: truncateStoredString(person?.name || '', 120),
+    chamber: truncateStoredString(person?.chamber || '', 20),
+    party: truncateStoredString(person?.party || '', 80),
+    district: truncateStoredString(person?.district ?? '', 20),
+    photoUrl: truncateStoredString(person?.photoUrl || '', 500),
+    votingHistoryStatus: truncateStoredString(person?.votingHistoryStatus || '', 20),
+    votingHistory: (Array.isArray(person?.votingHistory) ? person.votingHistory : []).slice(0, 25).map((record) => ({
+      billId: truncateStoredString(record?.billId || record?.id || '', 120),
+      identifier: truncateStoredString(record?.identifier || '', 40),
+      session: truncateStoredString(record?.session ?? '', 40),
+      vote: truncateStoredString(record?.vote || '', 40),
+      voteStatus: truncateStoredString(record?.voteStatus || '', 20),
+    })),
+  });
+
+  const readMyLegislatorsSnapshot = () => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(MY_LEGISLATORS_STORAGE_KEY) || 'null');
+      const people = Array.isArray(parsed) ? parsed : parsed?.legislators;
+      return Array.isArray(people) ? people : [];
+    } catch (error) {
+      return [];
+    }
+  };
+
+  const saveMyLegislator = (person) => {
+    try {
+      const chamber = String(person?.chamber || '').toLowerCase();
+      const next = readMyLegislatorsSnapshot().filter(
+        (entry) => String(entry?.chamber || '').toLowerCase() !== chamber,
+      );
+      next.push({ ...sanitizeStoredPerson(person) });
+      localStorage.setItem(MY_LEGISLATORS_STORAGE_KEY, JSON.stringify({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        legislators: next.slice(0, 2),
+      }));
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const clearMyLegislators = () => {
+    try {
+      localStorage.removeItem(MY_LEGISLATORS_STORAGE_KEY);
+    } catch (error) {
+      // Storage blocked: nothing saved, so nothing to clear.
+    }
+  };
+
   const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (character) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
   }[character]));
@@ -54,6 +120,9 @@
           </span>
           <span class="legislator-card-action">Click to view profile and voting history <span aria-hidden="true">↗</span></span>
         </button>
+        <div class="legislator-card-picker">
+          <button class="make-my-legislator-button" type="button" data-make-my-legislator="${index}" aria-pressed="false" aria-label="Make ${escapeHtml(legislator.name)} your legislator">Make them your legislator</button>
+        </div>
       </article>
     `;
   };
@@ -103,7 +172,28 @@
     lastFocusedElement = null;
   };
 
-  const handleCardActivation = (event) => {
+  const markAsMyLegislator = (button, legislator) => {
+    if (!button) return;
+    button.disabled = true;
+    button.setAttribute('aria-pressed', 'true');
+    button.classList.add('is-selected');
+    button.innerHTML = '<span aria-hidden="true">✓</span> Your legislator';
+    const role = String(legislator?.chamber || '').toLowerCase() === 'senate' ? 'senator'
+      : String(legislator?.chamber || '').toLowerCase() === 'house' ? 'representative' : 'legislator';
+    setStatus(`${legislator?.name || 'That legislator'} is now your ${role}. Their votes will appear on the bill feed.`);
+  };
+
+  const handleListClick = (event) => {
+    const maker = event.target.closest?.('[data-make-my-legislator]');
+    if (maker) {
+      event.preventDefault();
+      const index = Number(maker.dataset.makeMyLegislator);
+      if (!Number.isInteger(index) || !legislators[index]) return;
+      const saved = saveMyLegislator(legislators[index]);
+      if (saved) markAsMyLegislator(maker, legislators[index]);
+      else setStatus('Could not save that choice. Check browser storage settings and try again.', true);
+      return;
+    }
     const trigger = event.target.closest?.('[data-legislator-index]');
     if (!trigger) return;
     const index = Number(trigger.dataset.legislatorIndex);
@@ -111,7 +201,7 @@
     event.preventDefault();
     openModal(legislators[index], trigger);
   };
-  list?.addEventListener('click', handleCardActivation);
+  list?.addEventListener('click', handleListClick);
   document.querySelector('[data-legislator-modal-close]')?.addEventListener('click', closeModal);
   modal?.addEventListener('click', (event) => {
     if (event.target === modal) closeModal();
@@ -157,6 +247,9 @@
       }
       legislators = Array.isArray(payload.legislators) ? payload.legislators : [];
       if (legislators.length !== 2) throw new Error("We couldn't find a Texas legislator for that address. Double check it's a valid Texas address and try again.");
+      // A new lookup may return different people, so prior "my legislator"
+      // picks are cleared — nothing becomes yours without an explicit click.
+      clearMyLegislators();
       if (list) list.innerHTML = legislators.map(renderLegislator).join('');
       if (addressLabel) addressLabel.textContent = payload.address || address;
       if (results) {

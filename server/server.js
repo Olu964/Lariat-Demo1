@@ -1041,6 +1041,9 @@ function majorBillsForVoteHistory() {
       .map((bill) => ({
         id: bill.id,
         identifier: bill.identifier,
+        session: typeof bill.session === 'string' || typeof bill.session === 'number'
+          ? String(bill.session)
+          : '',
         title: firstString(bill.title) || 'Untitled bill',
         updatedAt: firstString(bill.updated_at),
         sourceUrl: safeHttpUrl(bill.source_url),
@@ -1096,7 +1099,9 @@ async function fetchVotingHistory(person) {
       const matchingVote = votes.find((vote) => extractVoters(vote).some((voter) => voterMatchesPerson(voter, person)));
       const matchingVoter = matchingVote && extractVoters(matchingVote).find((voter) => voterMatchesPerson(voter, person));
       return {
+        billId: bill.id,
         identifier: bill.identifier,
+        session: bill.session || '',
         title: bill.title,
         date: firstString(matchingVote?.start_date, matchingVote?.end_date, bill.updatedAt),
         vote: matchingVoter ? voteOption(matchingVoter) : 'Not recorded',
