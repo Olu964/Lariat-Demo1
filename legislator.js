@@ -84,6 +84,23 @@
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
   }[character]));
 
+  // Error bodies can come from our backend, the static host, or an
+  // intermediate proxy — and any of them may use a non-string `error`
+  // shape. Only validated strings ever reach the UI, so a raw object can
+  // never leak through as "[object Object]".
+  const lookupFailureMessage = (response, payload) => {
+    const body = payload && typeof payload === 'object' ? payload : null;
+    if (body?.code === 'outside_texas') return 'That address is outside Texas. Enter a Texas address or ZIP code to find your state legislators.';
+    if (body?.code === 'not_geocoded') return 'We couldn’t locate that address. Check the spelling and try again.';
+    if (body?.code === 'no_match') return "We couldn't find a Texas legislator for that address. Double check it's a valid Texas address and try again.";
+    if (body && typeof body.error === 'string' && body.error.trim()) return body.error;
+    // No JSON body (or an unexpected shape) means something other than the
+    // Lariat backend answered — on the static-only host the lookup API
+    // doesn't exist, so say so plainly instead of showing platform internals.
+    if (!body) return 'Legislator lookup is not available on this site right now. Please try again later.';
+    return 'We could not complete that lookup. Please try again.';
+  };
+
   const setStatus = (message, isError = false) => {
     if (!status) return;
     status.textContent = message;
@@ -229,21 +246,19 @@
     if (results) results.hidden = true;
     setStatus('Looking up your Texas delegation…');
     try {
-      const response = await fetch(`${apiBase}/api/legislators/lookup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ address }),
-      });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok || !payload.ok) {
-        const message = payload.code === 'outside_texas'
-          ? 'That address is outside Texas. Enter a Texas address or ZIP code to find your state legislators.'
-          : payload.code === 'not_geocoded'
-            ? 'We couldn’t locate that address. Check the spelling and try again.'
-            : payload.code === 'no_match'
-              ? "We couldn't find a Texas legislator for that address. Double check it's a valid Texas address and try again."
-              : payload.error || 'We could not complete that lookup. Please try again.';
-        throw new Error(message);
+      let response;
+      try {
+        response = await fetch(`${apiBase}/api/legislators/lookup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ address }),
+        });
+      } catch (error) {
+        throw new Error('Could not reach the lookup service. Check your connection and try again.');
+      }
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || !payload || payload.ok !== true) {
+        throw new Error(lookupFailureMessage(response, payload));
       }
       legislators = Array.isArray(payload.legislators) ? payload.legislators : [];
       if (legislators.length !== 2) throw new Error("We couldn't find a Texas legislator for that address. Double check it's a valid Texas address and try again.");
@@ -258,7 +273,13 @@
       }
       setStatus(payload.cached ? 'Showing a recent lookup for this address.' : 'Lookup complete.');
     } catch (error) {
-      setStatus(error.message, true);
+      const message = error instanceof Error
+        && typeof error.message === 'string'
+        && error.message
+        && error.message !== '[object Object]'
+        ? error.message
+        : 'We could not complete that lookup. Please try again.';
+      setStatus(message, true);
     } finally {
       if (button) button.disabled = false;
     }

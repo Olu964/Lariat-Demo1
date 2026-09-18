@@ -310,7 +310,10 @@
       data = await response.json();
     } catch (error) { /* non-JSON error body */ }
     if (!response.ok || data.ok === false) {
-      const message = data && data.error ? data.error : `Request failed (HTTP ${response.status}).`;
+      // `error` may be a non-string shape from a proxy/platform response —
+      // only validated strings reach Error, never "[object Object]".
+      const serverMessage = data && typeof data.error === 'string' && data.error.trim() ? data.error : '';
+      const message = serverMessage || `Request failed (HTTP ${response.status}).`;
       const error = new Error(message);
       error.status = response.status;
       error.code = data && data.code;
