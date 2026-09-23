@@ -155,6 +155,27 @@
       : specificIndustry;
   };
   const formatLabel = (key) => key.replace(/_/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase());
+  const FIELD_EXPLANATIONS = {
+    affects: 'Who and what this touches — from the bill\u2019s official subject tags and who the text says it applies to.',
+    changes: 'What the bill does — from what the official bill text adds, changes, or requires.',
+    business_impact: 'What it could mean in practice — our read of costs or rule changes in the text. Not legal advice.',
+    status: 'Last saved stage for this bill (e.g. Pending, Enacted). Verify live status with the official Texas Legislature link.',
+    suggested_action: 'What to review or prepare for — AI-written from requirements, deadlines, and exceptions in the official text.',
+    summary: 'Plain-English version of the official Texas bill text. Full version when we have the text, shorter metadata version when we don\u2019t.',
+    session: 'Which Texas legislative session this record belongs to — from the official record ID.',
+    origin_date: 'The date this bill was first introduced — from the official first-action record.',
+    updated_at: 'Date Lariat last refreshed this summary — not the date the Legislature acted.',
+    summary_source: 'Whether this summary came from the full official bill text or just metadata (title + subjects + last action).',
+    impact_scores: 'How the 7-factor impact signals scored this bill (0 = absent, 1 = possible, 2 = direct).',
+    impact_rationale: 'Why the impact level was assigned — the strongest signals behind it.',
+    impact_framework: 'The versioned ruleset used to assign the impact level.',
+  };
+  const fieldExplanation = (key) => {
+    const normalized = String(key || '').toLowerCase();
+    if (FIELD_EXPLANATIONS[normalized]) return FIELD_EXPLANATIONS[normalized];
+    if (['updatedon', 'last_updated', 'generated_at'].includes(normalized)) return FIELD_EXPLANATIONS.updated_at;
+    return '';
+  };
   const formatDateString = (raw) => {
     const match = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ].*)?$/);
     if (!match) return null;
@@ -175,7 +196,9 @@
     } catch (error) {
       formatted = 'Not provided';
     }
-    return formatted.length > 4000 ? `${formatted.slice(0, 4000)}…` : formatted;
+    if (formatted.length > 4000) formatted = `${formatted.slice(0, 4000)}…`;
+    // Ensure the first letter of the first word is capitalized.
+    return formatted.replace(/^[a-z]/, (character) => character.toUpperCase());
   };
   const formatUpdatedOn = (bill) => {
     const rawDate = bill.updated_at || bill.updatedOn || bill.last_updated || bill.generated_at;
@@ -343,12 +366,19 @@
         <div class="bill-heading"><h3>${escapeHtml(title)}</h3><div class="bill-badges">${statusBadge(bill)}<span class="impact-badge ${levelClass}"><span class="badge-dot"></span>${escapeHtml(level)} impact</span></div></div>
         <button class="updated-on-button" type="button" data-updated-on="${escapeHtml(updatedOn)}" aria-label="Summary updated on ${escapeHtml(updatedOn)}" title="This summary's dataset refresh date"><span aria-hidden="true">↻</span> Updated on · ${escapeHtml(updatedOn)}</button>
         <div class="modal-fields">
-          ${detailFields.map(([key, value]) => `
+          ${detailFields.map(([key, value]) => {
+            const tip = fieldExplanation(key);
+            if (!tip) return `
             <section class="modal-field">
               <h4>${escapeHtml(formatLabel(key))}</h4>
               <p>${escapeHtml(formatValue(value))}</p>
-            </section>
-          `).join('')}
+            </section>`;
+            return `
+            <section class="modal-field">
+              <h4 class="field-label" tabindex="0">${escapeHtml(formatLabel(key))}<span class="field-info" aria-hidden="true">i</span><span class="field-tip" role="tooltip">${escapeHtml(tip)}</span></h4>
+              <p>${escapeHtml(formatValue(value))}</p>
+            </section>`;
+          }).join('')}
         </div>
         <a class="bill-link modal-source-link" href="${escapeHtml(configuredSourceUrl)}" target="_blank" rel="noopener noreferrer">Verify with Texas Legislature <span aria-hidden="true">↗</span></a>
         <section class="bill-notes" aria-labelledby="bill-notes-title">

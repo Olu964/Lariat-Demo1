@@ -620,3 +620,52 @@ html.theme-transitioning *, html.theme-transitioning *::before, html.theme-trans
 @media (prefers-reduced-motion: reduce) {
   .key-events-spinner, .key-event-card-inner, .legislator-card { animation: none !important; }
 }
+
+/* Offline fallback page */
+.offline-shell { display: grid; place-items: center; min-height: calc(100vh - 220px); padding: 56px 0; }
+.offline-card {
+  width: min(560px, 100%); text-align: center; padding: 48px 40px 40px;
+  border: 1px solid rgba(255, 255, 255, .9); border-radius: 20px;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, .65), transparent 45%), rgba(255, 255, 255, .92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .98), var(--shadow);
+  backdrop-filter: blur(12px) saturate(1.15);
+  animation: offline-rise .55s cubic-bezier(.2, .7, .25, 1) both;
+}
+.offline-card h1 { margin: 18px 0 10px; color: var(--navy-950); font-family: Manrope, sans-serif; font-size: clamp(30px, 4vw, 40px); font-weight: 800; letter-spacing: -.04em; line-height: 1.1; }
+.offline-copy { margin: 0 auto; max-width: 38ch; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.offline-status { display: inline-flex; align-items: center; gap: 9px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-soft); color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.offline-pulse { width: 9px; height: 9px; border-radius: 50%; background: #c2873a; box-shadow: 0 0 0 0 rgba(194, 135, 58, .45); animation: offline-pulse 1.8s ease-out infinite; }
+.offline-actions { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+.offline-retry { padding: 12px 22px; border: 0; border-radius: 10px; background: var(--navy-800); color: #fff; font-weight: 700; font-size: 14px; box-shadow: 0 10px 24px rgba(16, 51, 85, .25); transition: transform .2s ease, background .2s ease; }
+.offline-retry:hover { background: var(--navy-700); transform: translateY(-2px); }
+.offline-home { padding: 12px 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--navy-800); font-weight: 700; font-size: 14px; transition: border-color .2s ease, transform .2s ease; }
+.offline-home:hover { border-color: var(--blue-500); transform: translateY(-2px); }
+.offline-hint { margin: 22px auto 0; max-width: 44ch; color: var(--muted-light); font-size: 12.5px; line-height: 1.6; }
+@keyframes offline-rise { from { opacity: 0; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes offline-pulse { 0% { box-shadow: 0 0 0 0 rgba(194, 135, 58, .45); } 70% { box-shadow: 0 0 0 12px rgba(194, 135, 58, 0); } 100% { box-shadow: 0 0 0 0 rgba(194, 135, 58, 0); } }
+[data-theme="dark"] .offline-card { border-color: rgba(255, 255, 255, .12); background: radial-gradient(circle at 22% 18%, rgba(255, 255, 255, .1), transparent 40%), rgba(18, 37, 50, .9); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), var(--shadow); }
+[data-theme="dark"] .offline-card h1 { color: #e7f1f6; }
+[data-theme="dark"] .offline-copy { color: #9aafbc; }
+[data-theme="dark"] .offline-status { border-color: rgba(255, 255, 255, .14); background: rgba(13, 29, 39, .9); color: #9aafbc; }
+[data-theme="dark"] .offline-home { border-color: rgba(255, 255, 255, .16); background: rgba(17, 35, 46, .85); color: #e7f1f6; }
+[data-theme="dark"] .offline-retry { border: 1px solid rgba(255, 255, 255, .16); background: #1e3f54; color: #e7f1f6; box-shadow: 0 10px 24px rgba(0, 0, 0, .35); }
+[data-theme="dark"] .offline-retry:hover { background: #264e66; }
+[data-theme="dark"] .offline-hint { color: #7f95a3; }
+@media (max-width: 650px) { .offline-card { padding: 36px 24px 30px; } }
+@media (prefers-reduced-motion: reduce) { .offline-card, .offline-pulse { animation: none !important; } }
+
+/* Hover explanations for bill modal section titles */
+.field-label { position: relative; display: inline-flex; align-items: center; gap: 7px; cursor: help; border-radius: 6px; }
+.field-info { display: inline-grid; width: 15px; height: 15px; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: var(--surface-soft); color: var(--muted-light); font-size: 9px; font-style: normal; font-weight: 800; line-height: 1; text-transform: none; letter-spacing: 0; }
+.field-tip {
+  position: absolute; top: calc(100% + 8px); left: 0; z-index: 20; width: max-content; max-width: min(320px, 70vw);
+  padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--navy-900); color: #eaf3f8; font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; line-height: 1.55; text-align: left; white-space: normal;
+  box-shadow: 0 14px 34px rgba(7, 26, 45, .28); opacity: 0; visibility: hidden; transform: translateY(4px); pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease, visibility .18s;
+}
+.field-label:hover .field-tip, .field-label:focus-visible .field-tip, .field-label:focus .field-tip { opacity: 1; visibility: visible; transform: none; }
+.modal-field:last-child .field-tip { top: auto; bottom: calc(100% + 8px); }
+[data-theme="dark"] .field-info { border-color: rgba(255, 255, 255, .16); background: rgba(13, 29, 39, .9); color: #9aafbc; }
+[data-theme="dark"] .field-tip { border-color: rgba(255, 255, 255, .16); background: rgba(9, 26, 40, .97); box-shadow: 0 14px 34px rgba(0, 0, 0, .45); }
+@media (prefers-reduced-motion: reduce) { .field-tip { transition: none; } }

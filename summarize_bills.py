@@ -756,6 +756,32 @@ def extract_json(text: str) -> dict[str, Any] | None:
 def word_count(value: Any) -> int: return len(re.findall(r"\b\w+(?:['’-]\w+)*\b", str(value or "")))
 
 
+def capitalize_first(value: Any) -> Any:
+    """Capitalize the first letter of the first word without altering the rest."""
+    if not isinstance(value, str):
+        return value
+    return re.sub(r"^[a-z]", lambda match: match.group(0).upper(), value, count=1)
+
+
+def origin_date_for_bill(bill: dict[str, Any], old: dict[str, Any] | None = None) -> str:
+    """First-introduced date for a bill: Open States first_action_date (YYYY-MM-DD).
+
+    Falls back to the record's created_at timestamp, then to a previously saved
+    origin_date so re-runs never blank a known date.
+    """
+    for key in ("first_action_date", "created_at"):
+        raw = str(bill.get(key) or "").strip()
+        if not raw:
+            continue
+        match = re.match(r"^(\d{4})-(\d{2})-(\d{2})", raw)
+        if match:
+            return f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
+        return raw
+    if isinstance(old, dict):
+        return str(old.get("origin_date") or "").strip()
+    return ""
+
+
 EXPANSION_PROMPT = f"""You are revising a Texas legislative bill summary and suggested action. Use ONLY the supplied official bill text, metadata, and draft. Return one JSON object containing exactly these keys: summary, suggested_action, impact_factors, impact_rationale. Rewrite the summary as one neutral paragraph between {MIN_SUMMARY_WORDS} and {MAX_SUMMARY_WORDS} words. Rewrite suggested_action as one neutral, practical paragraph between {MIN_SUGGESTED_ACTION_WORDS} and {MAX_SUGGESTED_ACTION_WORDS} words. Add useful source-supported facts such as operative changes, affected parties, requirements, exceptions, funding, effective dates, implementation questions, or status considerations when present. For ceremonial resolutions, explain that no legal or operational action is required while identifying any useful record-monitoring or verification step. Preserve or correct impact_factors as integers 0-2 for direct_compliance_requirement, financial_cost, operational_change, industry_breadth, enforcement_risk, effective_date_urgency, business_model_impact, and keep impact_rationale to one or two neutral sentences. {IMPACT_RUBRIC_TEXT} Do not pad with repetition or invent facts. Return JSON only."""
 
 
@@ -847,6 +873,8 @@ def fallback_display_fields(bill: dict[str, Any], old: dict[str, Any] | None) ->
     fields["specific_industry"] = fields.get("specific_industry") or "N/A"
     fields["status"] = fields.get("status") or "pending"
     fields["suggested_action"] = fields.get("suggested_action") or "Review the official bill text and monitor the recorded legislative status."
+    for key in ("affects", "changes", "business_impact", "status", "suggested_action"):
+        fields[key] = capitalize_first(fields.get(key, ""))
     return fields
 
 
@@ -887,7 +915,7 @@ def is_official_text_record(record: dict[str, Any] | None) -> bool:
     return bool(
         isinstance(record, dict)
         and record.get("bill_text_hash")
-        and str(record.get("summary_source") or "official bill text") == "official bill text"
+        and str(record.get("summary_source") or "official bill text").lower() == "official bill text"
     )
 
 
@@ -902,7 +930,7 @@ def is_valid_official_summary(record: dict[str, Any] | None) -> bool:
         isinstance(record, dict)
         and record.get("bill_text_hash")
         and not metadata_disclosure
-        and str(record.get("summary_source") or "official bill text") == "official bill text"
+        and str(record.get("summary_source") or "official bill text").lower() == "official bill text"
         and MIN_SUMMARY_WORDS <= word_count(record.get("summary")) <= MAX_SUMMARY_WORDS
         and MIN_SUGGESTED_ACTION_WORDS <= word_count(record.get("suggested_action")) <= MAX_SUGGESTED_ACTION_WORDS
     )
@@ -911,7 +939,7 @@ def is_valid_official_summary(record: dict[str, Any] | None) -> bool:
 def is_valid_metadata_summary(record: dict[str, Any] | None) -> bool:
     return bool(
         isinstance(record, dict)
-        and str(record.get("summary_source") or "") == "metadata"
+        and str(record.get("summary_source") or "").lower() == "metadata"
         and not record.get("bill_text_hash")
         and MIN_METADATA_SUMMARY_WORDS <= word_count(record.get("summary")) <= MAX_METADATA_SUMMARY_WORDS
     )
@@ -928,6 +956,7 @@ def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None
         "id": str(bill.get("id") or ""),
         "identifier": str(bill.get("identifier") or "Unknown"),
         "session": str(bill.get("session") or ""),
+        "origin_date": origin_date_for_bill(bill, old),
         "updated_at": date.today().isoformat(),
         "source_url": capitol_url(bill),
     })
@@ -946,6 +975,9 @@ def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None
     output["impact_scores"] = scores
     output["impact_rationale"] = rationale
     output["impact_framework"] = "v2-7-factor"
+    for key in ("affects", "changes", "business_impact", "status", "summary", "suggested_action"):
+        if key in output:
+            output[key] = capitalize_first(output[key])
     if text_url: output["bill_text_source"] = text_url
     if text_hash:
         output["bill_text_hash"] = text_hash
@@ -967,6 +999,7 @@ def normalize_metadata(bill: dict[str, Any], old: dict[str, Any] | None = None) 
         "id": str(bill.get("id") or ""),
         "identifier": str(bill.get("identifier") or "Unknown"),
         "session": str(bill.get("session") or ""),
+        "origin_date": origin_date_for_bill(bill, old),
         "updated_at": date.today().isoformat(),
         "source_url": capitol_url(bill),
         "summary_word_count": count,
@@ -1010,6 +1043,8 @@ def main() -> int:
         try:
             text, text_url = fetch_bill_text(bill); digest = hashlib.sha256(text.encode()).hexdigest()
             if old and old.get("bill_text_hash") == digest and is_valid_official_summary(old):
+                if not str(old.get("origin_date") or "").strip():
+                    old["origin_date"] = origin_date_for_bill(bill, old)
                 records.append(old); print(f"[{index}/{len(bills)}] {identifier} -> cached official text summary"); continue
             if not api_key:
                 raise RuntimeError("OPENROUTER_API_KEY is unavailable for an official-text summary")
@@ -1023,11 +1058,15 @@ def main() -> int:
             if is_official_text_record(old):
                 # Never downgrade an official-text record because a later
                 # source request, API request, or action regeneration failed.
+                if not str(old.get("origin_date") or "").strip():
+                    old["origin_date"] = origin_date_for_bill(bill, old)
                 records.append(old)
                 print(f"{identifier}: retaining previous official-text record", file=sys.stderr)
             elif is_valid_metadata_summary(old):
                 # Metadata records stay short and metadata-based until official
                 # text becomes available on a later run.
+                if not str(old.get("origin_date") or "").strip():
+                    old["origin_date"] = origin_date_for_bill(bill, old)
                 records.append(old)
                 print(f"{identifier}: retaining previous metadata summary", file=sys.stderr)
             else:

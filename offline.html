@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+  <meta name="description" content="Lariat is currently unavailable. Please reconnect to the internet and refresh the page.">
+  <meta name="author" content="Lariat">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://lariatdemo.com/offline.html">
+  <meta property="og:title" content="Offline — Lariat">
+  <meta property="og:description" content="Lariat is currently unavailable. Please reconnect to the internet and refresh the page.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://lariatdemo.com/offline.html">
+  <meta property="og:image" content="https://lariatdemo.com/favicon-64.png">
+  <meta property="og:site_name" content="Lariat">
+  <title>Offline — Lariat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=header-scroll-1">
+  <script src="theme-init.js?v=theme-2"></script>
+</head>
+<body class="pricing-page legal-page offline-page">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Lariat home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">Lariat</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="feed.html">Bill feed</a>
+      <a class="nav-link" href="legislator.html">Find your legislator</a>
+      <a class="nav-link" href="key-events.html">Calendar</a>
+      <a class="nav-link" href="pricing.html">Pricing</a>
+      <a class="nav-link" href="privacy.html">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <span class="demo-pill"><span class="status-dot"></span> Real data snapshot</span>
+      <button class="avatar-button" type="button" aria-label="Open account menu" title="Account menu - disabled in this prototype">TX</button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Switch to dark mode"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
+    </div>
+  </header>
+
+  <main class="page-shell offline-shell page-reveal">
+    <section class="offline-card" aria-labelledby="offline-title">
+      <div class="offline-status" role="status" aria-live="polite">
+        <span class="offline-pulse" aria-hidden="true"></span>
+        <span data-offline-status>No connection</span>
+      </div>
+      <h1 id="offline-title">Lariat is currently unavailable</h1>
+      <p class="offline-copy">Please refresh the page after connecting to internet.</p>
+      <div class="offline-actions">
+        <button class="offline-retry" type="button" data-offline-retry>Try again</button>
+        <a class="offline-home" href="index.html">Go to homepage</a>
+      </div>
+      <p class="offline-hint">Tip: check WiFi or mobile data, then tap Try again. This page returns you automatically once you are back online.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span>Lariat</span><span>Real local bill summaries · Verify with official sources</span><a href="pricing.html">View pricing <span aria-hidden="true">→</span></a><a href="privacy.html">Privacy</a><a href="accessibility.html">Accessibility</a></footer>
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script src="theme.js?v=header-scroll-1"></script>
+  <script src="offline.js?v=1"></script>
+</body>
+</html>
