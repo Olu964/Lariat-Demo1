@@ -7,7 +7,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "enacted",
+    "status": "Enacted",
     "suggested_action": "Youth camp operators, campground managers, and emergency management agencies should review their current operations against the new floodplain restrictions and licensing requirements. Those operating in or near floodplains must evaluate whether their sites meet the minimum distance criteria or qualify for exceptions. The Texas Division of Emergency Management and the Health and Human Services Commission should monitor the January 1, 2026 deadline for adopting implementing rules under Section 141.0091. Operators should initiate emergency plan development now to meet the April 1, 2026 submission requirement. Municipal and county emergency management directors should coordinate with camp operators to ensure proper reporting and compliance with the new confidentiality and documentation standards outlined in the act.",
     "summary": "The Heaven's 27 Camp Safety Act (SB 1) amends Texas Health and Safety Code to enhance safety regulations for youth camps and campgrounds. It prohibits youth camp licenses in floodplains except where cabins are near non-connected still water bodies or at least 1,000 feet from floodways. The act requires annual emergency plans with detailed evacuation procedures, online registry listings, redundant internet connectivity, and comprehensive safety protocols including pre-session orientations, staff training, and documented compliance. It also mandates floodplain safety features such as emergency ladders and disaster-specific evacuation plans. Implementing rules must be adopted by January 1, 2026, and youth camp operators will not be required to submit emergency plans until April 1, 2026.",
     "id": "ocd-bill/af45d80f-4ff1-4a5e-8ec9-6dfa01241cf8",
@@ -19,7 +19,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00001E.htm",
     "bill_text_hash": "8dffe5c47ed02f900c82a453a1ff50f5fa284f1060fd8f259c3779a443d9286e",
     "summary_word_count": 114,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "latest_action_date": "2025-09-05",
+    "latest_action_description": "Effective immediately",
+    "latest_passage_date": "2025-09-04"
   },
   {
     "title": "Voter-approval tax rate reform",
@@ -29,7 +33,7 @@
     "impact_level": "Moderate",
     "industry": "Government & Municipal Operations",
     "specific_industry": "Local Government",
-    "status": "pending",
+    "status": "Passed",
     "suggested_action": "Local governments and other taxing units should review the revised voter-approval tax-rate formulas and identify which formula applies to their organization. Finance and budget staff should compare the new calculations with current procedures, including maintenance-and-operations rates, debt rates, unused increment rates, and sales-tax gains or losses. Because the changes apply to ad valorem taxes for tax years beginning on or after January 1, 2026, affected entities should confirm the implementation timeline and update internal worksheets, budget calendars, public notices, and approval materials as needed. They should also monitor the bill's final legislative status and verify the enacted language before making a formal calculation. If the bill changes or does not take effect as described, preserve the existing process until the official Texas Legislature record confirms the applicable requirements. This review is informational and should be coordinated with qualified legal, tax, or governmental finance advisers where appropriate.",
     "summary": "SB 10 amends the Texas Tax Code to revise the calculation methods for voter-approval tax rates applied to various taxing units. The bill establishes new formulas for determining both no-new-revenue and voter-approval tax rates, distinguishing between special taxing units, municipalities or counties with populations under 75,000 that are not special taxing units, and other taxing units. These changes specify precise mathematical relationships involving maintenance and operations expenses, debt rates, unused increment rates, and sales tax gains or losses. The legislation takes effect on January 1, 2026, applying to ad valorem taxes for tax years beginning on or after that date. It represents a modification to existing tax calculation procedures without introducing new funding mechanisms.",
     "id": "ocd-bill/63065a85-9789-4d46-be46-7986e3e04617",
@@ -41,7 +45,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00010E.htm",
     "bill_text_hash": "48feecc3f20508ff03d19eaf69116f11e31c11ef1c71a5aae0f4b941a41f80b6",
     "summary_word_count": 115,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "latest_action_date": "2025-09-02",
+    "latest_action_description": "Reason for vote recorded in Journal",
+    "latest_passage_date": "2025-08-25"
   },
   {
     "title": "Texas Women's Privacy Act",
@@ -51,7 +59,7 @@
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "enacted",
+    "status": "Enacted",
     "suggested_action": "Organizations responsible for public facilities, shelters, or other spaces covered by the Texas Women's Privacy Act should review the enacted requirements, exceptions, civil penalties, and private right of action described in the official text. Compliance teams should identify which facilities and policies are affected, confirm how access rules must be communicated, and document procedures for situations involving custody, maintenance, medical emergencies, accompaniment, law enforcement, safety threats, or young children. They should also confirm the effective date and determine whether employee training, signage, complaint handling, or recordkeeping needs to be updated. Because violations may create financial and litigation exposure, affected entities should verify the final statutory language and implementation guidance rather than relying solely on this summary. Businesses should coordinate any operational response with qualified counsel and monitor official Texas agency or legislative updates for later interpretations, amendments, or enforcement information.",
     "summary": "SB 8, titled the Texas Women's Privacy Act, amends Chapter 3002 of the Texas Government Code to regulate the designation and use of certain spaces and facilities according to sex. It requires political subdivisions and state agencies to designate multiple-occupancy private spaces for use exclusively by individuals of one sex and prohibits opposite-sex individuals from using them without specific exceptions (custody, maintenance, medical emergencies, accompaniment, law enforcement, safety threats, and children under 9). The Act authorizes civil penalties of $5,000 for first violations and $25,000 for subsequent violations, and creates a private civil cause of action allowing affected parties to seek declaratory and injunctive relief plus attorney's fees. The Attorney General can investigate complaints and collect penalties. The bill takes effect 91 days after the legislative session ends (2025-09-22).",
     "id": "ocd-bill/628f4192-e8db-4802-9e01-1a672027f9e0",
@@ -63,7 +71,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00008E.htm",
     "bill_text_hash": "90a912baa7388c62c5c7b50aff094cdcf9d65e0eba9cef491267089007b4a5f3",
     "summary_word_count": 131,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "latest_action_date": "2025-09-22",
+    "latest_action_description": "Effective on . . . . . . . . . . . . . . .",
+    "latest_passage_date": "2025-09-03"
   },
   {
     "title": "Disaster Response and Recovery Licensing",
@@ -73,7 +85,7 @@
     "impact_level": "Moderate",
     "industry": "Government & Municipal Operations",
     "specific_industry": "Disaster Preparedness & Relief",
-    "status": "pending",
+    "status": "Passed",
     "suggested_action": "Stakeholders should carefully review the bill's implementation timeline, noting that Section 418.455 takes effect January 1, 2027, while the overall act becomes effective 91 days after the legislative session concludes. The Texas Commission on Fire Protection must verify its capacity to conduct criminal history checks under Subsection 418.459 and ensure compliance with the expanded autopsy certification requirements in Subsections (e-1) and (c-1). The Texas Division of Emergency Management needs to adopt the post-disaster after-action report form mandated by Section 29 and fully implement the statewide volunteer management system outlined in Section 418.482-484. Additionally, the small-business disaster recovery program under Section 481.452 should be monitored for compliance with loan eligibility criteria, including the minimum 50% allocation requirement for micro-business loans and interest rate caps. Organizations involved in mass fatality operations should prepare for the creation of a centralized fatality tracking system by December 1, 2026, as required by Section 675.005. Finally, all affected agencies should review their internal procedures to accommodate the new emergency management director designations and annual drill requirements before the January 2027 effective date.",
     "summary": "SB 2 amends Texas law to strengthen disaster preparedness, response, and recovery across multiple domains. The bill expands the circumstances under which justices of the peace may certify autopsies unnecessary for deaths resulting from natural disasters, requiring clear and convincing evidence of natural causes and absence of unlawful acts. It mandates a training program for justices of the peace on mass fatality event management, covering decision-making protocols, body identification standards, and best practices for missing persons coordination and relative notification. The legislation introduces new licensing requirements for emergency managers, limiting their tenure without a valid license to six months, and establishes a statewide volunteer management system for disaster response. It also creates a small-business disaster recovery program funded through a dedicated account, sets requirements for post-disaster after-action reporting within 60 days, and addresses criminal history record access for license holders and volunteers. Additional provisions cover emergency management director designations during disasters, annual emergency management plan drills, and restrictions on unmanned aircraft in disaster zones.",
     "id": "ocd-bill/e3b77cbc-8961-47c5-9c6c-7bc8ba526073",
@@ -85,7 +97,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00002E.htm",
     "bill_text_hash": "3731fbbb86b9948386d7640c2dfffbddffe4337743008eaa646bc157ac41e6e9",
     "summary_word_count": 164,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "latest_action_date": "2025-08-27",
+    "latest_action_description": "House appoints conferees-reported",
+    "latest_passage_date": "2025-08-21"
   },
   {
     "title": "Real Property Theft and Fraud Laws",
@@ -95,7 +111,7 @@
     "impact_level": "Moderate",
     "industry": "Real Estate & Land Use",
     "specific_industry": "Real Property Transactions",
-    "status": "enacted",
+    "status": "Enacted",
     "suggested_action": "Real estate businesses, title companies, lenders, property owners, county clerks, and related professionals should review the bill's new offenses, document-filing requirements, identification rules, restitution provisions, and procedures for handling alleged real property theft or fraud. Operations and compliance teams should identify which transaction workflows could require additional identity checks, county-recording steps, fraud controls, or coordination with law enforcement and insurers. They should confirm the separate effective dates for offenses and other provisions, including the provisions beginning September 1, 2025, and January 1, 2026, before changing live procedures. Staff should monitor the official Texas Legislature record for amendments, final status, and implementation guidance, then compare the enacted text with existing policies and contracts. Any response involving criminal exposure, filing requirements, or restitution should be reviewed with qualified Texas legal counsel before action is taken.",
     "summary": "SB 16 amends Texas law to establish new criminal offenses of real property theft and real property fraud, creates graduated felony classifications based on property value thresholds, requires restitution for offenders, mandates photo identification for filing certain real property documents, and sets specific procedures for recording and handling such cases. The bill applies to offenses committed on or after September 1, 2025, with additional provisions taking effect January 1, 2026. It affects real property owners, lenders, title companies, and county clerks involved in recording transactions. Key requirements include filing judgments with county clerks within 10 days, providing restitution to property owners or insurers, and submitting photo IDs for document filings. The legislation does not appear to include specific funding mechanisms beyond standard judicial processes.",
     "id": "ocd-bill/c18980e2-ef6c-4279-b06e-e6bf6302f8eb",
@@ -107,7 +123,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00016E.htm",
     "bill_text_hash": "ec343eb274379ce3fc4df73771722fa30aa79b309ed3a4ca14c1bda180eac6d0",
     "summary_word_count": 124,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "latest_action_date": "2025-09-17",
+    "latest_action_description": "See remarks for effective date",
+    "latest_passage_date": "2025-08-28"
   },
   {
     "title": "Disaster Relief Funding and Preparedness",
@@ -117,7 +137,7 @@
     "impact_level": "Moderate",
     "industry": "Government & Municipal Operations",
     "specific_industry": "N/A",
-    "status": "enacted",
+    "status": "Enacted",
     "suggested_action": "State agencies, counties, municipalities, emergency-management organizations, and businesses involved in disaster response should review the appropriations and program directions in the official text. Fiscal staff should confirm the amounts allocated for federal matching funds, local flood-related grants, forecasting improvements, and the swift-water training facility, along with the source of funds and the authorized two-year period. Organizations seeking or administering assistance should monitor guidance from the Governor's Office and any responsible agencies, confirm eligibility and application procedures, and preserve records supporting expenditures. Because the bill includes direction and adjustment authority and requires specific legislative approval conditions, stakeholders should verify the final status, effective date, and operative language before relying on the listed amounts. Businesses should assess whether public disaster-preparedness or response programs relevant to their communities may change, while avoiding assumptions beyond the published official record.",
     "summary": "SB 5 makes supplemental appropriations for disaster relief and provides direction and adjustment authority over those appropriations. It allocates $200 million to trusteed programs within the Governor's Office for matching federal disaster funds, $50 million for local grants to counties affected by recent flooding, $24 million for meteorological forecasting improvements, and $20 million for a swift water training facility at Harris Fort Bend Emergency Services District No. 100. All funds come from the economic stabilization fund and are authorized for a two-year period starting from the effective date. The Act requires a two-thirds vote in both houses of the Texas Legislature and takes effect on September 1, 2025, unless an earlier date under the Texas Constitution applies.",
     "id": "ocd-bill/67cd2f08-7122-424b-8d21-9aee64edda79",
@@ -129,7 +149,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00005E.htm",
     "bill_text_hash": "054c5ab5cef5a2a28292e8e56e9358ff5ec00317816c83c70fe888085bc1b58f",
     "summary_word_count": 117,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "latest_action_date": "2025-09-18",
+    "latest_action_description": "Effective immediately",
+    "latest_passage_date": "2025-09-04"
   },
   {
     "title": "Flash Flood Siren Warning System",
@@ -139,7 +163,7 @@
     "impact_level": "Low",
     "industry": "Government & Municipal Operations",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Enacted",
     "suggested_action": "Municipalities, counties, water-management entities, and businesses in areas identified as flash-flood-prone should review the proposed definitions, grant structure, siren responsibilities, and operating requirements. Local officials should determine whether their jurisdictions would need to identify covered areas, install or maintain outdoor warning sirens, participate in a grant program, or coordinate responsibilities with another governmental entity. Businesses should monitor local emergency-management plans and consider how warning coverage could affect employee, customer, facility, and continuity procedures in exposed locations. Before budgeting for equipment or changing operations, stakeholders should confirm whether the bill passes, whether it takes effect immediately or after the specified legislative timeline, and what agency guidance or funding conditions apply. The official Texas Legislature record should be used to verify the final requirements, technical standards, and any exceptions.",
     "summary": "SB 3 establishes a grant program to assist municipalities, counties, and other governmental entities with covering costs of installing outdoor warning sirens required under Texas law. It amends the Water Code to define flash flood-prone areas and outdoor warning sirens, requiring boards to identify areas needing sirens based on flooding history and other factors. Municipalities must install, maintain, and operate sirens unless already covered by existing systems. The governor may delegate administration to a state agency. The act takes effect immediately upon passage by a two-thirds vote, or on the 91st day after the legislative session if not immediately enacted.",
     "id": "ocd-bill/571fb803-bf3d-4eaf-a481-0f8c74100ec7",
@@ -151,7 +175,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00003E.htm",
     "bill_text_hash": "2b5c8f5724e967062ee7deec8fdb3b958b9c9b0142acb458201013253b2ff213",
     "summary_word_count": 100,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "latest_action_date": "2025-09-05",
+    "latest_action_description": "Effective immediately",
+    "latest_passage_date": "2025-08-28"
   },
   {
     "title": "Honoring Tedd L. Mitchell",
@@ -161,7 +189,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Enacted",
     "suggested_action": "No legal or operational action is required because this is a ceremonial resolution recognizing Tedd L. Mitchell rather than a measure that changes law, allocates funding, or creates enforceable duties. Organizations that track Texas legislative records may note the recognition, confirm the resolution's recorded status, and retain the official source for historical or communications purposes. Businesses should not interpret the resolution as creating compliance requirements, program obligations, deadlines, or changes to Texas Tech University System operations. If the resolution's wording, enrollment status, or legislative history matters for a publication or internal record, verify those details against the official Texas Legislature page. The available summary does not replace the resolution text, and any separate issue involving the university system should be evaluated from the applicable law or official policy rather than from this ceremonial record.",
     "summary": "SR 76 is a Senate resolution recognizing Tedd L. Mitchell for his service as chancellor of the Texas Tech University System. This is a ceremonial or honorary resolution, which carries no legal effect and does not enact any laws, create obligations, or allocate funding. The resolution was introduced and passed by the Texas Senate during the 89th Legislature, with the latest action of being reported enrolled on August 15, 2025. Such resolutions serve only to formally acknowledge and commend an individual's contributions or achievements. The text provided does not include the full resolution content listing specific accomplishments orWHEREAS clauses, but the title and metadata clearly establish its congratulatory nature. As an enrolled resolution, it has completed the legislative process in the Senate chamber.",
     "id": "ocd-bill/f8a22c30-bdba-49e5-b97f-b493327bae83",
@@ -173,7 +201,11 @@
     "bill_text_source": "https://capitol.texas.gov/BillLookup/Text.aspx?LegSess=891&Bill=SR76",
     "bill_text_hash": "5b48738cad6559a07920fbdce076f72458eec90d6066b64aa3472c0228de5d8b",
     "summary_word_count": 123,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)",
+    "latest_action_date": "2025-08-15",
+    "latest_action_description": "Reported enrolled",
+    "latest_passage_date": "2025-08-15"
   },
   {
     "title": "Groundwater Permitting Changes",
@@ -183,7 +215,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "Groundwater conservation districts, permit applicants, water producers, landowners, and businesses that depend on groundwater should review how the proposed five-percent modeled-available-groundwater limitation could affect permit evaluation and planning. District staff should identify relevant groundwater-management plans, modeled allocations, permit categories, and applications that could be submitted on or after the bill's effective date. Applicants should monitor the bill's legislative status and avoid assuming that a proposed restriction is currently enforceable. If enacted, districts may need to compare existing permitting procedures with the amended Water Code language and publish or communicate any required process changes. Stakeholders should verify the final effective date, the scope of any exceptions, and applicable agency or district guidance through official sources. Project, financing, and water-supply decisions should be reviewed with qualified water-law and regulatory professionals before relying on a forecasted permit outcome.",
     "summary": "SB 58 amends Section 36.1132 of the Texas Water Code to prohibit groundwater conservation districts from issuing permits that would authorize more than 5% of the total modeled available groundwater apportioned to the district. The amendment adds Subsection (d), which requires districts to consider modeled available groundwater when evaluating permit applications. This restriction applies only to permits issued on or after the act's effective date, which is set for the 91st day after the legislative session ends. The bill does not provide specific exceptions and carries no funding provisions. It represents a significant regulatory change affecting how groundwater conservation districts evaluate and approve water production and transfer permits.",
     "id": "ocd-bill/41028ea3-97b5-4191-b834-5720242577d9",
@@ -195,7 +227,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/891/billtext/html/SB00058I.htm",
     "bill_text_hash": "30e2ba0f8cfb7733efe683d4b204ff4d2e050d96a2c006b06d435e3a5a3d2e87",
     "summary_word_count": 109,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)",
+    "latest_action_date": "2025-07-31",
+    "latest_action_description": "Filed",
+    "latest_passage_date": ""
   },
   {
     "title": "Handgun License for Federal Judges",
@@ -205,7 +241,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "Federal judges and organizations that assist with handgun-license applications should review the proposed expansion of the definition of federal judge and determine whether their application guidance or eligibility screening would be affected. Compliance teams should distinguish applications submitted before the effective date from applications submitted on or after that date, because the bill describes different treatment based on timing. The bill's current status should be confirmed before changing forms, customer communications, training materials, or internal procedures. If the measure advances, stakeholders should compare the final enacted language with the existing Government Code and verify any agency instructions governing applications. Businesses should not assume that the proposal itself changes current licensing rights or obligations. Questions about eligibility, licensing, or firearm law should be directed to qualified Texas counsel or the responsible state agency after the official record is updated.",
     "summary": "HB 161 amends Government Code Section 411.201(a)(2) to expand the definition of 'Federal judge' to include judges of U.S. courts of appeals, U.S. district courts, U.S. bankruptcy courts, magistrate judges of U.S. district courts, and U.S. immigration court judges. The change applies only to handgun license applications submitted on or after the effective date, which is set at the 91st day after the last day of the legislative session. Applications submitted before this date remain governed by prior law. The bill has been filed and takes effect upon the specified timeline.",
     "id": "ocd-bill/edbf15a5-7921-4e8c-a3c1-c01e9206f081",
@@ -217,7 +253,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/891/billtext/html/HB00161I.htm",
     "bill_text_hash": "0b465c6861fd301e7e41ac4e5ced90a39d7a9fd149f1946ffbd8826fca7b2f36",
     "summary_word_count": 99,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)",
+    "latest_action_date": "2025-07-21",
+    "latest_action_description": "Filed",
+    "latest_passage_date": ""
   },
   {
     "title": "Honoring Mexican Search and Rescue Team",
@@ -227,7 +267,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "No legal or operational action is required because this official-text record is a ceremonial resolution honoring the Fundacion 911 search-and-rescue team for assistance during the July 4, 2025 Hill Country flood. Organizations involved in emergency management, cross-border coordination, public safety, or community communications may document the recognition and verify the resolution's final wording, filing date, legislative session, and status through the official Texas Legislature source. Businesses should not interpret the resolution as creating a grant, contract, emergency-response requirement, funding obligation, or change to flood policy. Any operational conclusions about the response should come from responsible emergency authorities and incident records rather than from this honorary measure alone. If the resolution is cited in public materials, confirm the organization's name, the recognized event, and the final enrolled text before publication. Otherwise, no compliance plan or business-process change is needed.",
     "summary": "House Resolution 32 honors the search and rescue team from Fundacion 911 of Ciudad Acuna, Coahuila, Mexico, for providing assistance during the response to the July 4, 2025 Hill Country flood in Texas. This is a ceremonial congratulatory resolution with no legal effect, expressing the Texas House of Representatives' recognition and appreciation for the cross-border emergency response assistance. The resolution was filed on July 24, 2025, during the 89th Legislature First Called Session. Such honorary resolutions serve symbolic purposes only and impose no legal requirements, funding obligations, or enforceable duties on any party.",
     "id": "ocd-bill/8b2cc702-2d78-4bf4-a924-9bb6ca258e3f",
@@ -239,7 +279,11 @@
     "bill_text_source": "https://capitol.texas.gov/BillLookup/Text.aspx?LegSess=891&Bill=HR32",
     "bill_text_hash": "6a30d5b05fba3a1c18b8363c7819ae85d204c61edf8783ca99ba5efff982eb11",
     "summary_word_count": 93,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)",
+    "latest_action_date": "2025-07-24",
+    "latest_action_description": "Filed",
+    "latest_passage_date": ""
   },
   {
     "title": "Municipal Emergency Warning Systems",
@@ -249,7 +293,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "Municipalities, counties, emergency services, and businesses operating in areas that may use local emergency warning systems should review the proposed consent, contracting, contact-information, and participant-removal provisions. Local officials should determine whether they would need an agreement with the Department of Public Safety, a process for handling resident consent, or a method for responding to written or text-message removal requests. Driver-facing organizations should monitor whether license applications would include the described consent choice and how any related disclosures would be handled. Businesses should assess whether local warning-system participation could affect emergency communications or continuity planning, without assuming the proposal is already law. Stakeholders should confirm the bill's final status, effective date, agency guidance, privacy requirements, and technical procedures using official sources before changing forms, systems, or policies.",
     "summary": "HB 200 amends the Texas Government Code to establish local emergency warning systems for municipalities and counties. The act adds Section 418.1103 allowing political subdivisions to contract with the Department of Public Safety to obtain residents' contact information upon their consent for participation in warning systems. Section 521.016 requires driver's license applicants to indicate consent to join these systems and receive contact information disclosures. Key provisions include participants' right to request removal from the system via written request or text message. The law takes effect 91 days after the legislative session ends. It affects municipal and county governments, residents seeking emergency alerts, and drivers applying for licenses. There is no explicit funding provision mentioned. The bill was filed on July 24, 2025.",
     "id": "ocd-bill/b35c8db1-0110-4b15-a261-69616b6d0b8c",
@@ -261,7 +305,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/891/billtext/html/HB00200I.htm",
     "bill_text_hash": "96f98506bd92b96cfd3b005b19d484fea1ed0ef977e0ff6a6ccb5c0a08a9cde1",
     "summary_word_count": 124,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)",
+    "latest_action_date": "2025-07-24",
+    "latest_action_description": "Filed",
+    "latest_passage_date": ""
   },
   {
     "title": "County Impervious Cover Regulation",
@@ -271,7 +319,7 @@
     "impact_level": "Moderate",
     "industry": "Government & Municipal Operations",
     "specific_industry": "Local Government",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "Counties, developers, property owners, engineers, and businesses planning projects in unincorporated areas should review the proposed authority to regulate impervious cover and the purposes for which a county may act. Project teams should monitor county commissioners-court agendas, local land-use rules, drainage requirements, and flood-risk planning for any implementing action, while recognizing that the bill's proposal does not itself establish a current local requirement. If enacted, counties may need to develop standards, notice procedures, permit criteria, or enforcement practices consistent with the final Local Government Code language. Businesses should identify projects that could be affected by future limits or drainage-related conditions and preserve the applicable baseline requirements until official rules change. Verify the bill's status, effective date, geographic scope, and any adopted county regulations through official legislative and county sources before making development, acquisition, or permitting decisions.",
     "summary": "HB 188 amends the Local Government Code by adding Section 240.912, which authorizes county commissioners courts to regulate impervious cover in unincorporated areas. The act permits regulation for flood risk protection, flood project development, drainage promotion, and nature-based features to reduce flooding. This affects counties and their unincorporated communities by expanding regulatory authority over land use. The bill takes effect 91 days after the legislative session ends. The current status shows the bill was filed on July 23, 2025.",
     "id": "ocd-bill/8ecfd594-3913-47c7-88ea-1b49d8f5fc40",
@@ -283,7 +331,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/891/billtext/html/HB00188I.htm",
     "bill_text_hash": "fee46fc163c576f146e21c93f4c8acfe94055e0c836ed6d1b679a63a259fb1f7",
     "summary_word_count": 80,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)",
+    "latest_action_date": "2025-07-23",
+    "latest_action_description": "Filed",
+    "latest_passage_date": ""
   },
   {
     "title": "Voter-approval tax rate reform",
@@ -293,7 +345,7 @@
     "impact_level": "Low",
     "industry": "Government & Municipal Operations",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Passed",
     "suggested_action": "Taxing units and their finance, budget, and legal teams should review the proposed changes to voter-approval tax-rate thresholds, formulas, de minimis-rate definitions, and public-hearing notices. Staff should compare the bill with current calculation worksheets and identify whether the two-thirds voting requirement or related conforming amendments would affect upcoming rate-setting decisions. Because the proposal includes an effective date of January 1, 2026, stakeholders should confirm whether that date remains in the final text and which tax years or proceedings are covered. Governing bodies should continue following current law until the official Texas Legislature record confirms passage and the responsible authorities provide implementation information. Businesses and taxpayers affected by local rates may monitor public notices and hearings, but should not project a tax result from this summary alone. Verify the enacted language and obtain qualified tax or governmental-finance advice before relying on a calculation.",
     "summary": "SB 9 amends the Texas Tax Code to revise how voter-approval tax rates are calculated for various taxing units. The bill defines three distinct formulas: special taxing units use a rate of (NO-NEW-REVENUE MAINTENANCE AND OPERATIONS RATE × 1.08) plus current debt rate; municipalities or counties with populations under 75,000 (excluding special taxing units) use (NO-NEW-REVENUE MAINTENANCE AND OPERATIONS RATE × 1.035) plus current debt rate plus unused increment rate; and other taxing units use (NO-NEW-REVENUE MAINTENANCE AND OPERATIONS RATE × 1.025[1.035]) plus current debt rate plus unused increment rate. The legislation also updates related sections regarding calculations during periods of new sales and use tax imposition and specifies that governing bodies may direct officers to calculate rates up to the lesser of specified amounts. The act takes effect January 1, 2026, and was reported engrossed on August 6, 2025.",
     "id": "ocd-bill/a6332f2b-07ae-4f22-bfeb-4547a150a451",
@@ -305,7 +357,11 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/891/billtext/html/SB00009E.htm",
     "bill_text_hash": "bf5b3b4f795d4a16be36f69a1f08a7d6b59d1563c3a6fc335f6ceb864e882db7",
     "summary_word_count": 143,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)",
+    "latest_action_date": "2025-08-06",
+    "latest_action_description": "Reported engrossed",
+    "latest_passage_date": "2025-08-06"
   },
   {
     "title": "Honoring Bobby Gene Roberts Sr.",
@@ -315,7 +371,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "enacted",
+    "status": "Enacted",
     "suggested_action": "No legal or operational action is required because this official-text record is a memorial resolution honoring Bobby Gene Roberts Sr. and does not create a law, funding obligation, regulatory requirement, or enforceable duty. Organizations that maintain legislative, community, or historical records may document the Senate's recognition and verify the resolution's passage, enrollment, sponsor, dates, and final wording through the official Texas Legislature source. Businesses should not interpret the resolution as changing requirements for Tyler residents, the Texas Senate, employers, or private organizations. If communications reference the resolution, confirm the honoree's name and the recorded legislative history rather than relying on an abbreviated summary. Any separate community, memorial, or public-policy issue should be evaluated from its own official records. This ceremonial item is informational and does not require an implementation plan, compliance response, or operational change.",
     "summary": "Senate Resolution 60 is a memorial resolution authored by Senator Hughes honoring the memory of Bobby Gene Roberts Sr. of Tyler, Texas. The resolution was passed by the Texas Senate on August 15, 2025, during the 89th Legislature's first session and reported enrolled the same day. Memorial resolutions are ceremonial instruments that recognize deceased individuals and express the Senate's condolences but carry no legal effect, create no requirements, impose no obligations, or allocate no funding. They are expressions of legislative sentiment rather than binding law. The available record does not include substantive biographical details about Mr. Roberts beyond his name and city of residence, nor does it specify the circumstances of his death or any particular achievements being recognized. This resolution reflects the Texas Senate's practice of honoring prominent or otherwise significant deceased residents through formal memorial recognition.",
     "id": "ocd-bill/23c72470-e16b-4c27-b9b9-14576e64fd44",
@@ -327,7 +383,11 @@
     "bill_text_source": "https://capitol.texas.gov/BillLookup/Text.aspx?LegSess=891&Bill=SR60",
     "bill_text_hash": "922410dc4ac7d057df7283cc4d40c8aa4785313d1cf4b88af73997c42d50caea",
     "summary_word_count": 138,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)",
+    "latest_action_date": "2025-08-15",
+    "latest_action_description": "Reported enrolled",
+    "latest_passage_date": "2025-08-15"
   },
   {
     "title": "Lobbyist State Funding Ban",
@@ -337,7 +397,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "Registered lobbyists, state contractors, public employers, and organizations that pay for government-relations services should review the proposed prohibition on receiving state funds and identify contracts, compensation arrangements, and funding sources that could be affected. Compliance teams should confirm who is required to register under Chapter 305, distinguish state funds from other revenue, and examine whether the final measure applies to employees, contractors, or both. Because the bill describes treatment of funds received on or after its effective date while preserving certain pre-existing funds, stakeholders should document relevant dates and retain supporting contract records. The proposal should not be treated as current law until its final status and enacted language are confirmed. Organizations should monitor official legislative updates and seek qualified Texas legal or procurement advice before changing a contract, compensation plan, registration practice, or state-funding decision.",
     "summary": "HB 194 amends the Texas Government Code by adding Section 305.0305, which prohibits registered lobbyists from receiving state funds under contracts with the state or as compensation for services provided as an employee of the state. The provision applies only to state funds received by persons required to register under Chapter 305 on or after its effective date, which occurs 91 days after the legislative session ends. Pre-existing funds remain governed by prior law. The bill has been filed and is pending action.",
     "id": "ocd-bill/436b8473-1761-4084-8e78-8cc152ae3ad7",
@@ -349,7 +409,8 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/891/billtext/html/HB00194I.htm",
     "bill_text_hash": "4a0ff998ce298d483a1ec7741357614c507e799973911d76f82e9a29b0d3aae9",
     "summary_word_count": 84,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)"
   },
   {
     "title": "Urging Governor to Return Tax Relief",
@@ -359,7 +420,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "No action needed. Monitor the bill for updates on its status and potential implementation.",
     "summary": "HR 23 is a Texas legislative record titled urging Governor to return tax relief. Available metadata identifies a proposed property-tax relief resolution. Official bill text was unavailable, so specific provisions require verification from the official source.",
     "id": "ocd-bill/59a205be-7898-4654-994b-e1a47c699216",
@@ -369,7 +430,8 @@
     "updated_at": "2026-08-29",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=891&Bill=HR23",
     "summary_word_count": 36,
-    "summary_source": "metadata"
+    "summary_source": "metadata",
+    "session_label": "89th Legislature, 1st Called Session (2025)"
   },
   {
     "title": "In memory of Linda Walton Semlear of Longview",
@@ -379,7 +441,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
     "summary": "SR 23 is listed in Texas legislative metadata with the title In memory of Linda. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
     "id": "ocd-bill/454409ec-f7bc-4509-9806-fc69d6e1d411",
@@ -389,7 +451,8 @@
     "updated_at": "2026-09-10",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=891&Bill=SR23",
     "summary_word_count": 34,
-    "summary_source": "metadata"
+    "summary_source": "metadata",
+    "session_label": "89th Legislature, 1st Called Session (2025)"
   },
   {
     "title": "Senate and House Quorum Rule Change",
@@ -399,7 +462,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "No action is required at this time. Final status will be determined after the bill is passed or fails to pass.",
     "summary": "HJR 40 is a Texas legislative record concerning Senate and House quorum rules. Available metadata identifies a proposed constitutional amendment affecting legislative quorum requirements. Official bill text was unavailable, so specific provisions require verification from the official source.",
     "id": "ocd-bill/7d314116-aba8-4366-a153-77c655ea14f2",
@@ -409,7 +472,8 @@
     "updated_at": "2026-08-29",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=891&Bill=HJR40",
     "summary_word_count": 38,
-    "summary_source": "metadata"
+    "summary_source": "metadata",
+    "session_label": "89th Legislature, 1st Called Session (2025)"
   },
   {
     "title": "Congratulating Fraternal Order of Eagles",
@@ -419,7 +483,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "No legal or operational action is required because this congratulatory resolution recognizes the Fraternal Order of Eagles No. 3719 Charity BBQ Cook-Off and does not change law, establish funding, or impose a requirement on the organization, participants, or businesses. Organizations that track community events may document the recognition and verify the filing, session, and final wording through the official Texas Legislature record. Businesses should not treat the resolution as a permit, grant, tax measure, procurement directive, or charitable-compliance obligation. Any statements about the event or the organization's activities should be supported by the organization's or event's own records rather than inferred from a ceremonial legislative item. If the resolution is later amended or its status changes, update historical or communications materials accordingly; otherwise, no implementation plan is needed.",
     "summary": "HR 35 is a ceremonial congratulatory resolution filed on July 25, 2025, by the Texas House of Representatives during the 89th Legislature, First Called Session, to commemorate the 2026 Fraternal Order of Eagles No. 3719 Charity BBQ Cook-Off. As a congratulatory resolution, it carries no legal effect and serves only to honor and recognize the charitable efforts of the Fraternal Order of Eagles No. 3719 organization. The resolution does not impose any legal requirements, establish funding mechanisms, or create exceptions to existing law. This type of resolution simply expresses the House's recognition and appreciation for the event and its participants. The full substantive text of the resolution was not available in the provided materials. This summary is provided for informational purposes only and does not constitute legal advice.",
     "id": "ocd-bill/cac0eeb2-7b8b-4384-8e0b-b1b1547c5ac6",
@@ -431,7 +495,8 @@
     "bill_text_source": "https://capitol.texas.gov/BillLookup/Text.aspx?LegSess=891&Bill=HR35",
     "bill_text_hash": "032309636255cdded39ec0ed9ca06ceab2008e2a95d7813d71ce80e0531b6329",
     "summary_word_count": 128,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)"
   },
   {
     "title": "Flood Safety and Disaster Preparedness",
@@ -441,7 +506,7 @@
     "impact_level": "Low",
     "industry": "Emergency & Public Safety",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "Municipalities, counties, emergency services, youth-camp operators, and businesses in flood-risk areas should review the proposed warning-siren, water-level-sensor, solar-backup, testing, documentation, and youth-camp safety provisions. Local governments should identify whether the bill would require new installation, maintenance, operation, contracting, or coordination responsibilities and should monitor any grant or implementation guidance. Youth-camp operators should compare current emergency equipment, cabin communications, flotation devices, and written safety procedures with the proposed requirements, without assuming the proposal is already enforceable. Businesses should consider whether flood alerts or customer and employee safety plans need review in affected locations. Confirm the bill's final status, effective date, geographic definitions, technical standards, and any funding provisions through the official Texas Legislature record before budgeting, purchasing equipment, or changing policies.",
     "summary": "HB 242, introduced in the Texas House in 2025, amends the Government Code and Health and Safety Code to establish a statewide natural disaster alert system and flood safety requirements. The bill requires flood-risk zones, areas impacted by flooding at least once in the past century, to have outdoor warning sirens installed at two-mile intervals, equipped with water-level sensors and solar-powered backups. Local governments, counties, and municipalities must either install, maintain, and operate these sirens or jointly manage them through agreements. An additional subsection adds flood safety requirements for youth camps near rivers or lakes, mandating radio equipment in cabins and flotation devices on beds. The legislation also defines key terms and establishes testing and documentation requirements. It takes effect 91 days after the legislative session ends and was filed on July 31, 2025.",
     "id": "ocd-bill/5107c219-2f6d-4488-bb2e-227575ccd6b7",
@@ -453,7 +518,8 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/891/billtext/html/HB00242I.htm",
     "bill_text_hash": "ca8ae491b4312a32a8c3e9496af26474c7bd17e7ac5b4342ce04d83d6bdafa7f",
     "summary_word_count": 134,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)"
   },
   {
     "title": "Constitutional Amendment to Limit Commercial Property Taxes",
@@ -464,7 +530,7 @@
     "impact_level": "Moderate",
     "industry": "Real Estate & Land Use",
     "specific_industry": "Commercial Property",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "Monitor the bill's progress and potential passage, as it may impact commercial property taxes.",
     "id": "ocd-bill/18242f23-575c-42f8-b347-8710640906d5",
     "identifier": "HJR 21",
@@ -473,7 +539,8 @@
     "updated_at": "2026-08-24",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=891&Bill=HJR21",
     "summary_word_count": 37,
-    "summary_source": "metadata"
+    "summary_source": "metadata",
+    "session_label": "89th Legislature, 1st Called Session (2025)"
   },
   {
     "title": "Attorney General Enforcement Authority",
@@ -483,7 +550,7 @@
     "impact_level": "Moderate",
     "industry": "Government & Municipal Operations",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "Local governments, state agencies, contractors, and businesses that interact with municipal or county programs should monitor the proposed attorney-general enforcement authority and review the official text for its investigation, litigation, funding-withholding, grant, tax-rate, and court-jurisdiction provisions. Compliance teams should identify obligations that could be affected if a local government is accused of violating law, but should not assume the proposed restrictions or payment consequences are currently effective. Municipalities and counties should track legislative status, effective dates, procedural requirements, and any implementing guidance before changing budgets, grant expectations, contracts, or tax-rate planning. Vendors and businesses may need to review public-sector counterparties' risk and payment assumptions if the measure advances. Any response to an investigation, withholding action, or court proceeding should be coordinated with qualified Texas legal counsel and verified against the enacted statute.",
     "summary": "HB 294 amends Chapter 402 of the Texas Government Code by adding Subchapter E to address violations of law by local governments. The bill authorizes the attorney general to investigate alleged violations by municipalities and counties and to bring actions against them if violations are confirmed. Key operative changes include requiring the comptroller to withhold payments and deny state grants during proceedings, imposing a five-year restriction on local governments that prevail in such cases regarding exceeding their no-new-revenue tax rate or receiving state funds, and establishing jurisdictional rules placing First Business Court Division as trial court and Fifteenth Court of Appeals as appellate court. The bill also shifts suspension account balances to the general revenue fund upon final judgments. It takes effect 91 days after the legislative session ends and was filed on August 8, 2025.",
     "id": "ocd-bill/47f7968f-e45f-4932-98b0-3b58ece8169b",
@@ -495,7 +562,8 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/891/billtext/html/HB00294I.htm",
     "bill_text_hash": "f9cac7afe82472b009f11d076884b22717c9ec26fab8673e65d285ca1ea8674e",
     "summary_word_count": 136,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)"
   },
   {
     "title": "Voter-approval tax rate threshold",
@@ -505,7 +573,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "Taxing units, public finance teams, and organizations that monitor local tax rates should review the proposed two-thirds voting requirement and related changes to ad valorem tax procedures. Staff should compare the described threshold, de minimis-rate definitions, public-hearing notices, and conforming amendments with current rate-setting calendars and worksheets. Because the bill identifies January 1, 2026, as an effective date, stakeholders should confirm whether that date remains in the final text and determine which tax years, votes, and notices would be covered if the measure advances. Governing bodies should continue applying current law until passage and implementation are officially confirmed. Businesses and property owners may monitor public hearings and assess possible scenarios, but should not rely on this summary for a tax calculation. Verify the final bill text and consult qualified Texas tax or governmental-finance advisers before changing a calculation, budget, notice, or approval process.",
     "summary": "HB 259 amends Texas tax laws to require a two-thirds majority vote to approve ad valorem tax rates exceeding a taxing unit's voter-approval threshold. It modifies sections of the Health and Safety Code, Special District Local Laws Code, and Tax Code to strengthen voter approval processes and prevent governing bodies from blocking tax increases based solely on voter-approved rates. The bill adds definitions for 'de minimis rate' and updates notice requirements for public hearings. Effective January 1, 2026,",
     "id": "ocd-bill/7b87e601-b234-4e9d-8103-fef48be5385f",
@@ -517,7 +585,8 @@
     "bill_text_source": "https://capitol.texas.gov/tlodocs/891/billtext/html/HB00259I.htm",
     "bill_text_hash": "b54ef39c68fb4c7595541f2772dec67986b89623a788ca87afa4664363ab6efe",
     "summary_word_count": 78,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)"
   },
   {
     "title": "Congratulating James L. Grigsby Jr. on retirement",
@@ -527,7 +596,7 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
-    "status": "pending",
+    "status": "Pending",
     "suggested_action": "No legal or operational action is required because this official-text record is a congratulatory Senate resolution recognizing James L. Grigsby Jr.'s retirement and does not create enforceable duties, alter law, allocate funding, or require action by businesses. Organizations that maintain legislative, community, or historical records may document the recognition and verify the resolution's sponsor, session, filing history, enrollment, and final wording through the official Texas Legislature source. Businesses should not interpret the item as changing retirement, employment, public-sector, or industry requirements. If the resolution is referenced in an announcement, confirm the honoree's name and recorded legislative status rather than relying on an abbreviated summary. Any separate issue involving Mr. Grigsby, the legislature, or the relevant institution should be evaluated from its own official records. This ceremonial record is informational and does not require an implementation plan, compliance response, or operational change.",
     "summary": "SR 95 is a Senate resolution recognizing James L. Grigsby Jr. on the occasion of his retirement. Filed by Senator Paxton during the 89th Legislature's first called session, the resolution honors Grigsby's service and career achievements. As a congratulatory and honorary resolution, it carries no legal force or binding requirements, it serves solely to formally acknowledge Grigsby's retirement publicly within the legislative record. The resolution passed and was reported enrolled on August 15, 2025. These types of honorary resolutions are common legislative expressions that recognize individuals' contributions without imposing obligations or allocating funds.",
     "id": "ocd-bill/6722bcac-4f33-4ba7-a45c-67aaaf7d264d",
@@ -539,6 +608,7 @@
     "bill_text_source": "https://capitol.texas.gov/BillLookup/Text.aspx?LegSess=891&Bill=SR95",
     "bill_text_hash": "286515b810f0fdde0f7178e411516188576e02550342758d84e8f3a76930e785",
     "summary_word_count": 93,
-    "summary_source": "official bill text"
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 1st Called Session (2025)"
   }
 ]

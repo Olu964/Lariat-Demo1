@@ -39,8 +39,79 @@ FEED_META_PATTERN = re.compile(r'(<meta name="lariat-data-updated" content=")[^"
 
 INDUSTRIES = ["Energy & Utilities", "Government & Municipal Operations", "Emergency & Public Safety", "Real Estate & Land Use", "Insurance & Financial Services", "N/A"]
 INDUSTRY_LIST = ", ".join(f'"{item}"' for item in INDUSTRIES)
-STATUS_VALUES = "alive, active, pending, passed, signed, enacted, adopted, failed, did not pass, died, replaced"
+# Canonical display statuses. These are the ONLY values written to records so
+# the feed badge and the detail modal always agree. They are derived from the
+# Open States record (latest action + passage dates), never from AI prose.
+STATUS_VALUES = "enacted, passed, pending, dead"
 SCRIPT_OWNED_FIELDS = ("id", "identifier", "session", "updated_at", "source_url")
+
+# Human labels for Open States Texas session codes. 89 = 2025 regular session,
+# 891 = 89th 1st Called Session (summer 2025), 892 = 89th 2nd Called Session
+# (summer-fall 2025), 90 = 90th regular session (convenes Jan 2027).
+SESSION_LABELS = {
+    "89": "89th Legislature, Regular Session (2025)",
+    "891": "89th Legislature, 1st Called Session (2025)",
+    "892": "89th Legislature, 2nd Called Session (2025)",
+    "90": "90th Legislature, Regular Session (2027)",
+}
+
+
+def session_label(session: Any) -> str:
+    """Human-readable session label so raw codes like 892 are never ambiguous."""
+    code = str(session or "").strip()
+    if code in SESSION_LABELS:
+        return SESSION_LABELS[code]
+    return f"Texas session {code}" if code else "Texas session not recorded"
+
+
+def derive_legislative_status(bill: dict[str, Any]) -> str:
+    """Derive a canonical status from Open States record metadata.
+
+    The feed badge and the stored ``status`` field must always agree, so both
+    read this single function. Rules (in order):
+
+    - enacted: latest action says effective/enrolled/signed, or a passage date
+      is recorded together with enrolled/effective language.
+    - dead: latest action says died/failed/did-not-pass/without-action.
+    - passed: a chamber passage date exists but no enactment signal yet
+      (e.g. engrossed, conferees appointed).
+    - pending: everything else (filed, referred, no movement yet).
+    """
+    action = str(bill.get("latest_action_description") or "").lower()
+    passage = str(bill.get("latest_passage_date") or "").strip()
+    latest = str(bill.get("latest_action_date") or "").strip()
+
+    dead_markers = (
+        "died", "dead", "failed", "did not pass", "not passed",
+        "without house action", "without senate action", "vetoed",
+        "withdrawn",
+    )
+    if any(marker in action for marker in dead_markers):
+        return "dead"
+    enacted_markers = (
+        "effective immediately", "effective on", "takes effect",
+        "reported enrolled", "signed by the governor", "signed into law",
+        "see remarks for effective date",
+    )
+    if any(marker in action for marker in enacted_markers):
+        return "enacted"
+    if passage and ("enrolled" in action or "effective" in action):
+        return "enacted"
+    passed_markers = (
+        "reported engrossed", "passed", "appoints conferees",
+        "conference committee", "third reading",
+    )
+    if passage or any(marker in action for marker in passed_markers):
+        # A recorded passage without an enactment signal means the chamber
+        # moved it but it is not yet law.
+        if not latest and not passage:
+            return "pending"
+        # SR 76-style "reported enrolled" is caught above; anything with a
+        # passage date but no enactment language stays "passed".
+        if passage:
+            return "passed"
+        return "pending"
+    return "pending"
 
 # 7-factor impact framework. Each factor is scored 0 (absent), 1 (possible/
 # indirect), or 2 (direct/strong) from official bill text + record metadata.
@@ -856,7 +927,7 @@ def fallback_display_fields(bill: dict[str, Any], old: dict[str, Any] | None) ->
     if old:
         fields = {key: str(old.get(key) or "").strip() for key in (
             "title", "affects", "changes", "business_impact", "impact_level",
-            "industry", "specific_industry", "status", "suggested_action",
+            "industry", "specific_industry", "suggested_action",
         )}
     else:
         fields = {}
@@ -871,7 +942,10 @@ def fallback_display_fields(bill: dict[str, Any], old: dict[str, Any] | None) ->
         fields["impact_level"] = metadata_level
     fields["industry"] = fields.get("industry") if fields.get("industry") in INDUSTRIES else "N/A"
     fields["specific_industry"] = fields.get("specific_industry") or "N/A"
-    fields["status"] = fields.get("status") or "pending"
+    # Status is script-owned and always re-derived from the Open States record
+    # so the feed badge and the stored field can never disagree. A stale saved
+    # status is never preserved.
+    fields["status"] = derive_legislative_status(bill)
     fields["suggested_action"] = fields.get("suggested_action") or "Review the official bill text and monitor the recorded legislative status."
     for key in ("affects", "changes", "business_impact", "status", "suggested_action"):
         fields[key] = capitalize_first(fields.get(key, ""))
@@ -956,7 +1030,11 @@ def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None
         "id": str(bill.get("id") or ""),
         "identifier": str(bill.get("identifier") or "Unknown"),
         "session": str(bill.get("session") or ""),
+        "session_label": session_label(bill.get("session")),
         "origin_date": origin_date_for_bill(bill, old),
+        "latest_action_date": str(bill.get("latest_action_date") or ""),
+        "latest_action_description": str(bill.get("latest_action_description") or ""),
+        "latest_passage_date": str(bill.get("latest_passage_date") or ""),
         "updated_at": date.today().isoformat(),
         "source_url": capitol_url(bill),
     })
@@ -999,7 +1077,11 @@ def normalize_metadata(bill: dict[str, Any], old: dict[str, Any] | None = None) 
         "id": str(bill.get("id") or ""),
         "identifier": str(bill.get("identifier") or "Unknown"),
         "session": str(bill.get("session") or ""),
+        "session_label": session_label(bill.get("session")),
         "origin_date": origin_date_for_bill(bill, old),
+        "latest_action_date": str(bill.get("latest_action_date") or ""),
+        "latest_action_description": str(bill.get("latest_action_description") or ""),
+        "latest_passage_date": str(bill.get("latest_passage_date") or ""),
         "updated_at": date.today().isoformat(),
         "source_url": capitol_url(bill),
         "summary_word_count": count,
@@ -1014,6 +1096,51 @@ def normalize_metadata(bill: dict[str, Any], old: dict[str, Any] | None = None) 
         result["impact_rationale"] = f"Metadata-only assessment: {rationale}"
         result["impact_framework"] = "v2-7-factor-metadata"
     return result
+
+
+def refresh_script_owned_fields(record: dict[str, Any], bill: dict[str, Any]) -> dict[str, Any]:
+    """Refresh script-owned metadata on a retained record.
+
+    Status, session, origin date, and latest-action fields always reflect the
+    current Open States record so a retained summary can never show a stale
+    status or session. AI prose fields are left untouched.
+    """
+    record["status"] = capitalize_first(derive_legislative_status(bill))
+    record["session"] = str(bill.get("session") or record.get("session") or "")
+    record["session_label"] = session_label(record.get("session"))
+    if not str(record.get("origin_date") or "").strip():
+        record["origin_date"] = origin_date_for_bill(bill, record)
+    if str(bill.get("latest_action_date") or ""):
+        record["latest_action_date"] = str(bill.get("latest_action_date"))
+    if str(bill.get("latest_action_description") or ""):
+        record["latest_action_description"] = str(bill.get("latest_action_description"))
+    if str(bill.get("latest_passage_date") or ""):
+        record["latest_passage_date"] = str(bill.get("latest_passage_date"))
+    if str(bill.get("id") or ""):
+        record["id"] = str(bill.get("id"))
+    record["source_url"] = capitol_url(bill)
+    return record
+
+
+def coerce_legacy_status(record: dict[str, Any]) -> dict[str, Any]:
+    """Map pre-canonical status labels onto the canonical four values."""
+    raw = str(record.get("status") or "").strip().lower()
+    mapping = {
+        "enacted": "Enacted", "signed": "Enacted", "adopted": "Enacted",
+        "alive": "Pending", "active": "Pending", "pending": "Pending",
+        "passed": "Passed",
+        "dead": "Dead", "failed": "Dead", "died": "Dead",
+        "did not pass": "Dead", "replaced": "Dead",
+    }
+    if raw in mapping:
+        record["status"] = mapping[raw]
+    elif raw not in ("enacted", "passed", "pending", "dead"):
+        record["status"] = "Pending"
+    else:
+        record["status"] = capitalize_first(raw)
+    if not str(record.get("session_label") or "").strip() and str(record.get("session") or "").strip():
+        record["session_label"] = session_label(record.get("session"))
+    return record
 
 
 def is_placeholder(record: dict[str, Any] | None) -> bool:
@@ -1043,8 +1170,7 @@ def main() -> int:
         try:
             text, text_url = fetch_bill_text(bill); digest = hashlib.sha256(text.encode()).hexdigest()
             if old and old.get("bill_text_hash") == digest and is_valid_official_summary(old):
-                if not str(old.get("origin_date") or "").strip():
-                    old["origin_date"] = origin_date_for_bill(bill, old)
+                refresh_script_owned_fields(old, bill)
                 records.append(old); print(f"[{index}/{len(bills)}] {identifier} -> cached official text summary"); continue
             if not api_key:
                 raise RuntimeError("OPENROUTER_API_KEY is unavailable for an official-text summary")
@@ -1058,15 +1184,15 @@ def main() -> int:
             if is_official_text_record(old):
                 # Never downgrade an official-text record because a later
                 # source request, API request, or action regeneration failed.
-                if not str(old.get("origin_date") or "").strip():
-                    old["origin_date"] = origin_date_for_bill(bill, old)
+                # Script-owned status/session fields still refresh so the
+                # retained record cannot show stale legislative metadata.
+                refresh_script_owned_fields(old, bill)
                 records.append(old)
                 print(f"{identifier}: retaining previous official-text record", file=sys.stderr)
             elif is_valid_metadata_summary(old):
                 # Metadata records stay short and metadata-based until official
                 # text becomes available on a later run.
-                if not str(old.get("origin_date") or "").strip():
-                    old["origin_date"] = origin_date_for_bill(bill, old)
+                refresh_script_owned_fields(old, bill)
                 records.append(old)
                 print(f"{identifier}: retaining previous metadata summary", file=sys.stderr)
             else:
@@ -1080,7 +1206,7 @@ def main() -> int:
     processed_identifiers = {str(r.get("identifier", "")).lower() for r in records}
     for identifier, old_record in existing.items():
         if identifier not in processed_identifiers and (is_official_text_record(old_record) or is_valid_metadata_summary(old_record)):
-            records.append(old_record)
+            records.append(coerce_legacy_status(old_record))
     # A failed bill is not retried with another full page crawl in this run.
     # This keeps the batch bounded and lets the next scheduled run try again.
     resolved_identifiers = {str(record.get("identifier", "")).lower() for record in records}

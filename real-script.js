@@ -9,7 +9,7 @@
   const notesStorageKey = 'lariat-bill-notes-v1';
   const datasetUpdatedOn = document.querySelector('meta[name="lariat-data-updated"]')?.content || 'Local snapshot';
   document.querySelectorAll('[data-dataset-freshness]').forEach((element) => {
-    element.textContent = `✦ Published dataset: ${datasetUpdatedOn}. Verify current status with official Texas legislative sources; not legal advice.`;
+    element.textContent = `✦ Historical snapshot: 89th Legislature special sessions (2025) · Published dataset: ${datasetUpdatedOn}. Verify current status with official Texas legislative sources; not legal advice.`;
   });
   const sessionName = document.querySelector('meta[name="lariat-session-name"]')?.content || 'Next Texas regular session';
   const sessionStartDate = new Date(document.querySelector('meta[name="lariat-session-start"]')?.content || '');
@@ -65,24 +65,65 @@
     return 'low';
   };
 
-  const billStatus = (bill) => {
+  // Canonical display status. This reads the stored `status` field written by
+  // summarize_bills.py (derived from the Open States latest action + passage
+  // dates) so the card badge and the detail modal always agree. Legacy
+  // Alive/Dead labels are mapped forward, never shown for canonical records.
+  const displayStatus = (bill) => {
     const explicitStatus = safe(bill.status || bill.legislative_status).trim().toLowerCase();
-    const actionText = [bill.changes, bill.suggested_action].map(safe).join(' ').toLowerCase();
-    const summaryText = safe(bill.summary).toLowerCase();
-    const deadPattern = /\b(died|dead|failed|did not pass|not passed|bill filed|without house action|replaced)\b/;
-    const deadSummaryPattern = /\b(ultimately stalled|did not receive final senate approval|never advanced past introduction|received no further legislative action|did not advance beyond|did not pass this session)\b/;
-    const alivePattern = /\b(was passed|signed into law|enacted|reported enrolled|adopted|operative version)\b/;
+    if (['enacted', 'signed', 'adopted'].includes(explicitStatus)) return 'enacted';
+    if (['passed'].includes(explicitStatus)) return 'passed';
+    if (['dead', 'failed', 'did not pass', 'died', 'replaced'].includes(explicitStatus)) return 'dead';
+    if (['pending'].includes(explicitStatus)) return 'pending';
+    // Legacy records that stored the old binary badge vocabulary.
+    if (['alive', 'active'].includes(explicitStatus)) return 'pending';
+    return 'pending';
+  };
 
-    if (/^(dead|failed|did not pass|died|replaced)$/.test(explicitStatus)) return 'dead';
-    if (/^(alive|active|pending|passed|signed|enacted|adopted)$/.test(explicitStatus)) return 'alive';
-    if (deadPattern.test(actionText) || deadSummaryPattern.test(summaryText)) return 'dead';
-    if (alivePattern.test(summaryText)) return 'alive';
-    return 'alive';
+  const statusLabel = (status) => {
+    if (status === 'enacted') return 'Enacted';
+    if (status === 'passed') return 'Passed';
+    if (status === 'dead') return 'Dead';
+    return 'Pending';
   };
 
   const statusBadge = (bill) => {
-    const status = billStatus(bill);
-    return `<span class="status-badge ${status}"><span class="badge-dot"></span>${status === 'dead' ? 'Dead' : 'Alive'}</span>`;
+    const status = displayStatus(bill);
+    return `<span class="status-badge ${status}"><span class="badge-dot"></span>${statusLabel(status)}</span>`;
+  };
+
+  // Short session tag for feed cards, e.g. "89th · 2nd Called (2025)".
+  // SESSION_LABELS mirrors the backend map in summarize_bills.py.
+  const SESSION_LABELS = {
+    89: '89th Legislature, Regular Session (2025)',
+    891: '89th Legislature, 1st Called Session (2025)',
+    892: '89th Legislature, 2nd Called Session (2025)',
+    90: '90th Legislature, Regular Session (2027)',
+  };
+  const SESSION_SHORT = {
+    89: '89th · Regular (2025)',
+    891: '89th · 1st Called (2025)',
+    892: '89th · 2nd Called (2025)',
+    90: '90th · Regular (2027)',
+  };
+
+  const formatSessionShort = (bill) => {
+    const code = safe(bill.session).trim();
+    if (SESSION_SHORT[code]) return SESSION_SHORT[code];
+    return code && code !== 'Not provided' ? `Session ${code}` : '';
+  };
+
+  const formatOriginShort = (bill) => {
+    const formatted = formatDateString(bill.origin_date);
+    return formatted ? `Filed ${formatted}` : '';
+  };
+
+  const formatSession = (bill) => {
+    const stored = safe(bill.session_label).trim();
+    if (stored && stored !== 'Not provided') return stored;
+    const code = safe(bill.session).trim();
+    if (SESSION_LABELS[code]) return SESSION_LABELS[code];
+    return code && code !== 'Not provided' ? `Texas session ${code}` : 'Texas session not recorded';
   };
 
   const centralTimeFormatter = new Intl.DateTimeFormat('en-US', {
@@ -131,7 +172,7 @@
       const formattedDate = sessionStartDate.toLocaleDateString('en-US', {
         timeZone: 'America/Chicago', month: 'long', day: 'numeric', year: 'numeric',
       });
-      sessionDetail.textContent = `${sessionName} begins ${formattedDate} · Central time`;
+      sessionDetail.textContent = `${sessionName} begins ${formattedDate} · Central time · Dataset below: 89th special sessions (2025)`;
     }
   };
 
@@ -159,10 +200,14 @@
     affects: 'Who and what this touches — from the bill\u2019s official subject tags and who the text says it applies to.',
     changes: 'What the bill does — from what the official bill text adds, changes, or requires.',
     business_impact: 'What it could mean in practice — our read of costs or rule changes in the text. Not legal advice.',
-    status: 'Last saved stage for this bill (e.g. Pending, Enacted). Verify live status with the official Texas Legislature link.',
+    status: 'Recorded legislative stage (Pending, Passed, Enacted, or Dead), derived from the official latest action and passage dates. The card badge always shows this same value.',
     suggested_action: 'What to review or prepare for — AI-written from requirements, deadlines, and exceptions in the official text.',
     summary: 'Plain-English version of the official Texas bill text. Full version when we have the text, shorter metadata version when we don\u2019t.',
-    session: 'Which Texas legislative session this record belongs to — from the official record ID.',
+    session: 'Which Texas legislative session this record belongs to — from the official record ID (e.g. 892 is the 89th Legislature, 2nd Called Session, 2025).',
+    session_label: 'Plain-English name of the legislative session, so raw session codes are never ambiguous.',
+    latest_action_description: 'Most recent official action recorded for this bill by Open States.',
+    latest_action_date: 'Date of the most recent official action recorded for this bill.',
+    latest_passage_date: 'Date a chamber recorded passage, when one is recorded. Absence of a date means no passage is recorded.',
     origin_date: 'The date this bill was first introduced — from the official first-action record.',
     updated_at: 'Date Lariat last refreshed this summary — not the date the Legislature acted.',
     summary_source: 'Whether this summary came from the full official bill text or just metadata (title + subjects + last action).',
@@ -487,10 +532,14 @@
             const cardIndustry = showSpecificIndustry
               ? displaySpecificIndustry(bill.specific_industry, bill.industry)
               : displayIndustry(bill.industry);
+            const cardSession = formatSessionShort(bill);
+            const cardOrigin = formatOriginShort(bill);
+            const cardMeta = [cardSession, cardOrigin].filter(Boolean).join(' · ');
             return `
               <button class="bill-card bill-card-button ${levelClass === 'high' ? 'high-impact' : ''}" type="button" data-bill-index="${bill.__index}" aria-label="Open full summary for ${identifier}" title="Open the full summary for ${identifier}">
                 <div class="bill-topline"><span class="bill-number">${identifier}</span><span class="bill-date">${escapeHtml(cardIndustry)}</span></div>
                 <div class="bill-heading"><h3>${title}</h3><div class="bill-badges">${statusBadge(bill)}<span class="impact-badge ${levelClass}"><span class="badge-dot"></span>${escapeHtml(safe(bill.impact_level))} impact</span>${myVoteBadges(bill)}</div></div>
+                ${cardMeta ? `<div class="bill-meta"><span>${escapeHtml(cardMeta)}</span></div>` : ''}
                 <span class="bill-card-action">Click to view full summary <span aria-hidden="true">↗</span></span>
               </button>
             `;
