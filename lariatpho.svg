@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
+  <title id="title">Campground and Youth Camp Safety bill card</title>
+  <desc id="desc">A dimensional dark bill information card showing the 89th session, date filed, enacted status, low impact, bill name, and a full summary button.</desc>
+  <defs>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d9c9a5"/><stop offset=".16" stop-color="#8f816b"/><stop offset=".34" stop-color="#efe2bd"/><stop offset=".74" stop-color="#81735e"/><stop offset="1" stop-color="#d5c59e"/></linearGradient>
+    <linearGradient id="surface" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#242624"/><stop offset=".68" stop-color="#0e1315"/><stop offset="1" stop-color="#1b2523"/></linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff1c8" stop-opacity=".12"/><stop offset=".28" stop-color="#fff1c8" stop-opacity="0"/><stop offset=".78" stop-color="#fff1c8" stop-opacity="0"/><stop offset="1" stop-color="#b4c49b" stop-opacity=".08"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="170%" height="180%"><feDropShadow dx="0" dy="42" stdDeviation="25" flood-color="#000" flood-opacity=".5"/></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation=".7"/></filter>
+  </defs>
+  <g transform="translate(700 450) rotate(-8) skewX(-5) scale(.9)" filter="url(#shadow)">
+    <rect x="-500" y="-245" width="1000" height="490" rx="30" fill="url(#rim)" stroke="#fff8dc" stroke-opacity=".7" stroke-width="2"/>
+    <rect x="-489" y="-234" width="978" height="468" rx="24" fill="url(#surface)" stroke="#332f27" stroke-width="3"/>
+    <rect x="-488" y="-233" width="976" height="466" rx="23" fill="url(#shine)"/>
+    <g font-family="Arial, Helvetica, sans-serif">
+      <text x="-442" y="-175" fill="#d8b875" font-size="22" font-weight="700" letter-spacing="4">SB 1</text>
+      <text x="440" y="-175" fill="#8d9189" font-size="16" text-anchor="end" letter-spacing="2">GENERAL BILL</text>
+      <line x1="-442" y1="-145" x2="380" y2="-145" stroke="#d6b875" stroke-opacity=".45"/>
+      <text x="-442" y="-82" fill="#f2ede1" font-size="45" font-weight="500" letter-spacing="-1.2">Campground and Youth</text>
+      <text x="-442" y="-28" fill="#f2ede1" font-size="45" font-weight="500" letter-spacing="-1.2">Camp Safety</text>
+      <text x="-442" y="12" fill="#919892" font-size="17">A legislative measure establishing updated safety standards for campgrounds and youth camps.</text>
+      <g transform="translate(-442 46)">
+        <g><rect width="194" height="88" rx="10" fill="#ffffff" fill-opacity=".045" stroke="#e0cea0" stroke-opacity=".16"/><text x="18" y="27" fill="#8d9189" font-size="13" letter-spacing="1.5">SESSION</text><text x="18" y="61" fill="#e5dfd1" font-size="21" font-weight="600">89th</text></g>
+        <g transform="translate(208)"><rect width="194" height="88" rx="10" fill="#ffffff" fill-opacity=".045" stroke="#e0cea0" stroke-opacity=".16"/><text x="18" y="27" fill="#8d9189" font-size="13" letter-spacing="1.5">DATE FILED</text><text x="18" y="61" fill="#e5dfd1" font-size="19" font-weight="600">Aug 18, 2025</text></g>
+        <g transform="translate(416)"><rect width="194" height="88" rx="10" fill="#ffffff" fill-opacity=".045" stroke="#e0cea0" stroke-opacity=".16"/><text x="18" y="27" fill="#8d9189" font-size="13" letter-spacing="1.5">STATUS</text><circle cx="23" cy="58" r="5" fill="#bed38e"/><text x="37" y="65" fill="#c4d89e" font-size="19" font-weight="600">Enacted</text></g>
+        <g transform="translate(624)"><rect width="194" height="88" rx="10" fill="#ffffff" fill-opacity=".045" stroke="#e0cea0" stroke-opacity=".16"/><text x="18" y="27" fill="#8d9189" font-size="13" letter-spacing="1.5">IMPACT LEVEL</text><text x="18" y="61" fill="#c4d89e" font-size="19" font-weight="600">Low impact</text></g>
+      </g>
+      <line x1="-442" y1="170" x2="442" y2="170" stroke="#e0cea0" stroke-opacity=".13"/>
+      <text x="-442" y="211" fill="#888f8a" font-size="16">89th · 2nd Called (2025)</text>
+      <g transform="translate(265 184)"><rect width="177" height="50" rx="9" fill="#d6b875" fill-opacity=".1" stroke="#d8b875" stroke-opacity=".5"/><text x="19" y="32" fill="#e7c983" font-size="16" font-weight="600">View full summary</text><text x="151" y="33" fill="#e7c983" font-size="23">↗</text></g>
+    </g>
+    <rect x="520" y="-5" width="12" height="58" rx="6" fill="url(#rim)" stroke="#6b5c49" stroke-width="2"/>
+  </g>
+</svg>
