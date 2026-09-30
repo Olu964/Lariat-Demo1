@@ -293,8 +293,8 @@ h2 { margin: 0; color: var(--navy-950); font-size: 22px; letter-spacing: -.045em
 
 /* Hero bill card image */
 .bill-hero-art { position: relative; z-index: 1; display: grid; min-width: 0; place-items: center; margin-right: calc((min(1180px, 100vw - 64px) - 100vw) / 2); }
-.bill-hero-art img { display: block; width: 100%; max-width: none; height: auto; justify-self: stretch; }
-@media (max-width: 650px) { .bill-hero-art { margin-right: 0; } .bill-hero-art img { width: 100%; max-width: 520px; justify-self: center; } }
+.bill-hero-art img { display: block; width: 100%; max-width: none; height: auto; justify-self: stretch; transform: translateX(-38px) scale(1.28); transform-origin: center; }
+@media (max-width: 650px) { .bill-hero-art { margin-right: 0; } .bill-hero-art img { width: 100%; max-width: 520px; justify-self: center; transform: scale(1.15); } }
  }
 
 /* Vision page */
