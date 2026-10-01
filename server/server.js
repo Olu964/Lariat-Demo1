@@ -99,6 +99,10 @@ function normalizeHostname(value) {
 const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
 const BREVO_FROM_EMAIL = process.env.BREVO_FROM_EMAIL || '';
 const OPEN_STATES_API_KEY = process.env.OPEN_STATES_API_KEY || '';
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
+const OPENROUTER_MODEL = process.env.SUMMARIZER_MODEL || '';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-flash-latest';
 const DEFAULT_ACCESS_CODE = 'LARIAT-TRIAL-2026';
 const ACCESS_CODE = process.env.SUBSCRIPTION_ACCESS_CODE || DEFAULT_ACCESS_CODE;
 const PUBLIC_BASE_URL = (process.env.PUBLIC_BASE_URL || '').trim().replace(/\/+$/, '');
@@ -834,6 +838,10 @@ const requestRateLimiter = makeRateLimiter(IP_RATE_LIMIT.windowMs, IP_RATE_LIMIT
 const verifyRateLimiter = makeRateLimiter(60 * 60 * 1000, 25);                           // /verify calls per IP per hour
 const unsubscribeRateLimiter = makeRateLimiter(60 * 60 * 1000, 25);                      // POST /unsubscribe per IP per hour
 const legislatorRateLimiter = makeRateLimiter(60 * 60 * 1000, 30);                         // legislator lookups per IP per hour
+const chatRateLimiter = makeRateLimiter(60 * 60 * 1000, 40);                                // chatbot questions per IP per hour
+// Bump this whenever chatbot behavior changes; surfaced via /api/health so a
+// stale local server is trivially detectable.
+const CHATBOT_ENGINE_VERSION = 6;
 
 const requestCooldowns = new Map(); // email::industry -> last request time
 function cooldownActive(email, industry) {
@@ -853,6 +861,7 @@ setInterval(() => {
   verifyRateLimiter.prune();
   unsubscribeRateLimiter.prune();
   legislatorRateLimiter.prune();
+  chatRateLimiter.prune();
   const now = Date.now();
   for (const [key, last] of requestCooldowns) {
     if (now - last >= REQUEST_COOLDOWN_MS * 2) requestCooldowns.delete(key);
@@ -1162,6 +1171,298 @@ async function findLegislators(address) {
   })();
   legislatorInFlight.set(key, lookup);
   try { return await lookup; } finally { legislatorInFlight.delete(key); }
+}
+
+/* Strips leaked agentic artifacts small models sometimes emit: <|...|>
+ * control tokens, tool_call_start...end blocks, and google(query='...')
+ * style pseudo tool calls (no such tools exist here — nothing was searched).
+ * Applied to every AI answer before it leaves the server.
+ */
+function sanitizeAiText(text) {
+  let cleaned = String(text || '');
+  // Remove marker tokens individually (NOT the whole span between them —
+  // models sometimes leave real answer prose inside, which must survive).
+  cleaned = cleaned.replace(/<\|[^|]*\|>/g, ' ');
+  cleaned = cleaned.replace(/\b[a-zA-Z_]+\(\s*query\s*=\s*('[^']*'|"[^"]*")\s*\)/g, ' ');
+  cleaned = cleaned.replace(/\[\s*(,\s*)*\]/g, ' '); // empty brackets left behind
+  // Strip "Based on ..."-style preambles ("Based on the provided context,
+  // here is the specific information about SB 1:", etc.).
+  cleaned = cleaned.replace(/^\s*based on\b[^.!?\n]{0,140}?:\s*/i, '');
+  cleaned = cleaned.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  return cleaned;
+}
+
+/* Every well-formed Kevin answer ends with sentence-terminal punctuation
+ * (the prompt mandates ending with "Not legal advice; verify with official
+ * sources."). Anything else — a colon, a dangling "in", a cut-off list item
+ * like "Youth camp licensees" — stopped mid-thought and must be continued. */
+function looksTruncated(text) {
+  const trimmed = String(text || '').trim();
+  if (!trimmed) return true;
+  return !/[.!?]['"”’)\]]?\s*$/.test(trimmed);
+}
+
+/* ---------------------------------------------------------------------------
+ * Chatbot: POST /api/chat/ask  { question }
+ * Answers Texas-bill questions from local snapshot first, then Open States
+ * (server-side X-API-KEY, never exposed), then OpenRouter if configured.
+ * Without AI keys it still answers extractively from local data.
+ * ------------------------------------------------------------------------- */
+
+function sanitizedChatQuestion(value) {
+  return String(value || '').replace(/[<>\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 500);
+}
+
+function loadBillSnapshot() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(BILL_DATA_FILE, 'utf8'));
+    if (Array.isArray(parsed)) return parsed;
+    if (Array.isArray(parsed?.bills)) return parsed.bills;
+  } catch (error) { /* fall through */ }
+  return [];
+}
+
+function searchLocalBills(question, bills) {
+  const q = question.toLowerCase();
+  const idMatch = q.match(/\b([hs][bjr]{0,2})\s*-?\s*(\d{1,4})\b/i);
+  let idHits = [];
+  if (idMatch) {
+    const norm = `${idMatch[1].toUpperCase().replace(/\s+/g, ' ')} ${idMatch[2]}`.replace(/^HJR/, 'HJR').replace(/^SJR/, 'SJR');
+    const compact = norm.replace(/\s+/g, '').toLowerCase();
+    idHits = bills.filter((b) => String(b.identifier || '').replace(/\s+/g, '').toLowerCase() === compact);
+    if (idHits.length) return idHits.slice(0, 3);
+  }
+  const words = q.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !['what', 'does', 'the', 'and', 'for', 'texas', 'law', 'bill', 'about', 'does'].includes(w));
+  const scored = bills.map((b) => {
+    const hay = `${b.identifier || ''} ${b.title || ''} ${b.summary || ''} ${b.industry || ''} ${b.specific_industry || ''}`.toLowerCase();
+    let score = 0;
+    for (const w of words) if (hay.includes(w)) score += w.length > 5 ? 2 : 1;
+    return { bill: b, score };
+  }).filter((s) => s.score > 0).sort((a, b) => b.score - a.score);
+  return scored.slice(0, 3).map((s) => s.bill);
+}
+
+async function fetchOpenStatesBills(question) {
+  if (!OPEN_STATES_API_KEY) return [];
+  try {
+    const url = new URL(OPEN_STATES_BILL_URL);
+    url.searchParams.set('jurisdiction', 'Texas');
+    url.searchParams.set('q', question.slice(0, 120));
+    url.searchParams.set('per_page', '3');
+    url.searchParams.set('sort', 'updated_desc');
+    const response = await fetch(url, {
+      headers: { 'X-API-KEY': OPEN_STATES_API_KEY, Accept: 'application/json' },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) return [];
+    const body = await response.json().catch(() => null);
+    const results = Array.isArray(body?.results) ? body.results : Array.isArray(body?.bills) ? body.bills : [];
+    return results.slice(0, 3).map((b) => ({
+      identifier: b.identifier || b.name || 'TX bill',
+      title: b.title || '',
+      summary: Array.isArray(b.abstracts) && b.abstracts[0]?.abstract ? b.abstracts[0].abstract : '',
+      status: b.latest_action_description || '',
+      sourceUrl: (b.sources && b.sources[0]?.url) || b.openstates_url || '',
+    }));
+  } catch (error) {
+    return [];
+  }
+}
+
+async function rewriteWithGemini(question, citations) {
+  if (!GEMINI_API_KEY) return null;
+  try {
+    const context = citations.map((c) => `- ${c.identifier}: ${c.title}. Affects: ${c.affects || 'n/a'}. Changes: ${c.changes || String(c.summary || '').slice(0, 200)}. ${String(c.summary || c.status || '').slice(0, 300)} (Source: ${c.sourceUrl})`).join('\n');
+    const system = 'Your name is Kevin. You are Kevin, the Texas Legislature helper on the Lariat site — never claim any other name or model identity. Answer ONLY about Texas bills using the provided context. Cite bill identifiers. If unsure, say so and point to the bill feed. When the question asks who a bill affects, or how or why, answer with labeled lines starting Who:, How:, Why: — one question each, in that order. Start directly with the answer, no preamble. Never output tool calls, search queries, <|...|> tokens, or your thinking process — only the final answer. Write in plain text only: no markdown, no ** asterisks, no bullets, dashes, numbers, or # headings. Use short paragraphs separated by blank lines. End with: Not legal advice; verify with official sources. Max 150 words.';
+    for (const model of [GEMINI_MODEL, 'gemini-3.8-flash', 'gemini-3.5-flash-lite']) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: AbortSignal.timeout(20_000),
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: system }] },
+            contents: [{ parts: [{ text: `Question: ${question}\n\nContext:\n${context || '(no matching bills found)'}` }] }],
+            generationConfig: { maxOutputTokens: 700, temperature: 0.3 },
+          }),
+        });
+        if (!response.ok) continue;
+        const body = await response.json().catch(() => null);
+        const parts = body?.candidates?.[0]?.content?.parts;
+        const raw = Array.isArray(parts) ? parts.map((p) => p.text || '').join('') : '';
+        const text = sanitizeAiText(raw);
+        if (text) return text.slice(0, 1200);
+      } catch (error) { /* try next model */ }
+    }
+  } catch (error) { /* fall through */ }
+  return null;
+}
+
+/* Joins a continuation chunk onto a cut-off draft. Mid-word cuts rejoin
+ * seamlessly ("connectivi" + "ty" → "connectivity"); clean breaks get a space. */
+function joinContinuation(draft, chunk) {
+  const left = String(draft || '').trimEnd();
+  const right = String(chunk || '').trimStart();
+  if (!left) return right;
+  if (!right) return left;
+  const glue = (/[A-Za-z0-9]$/.test(left) && /^[a-z0-9]/.test(right)) ? '' : ' ';
+  return `${left}${glue}${right}`;
+}
+
+async function openRouterChat(model, messages) {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${OPENROUTER_API_KEY}`, 'Content-Type': 'application/json', 'HTTP-Referer': baseUrl(), 'X-Title': 'Kevin helpbot' },
+    signal: AbortSignal.timeout(25_000),
+    body: JSON.stringify({
+      model,
+      // Free-tier (:free) models cost $0 regardless of token count.
+      // 8192 = the highest value all rotation models accept (bottleneck
+      // is liquid/lfm-2.5-2.6b:free at 8192 output tokens; qwen allows
+      // 235929, gemma 32768). Higher would 400 on liquid and knock it
+      // out of rotation.
+      max_tokens: 8192,
+      temperature: 0.3,
+      messages,
+    }),
+  });
+  if (!response.ok) {
+    const error = new Error(`OpenRouter HTTP ${response.status}`);
+    error.status = response.status;
+    throw error;
+  }
+  const body = await response.json().catch(() => null);
+  const raw = typeof body?.choices?.[0]?.message?.content === 'string' ? body.choices[0].message.content : '';
+  return sanitizeAiText(raw);
+}
+
+const KEVIN_SYSTEM = 'Your name is Kevin. You are Kevin, the Texas Legislature helper on the Lariat site — never claim any other name or model identity. Answer ONLY about Texas bills using the provided context. Cite bill identifiers. If unsure, say so and point to the bill feed. When the question asks who a bill affects, or how or why, answer with labeled lines starting Who:, How:, Why: — one question each, in that order. Start directly with the answer, no preamble. Never output tool calls, search queries, <|...|> tokens, or your thinking process — only the final answer. Write in plain text only: no markdown, no ** asterisks, no bullets, dashes, numbers, or # headings. Use short paragraphs separated by blank lines. End with: Not legal advice; verify with official sources. Max 150 words.';
+const CONTINUE_PROMPT = 'Continue exactly where you left off. Do not repeat anything already written, do not restart, no preamble.';
+
+async function rewriteWithOpenRouter(question, citations) {
+  if (!OPENROUTER_API_KEY) return await rewriteWithGemini(question, citations);
+  try {
+    const context = citations.map((c) => `- ${c.identifier}: ${c.title}. Affects: ${c.affects || 'n/a'}. Changes: ${c.changes || String(c.summary || '').slice(0, 200)}. ${String(c.summary || c.status || '').slice(0, 300)} (Source: ${c.sourceUrl})`).join('\n');
+    const firstUser = `Question: ${question}\n\nContext:\n${context || '(no matching bills found)'}`;
+    // Free-tier lanes are often congested (HTTP 429): rotate models and retry
+    // once after a short pause before falling through to Gemini/extractive.
+    const models = [OPENROUTER_MODEL, 'google/gemma-4-26b-a4b-it:free', 'qwen/qwen3.8-27b:free', 'liquid/lfm-2.5-2.6b:free'].filter(Boolean);
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    let partial = '';
+    let carry = ''; // truncated thread passed model-to-model until finished
+    for (const model of models) {
+      // Fresh answer when no thread exists; otherwise THIS model continues
+      // the same cut-off response (up to 2 continuation rounds each).
+      let draft = carry;
+      for (let round = 0; round < 3; round += 1) {
+        const fresh = !draft;
+        const messages = fresh
+          ? [{ role: 'system', content: KEVIN_SYSTEM }, { role: 'user', content: firstUser }]
+          : [
+            { role: 'system', content: KEVIN_SYSTEM },
+            { role: 'user', content: firstUser },
+            { role: 'assistant', content: draft },
+            { role: 'user', content: CONTINUE_PROMPT },
+          ];
+        let chunk = '';
+        for (let attempt = 0; attempt < 2 && !chunk; attempt += 1) {
+          try {
+            chunk = await openRouterChat(model, messages);
+          } catch (error) {
+            if (error && error.status === 429 && attempt === 0) {
+              await sleep(2500);
+              continue;
+            }
+            break; // other errors: next model
+          }
+        }
+        if (!chunk) break; // model failed: try the next model
+        draft = fresh ? chunk : joinContinuation(draft, chunk);
+        if (!looksTruncated(chunk) || draft.length > 2400) {
+          if (!looksTruncated(draft)) return draft.slice(0, 2400);
+          break; // complete chunk but odd joint: stop, keep draft as partial
+        }
+      }
+      carry = draft && looksTruncated(draft) ? draft : '';
+      if (draft && !partial) partial = draft;
+      if (partial && !looksTruncated(partial)) return partial.slice(0, 2400);
+    }
+  } catch (error) { /* fall through to Gemini, then extractive */ }
+  if (partial) return partial.slice(0, 2400); // better a partial AI answer than none
+  return await rewriteWithGemini(question, citations);
+}
+
+function extractiveAnswer(question, citations) {
+  if (!citations.length) {
+    return 'I could not find a matching Texas bill in the current snapshot. Try asking with a bill number (e.g. “What does SB 1 do?”), an industry like “Energy & Utilities”, or browse the bill feed. For statutes beyond bills, check Texas Legislature Online. Not legal advice — verify with official sources.';
+  }
+  const top = citations[0];
+  // Cut at a word boundary so the fallback never ends mid-word.
+  const cut = (s, n) => (s.length <= n ? s : s.slice(0, s.lastIndexOf(' ', n)).trimEnd());
+  const q = String(question || '').toLowerCase();
+  const wantsWho = /\bwho\b|\bwhom\b|\baffect\b/.test(q);
+  const wantsHow = /\bhow\b/.test(q);
+  const wantsWhy = /\bwhy\b/.test(q);
+  // Question-aware fallback: answer Who / How / Why from the bill record
+  // instead of dumping the same generic blurb for every question.
+  if ((wantsWho || wantsHow || wantsWhy) && (top.affects || top.changes)) {
+    const sections = [`${top.identifier} — ${top.title || 'Texas bill'}.`];
+    if (wantsWho && top.affects) sections.push(`Who: ${top.affects}.`);
+    if (wantsHow && top.changes) sections.push(`How: ${top.changes}.`);
+    if (wantsWhy) {
+      const reason = top.businessImpact && !/^n\/a\b/i.test(top.businessImpact)
+        ? top.businessImpact
+        : top.summary ? top.summary.split(/(?<=[.!?])\s/)[0] : '';
+      if (reason) sections.push(`Why: ${reason}`);
+    }
+    if (top.status) sections.push(`Status: ${top.status}.`);
+    if (sections.length === 1) sections.push(top.summary ? top.summary.slice(0, 400) : '');
+    return `${cut(sections.join('\n\n'), 900)} See the linked source for the official record. Not legal advice.`;
+  }
+  const bits = [
+    `${top.identifier} — ${top.title || 'Texas bill'}.`,
+    top.summary ? top.summary.slice(0, 450) : '',
+    top.status ? `Status: ${top.status}.` : '',
+    top.industry && top.industry !== 'N/A' ? `Industry: ${top.industry}.` : '',
+  ].filter(Boolean).join(' ');
+  const extra = citations.length > 1 ? ` Related: ${citations.slice(1).map((c) => c.identifier).join(', ')}.` : '';
+  return `${cut(`${bits}${extra}`, 900)} See the linked source for the official record. Not legal advice.`;
+}
+
+async function handleChatAsk(req, res, body) {
+  if (chatRateLimiter(clientIp(req))) return sendJsonError(res, 429, 'Too many questions. Please wait a bit and try again.', 'rate_limited');
+  const question = sanitizedChatQuestion(body.question);
+  if (!question || question.length < 3) return sendJsonError(res, 400, 'Please ask a question about a Texas bill (at least 3 characters).', 'invalid_question');
+
+  const bills = loadBillSnapshot();
+  const cleanField = (v, n = 300) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, n);
+  let citations = searchLocalBills(question, bills).map((b) => ({
+    identifier: String(b.identifier || ''),
+    title: String(b.title || 'Untitled bill'),
+    summary: String(b.summary || b.changes || ''),
+    status: String(b.status || b.latest_action_description || ''),
+    industry: String(b.industry || ''),
+    affects: cleanField(b.affects),
+    changes: cleanField(b.changes),
+    businessImpact: cleanField(b.business_impact),
+    sourceUrl: typeof b.source_url === 'string' && /^https?:\/\//i.test(b.source_url) ? b.source_url : '',
+  })).filter((c) => c.identifier);
+
+  if (!citations.length) {
+    const live = await fetchOpenStatesBills(question);
+    citations = live.map((b) => ({ ...b, sourceUrl: typeof b.sourceUrl === 'string' && /^https?:\/\//i.test(b.sourceUrl) ? b.sourceUrl : '' }));
+  }
+
+  const aiAnswer = await rewriteWithOpenRouter(question, citations);
+  const answer = aiAnswer || extractiveAnswer(question, citations);
+  return sendJson(res, 200, {
+    ok: true,
+    answer,
+    citations: citations.slice(0, 3),
+    aiEnhanced: Boolean(aiAnswer),
+    openStatesUsed: Boolean(OPEN_STATES_API_KEY),
+  });
 }
 
 async function handleLegislatorLookup(req, res, body) {
@@ -1603,6 +1904,7 @@ async function handleApi(req, res, url) {
       return sendJson(res, 200, {
         ok: true,
         service: 'lariat-backend',
+        chatbotEngine: CHATBOT_ENGINE_VERSION,
       });
     }
 
@@ -1639,6 +1941,8 @@ async function handleApi(req, res, url) {
     switch (pathname) {
       case '/api/legislators/lookup':
         return await handleLegislatorLookup(req, res, body);
+      case '/api/chat/ask':
+        return await handleChatAsk(req, res, body);
       case '/api/subscriptions/request':
         return await handleRequestCode(req, res, body);
       case '/api/subscriptions/verify':
@@ -1662,6 +1966,7 @@ async function handleApi(req, res, url) {
 server.listen(PORT, HOST, () => {
   const emailMode = BREVO_API_KEY ? `Brevo (${BREVO_FROM_EMAIL || 'sender not set  -  add BREVO_FROM_EMAIL to .env'})` : 'console mode (set BREVO_API_KEY to send real email)';
   console.log('Lariat backend running');
+  console.log(`  Chatbot engine: v${CHATBOT_ENGINE_VERSION}`);
   console.log(`  Site + API:  http://${HOST}:${PORT}`);
   console.log(`  Email:       ${emailMode}`);
   console.log(`  Access code: ${process.env.SUBSCRIPTION_ACCESS_CODE ? 'configured' : 'default development code'}`);
