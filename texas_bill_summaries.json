@@ -31,14 +31,69 @@
         "description": "SB 1 was first introduced on 2025-08-18. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-08-18",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "House amendment(s) laid before the Senate",
+        "description": "Receipt - House amendment(s) laid before the Senate"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Read",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Senate concurs in House amendment(s)",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate concurs in House amendment(s)"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
         "date": "2025-09-04",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SB 1 on 2025-09-04. No enactment is implied beyond the recorded passage."
       },
       {
+        "date": "2025-09-04",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Senate concurs in House amendment(s)-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate concurs in House amendment(s)-reported"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
         "date": "2025-09-05",
         "title": "Effective immediately",
-        "description": "Latest official action on SB 1: Effective immediately on 2025-09-05."
+        "description": "Became Law - Effective immediately"
+      },
+      {
+        "date": "2025-09-05",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
       },
       {
         "date": "2026-09-11",
@@ -79,14 +134,69 @@
         "description": "SB 10 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
         "date": "2025-08-25",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SB 10 on 2025-08-25. No enactment is implied beyond the recorded passage."
       },
       {
+        "date": "2025-08-27",
+        "title": "Senate appoints conferees-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate appoints conferees-reported"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House grants request for conference committee",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - House grants request for conference committee"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House appoints conferees",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - House appoints conferees"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House grants request for conf comm-reported",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - House grants request for conf comm-reported"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House appoints conferees-reported",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - House appoints conferees-reported"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Conference committee report filed",
+        "description": "Filing - Conference committee report filed"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Conf. Comm. Report distributed",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Conf. Comm. Report distributed"
+      },
+      {
         "date": "2025-09-02",
         "title": "Reason for vote recorded in Journal",
-        "description": "Latest official action on SB 10: Reason for vote recorded in Journal on 2025-09-02."
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Reason for vote recorded in Journal"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "House refuses to adopt conference comm. rept",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - House refuses to adopt conference comm. rept"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Record vote"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Statement(s) of vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Statement(s) of vote recorded in Journal"
       },
       {
         "date": "2026-09-02",
@@ -127,19 +237,74 @@
         "description": "SB 8 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
         "date": "2025-09-03",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SB 8 on 2025-09-03. No enactment is implied beyond the recorded passage."
       },
       {
-        "date": "2025-09-22",
-        "title": "Effective on . . . . . . . . . . . . . . ",
-        "description": "Latest official action on SB 8: Effective on . . . . . . . . . . . . . .  on 2025-09-22."
+        "date": "2025-09-03",
+        "title": "House amendment(s) laid before the Senate",
+        "description": "Receipt - House amendment(s) laid before the Senate"
       },
       {
-        "date": "2026-09-02",
-        "title": "Lariat summary refreshed",
-        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+        "date": "2025-09-03",
+        "title": "Read",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Senate concurs in House amendment(s)",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate concurs in House amendment(s)"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Senate concurs in House amendment(s)-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate concurs in House amendment(s)-reported"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
+        "date": "2025-09-22",
+        "title": "Effective on . . . . . . . . . . . . . .",
+        "description": "Latest official action on SB 8: Effective on . . . . . . . . . . . . . . on 2025-09-22."
+      },
+      {
+        "date": "2025-09-22",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
+      },
+      {
+        "date": "2025-09-22",
+        "title": "Effective on . . . . . . . . . . . . . . ",
+        "description": "Became Law - Effective on . . . . . . . . . . . . . ."
       }
     ]
   },
@@ -175,14 +340,69 @@
         "description": "SB 2 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
         "date": "2025-08-21",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SB 2 on 2025-08-21. No enactment is implied beyond the recorded passage."
       },
       {
+        "date": "2025-08-26",
+        "title": "Read",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Senate refuses to concur",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate refuses to concur"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Senate requests conference committee",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate requests conference committee"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Senate appoints conferees",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate appoints conferees"
+      },
+      {
         "date": "2025-08-27",
         "title": "House appoints conferees-reported",
-        "description": "Latest official action on SB 2: House appoints conferees-reported on 2025-08-27."
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - House appoints conferees-reported"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Senate refuses to concur-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate refuses to concur-reported"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Senate requests conference committee-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate requests conference committee-reported"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Senate appoints conferees-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate appoints conferees-reported"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House grants request for conference committee",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - House grants request for conference committee"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House appoints conferees",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - House appoints conferees"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House grants request for conf comm-reported",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - House grants request for conf comm-reported"
       },
       {
         "date": "2026-09-10",
@@ -223,14 +443,69 @@
         "description": "SB 16 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House amendment(s) laid before the Senate",
+        "description": "Receipt - House amendment(s) laid before the Senate"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Read",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Senate concurs in House amendment(s)",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate concurs in House amendment(s)"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
         "date": "2025-08-28",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SB 16 on 2025-08-28. No enactment is implied beyond the recorded passage."
       },
       {
+        "date": "2025-08-28",
+        "title": "Senate concurs in House amendment(s)-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate concurs in House amendment(s)-reported"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
         "date": "2025-09-17",
         "title": "See remarks for effective date",
-        "description": "Latest official action on SB 16: See remarks for effective date on 2025-09-17."
+        "description": "{'id': 'ocd-organization/4c8c2a9c-f33c-476d-bf81-266eb72193f0', 'name': 'Office of the Governor', 'classification': 'executive'} - See remarks for effective date"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
       },
       {
         "date": "2026-09-02",
@@ -271,14 +546,69 @@
         "description": "SB 5 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Senate adopts resolution to go outside bounds",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate adopts resolution to go outside bounds"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Senate adopts conference committee report",
+        "description": "Committee Passage Favorable - Senate adopts conference committee report"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Senate adopts conf. comm. report-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate adopts conf. comm. report-reported"
+      },
+      {
         "date": "2025-09-04",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SB 5 on 2025-09-04. No enactment is implied beyond the recorded passage."
       },
       {
+        "date": "2025-09-04",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Signed in Senate-Art III Sec 49a Tx. Const",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Signed in Senate-Art III Sec 49a Tx. Const"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Sent to the Comptroller",
+        "description": "{'id': 'ocd-organization/4c8c2a9c-f33c-476d-bf81-266eb72193f0', 'name': 'Office of the Governor', 'classification': 'executive'} - Sent to the Comptroller"
+      },
+      {
+        "date": "2025-09-09",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
         "date": "2025-09-18",
         "title": "Effective immediately",
-        "description": "Latest official action on SB 5: Effective immediately on 2025-09-18."
+        "description": "Became Law - Effective immediately"
+      },
+      {
+        "date": "2025-09-18",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
       },
       {
         "date": "2026-09-02",
@@ -319,14 +649,69 @@
         "description": "SB 3 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House amendment(s) laid before the Senate",
+        "description": "Receipt - House amendment(s) laid before the Senate"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Read",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Senate concurs in House amendment(s)",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate concurs in House amendment(s)"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
         "date": "2025-08-28",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SB 3 on 2025-08-28. No enactment is implied beyond the recorded passage."
       },
       {
+        "date": "2025-08-28",
+        "title": "Senate concurs in House amendment(s)-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate concurs in House amendment(s)-reported"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
         "date": "2025-09-05",
         "title": "Effective immediately",
-        "description": "Latest official action on SB 3: Effective immediately on 2025-09-05."
+        "description": "Became Law - Effective immediately"
+      },
+      {
+        "date": "2025-09-05",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
       },
       {
         "date": "2026-09-02",
@@ -367,9 +752,29 @@
         "description": "SR 76 was first introduced on 2025-07-30. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-07-30",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
         "date": "2025-08-15",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SR 76 on 2025-08-15. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Read & adopted",
+        "description": "Introduction - Read & adopted"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
       },
       {
         "date": "2026-08-29",
@@ -410,6 +815,16 @@
         "description": "SB 58 was first introduced on 2025-07-31. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-07-31",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-07-31",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
         "date": "2026-09-02",
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
@@ -446,6 +861,11 @@
         "date": "2025-07-21",
         "title": "First filed - bill comes to fruition",
         "description": "HB 161 was first introduced on 2025-07-21. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-07-21",
+        "title": "Filed",
+        "description": "Filing - Filed"
       },
       {
         "date": "2026-09-02",
@@ -486,6 +906,11 @@
         "description": "HR 32 was first introduced on 2025-07-24. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-07-24",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
         "date": "2026-08-29",
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
@@ -522,6 +947,11 @@
         "date": "2025-07-24",
         "title": "First filed - bill comes to fruition",
         "description": "HB 200 was first introduced on 2025-07-24. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-07-24",
+        "title": "Filed",
+        "description": "Filing - Filed"
       },
       {
         "date": "2026-09-02",
@@ -562,6 +992,11 @@
         "description": "HB 188 was first introduced on 2025-07-23. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-07-23",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
         "date": "2026-09-02",
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
@@ -600,9 +1035,54 @@
         "description": "SB 9 was first introduced on 2025-07-30. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-07-30",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-04",
+        "title": "Committee report printed and distributed",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Committee report printed and distributed"
+      },
+      {
         "date": "2025-08-06",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SB 9 on 2025-08-06. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-08-06",
+        "title": "Rules suspended-Regular order of business",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Rules suspended-Regular order of business"
+      },
+      {
+        "date": "2025-08-06",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-08-06",
+        "title": "Read 2nd time & passed to engrossment",
+        "description": "Reading 2 - Read 2nd time & passed to engrossment"
+      },
+      {
+        "date": "2025-08-06",
+        "title": "Three day rule suspended",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Three day rule suspended"
+      },
+      {
+        "date": "2025-08-06",
+        "title": "Read 3rd time",
+        "description": "Reading 3 - Read 3rd time"
+      },
+      {
+        "date": "2025-08-06",
+        "title": "Passed",
+        "description": "Passage - Passed"
+      },
+      {
+        "date": "2025-08-06",
+        "title": "Reported engrossed",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Reported engrossed"
       },
       {
         "date": "2026-09-02",
@@ -643,9 +1123,29 @@
         "description": "SR 60 was first introduced on 2025-07-29. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-07-29",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
         "date": "2025-08-15",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SR 60 on 2025-08-15. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Read & adopted",
+        "description": "Introduction - Read & adopted"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
       },
       {
         "date": "2026-08-29",
@@ -685,6 +1185,11 @@
         "description": "HB 194 was first introduced on 2025-07-24. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-07-24",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
         "date": "2026-09-02",
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
@@ -718,6 +1223,11 @@
         "date": "2025-07-22",
         "title": "First filed - bill comes to fruition",
         "description": "HR 23 was first introduced on 2025-07-22. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-07-22",
+        "title": "Filed",
+        "description": "Filing - Filed"
       },
       {
         "date": "2026-08-29",
@@ -756,9 +1266,29 @@
         "description": "SR 23 was first introduced on 2025-07-28. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-07-28",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
         "date": "2025-08-15",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SR 23 on 2025-08-15. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Read & adopted",
+        "description": "Introduction - Read & adopted"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
       },
       {
         "date": "2026-09-10",
@@ -794,6 +1324,11 @@
         "date": "2025-08-12",
         "title": "First filed - bill comes to fruition",
         "description": "HJR 40 was first introduced on 2025-08-12. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-12",
+        "title": "Filed",
+        "description": "Filing - Filed"
       },
       {
         "date": "2026-08-29",
@@ -833,6 +1368,11 @@
         "description": "HR 35 was first introduced on 2025-07-25. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-07-25",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
         "date": "2026-08-29",
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
@@ -870,6 +1410,11 @@
         "description": "HB 242 was first introduced on 2025-07-31. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-07-31",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
         "date": "2026-09-02",
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
@@ -903,6 +1448,11 @@
         "date": "2025-07-22",
         "title": "First filed - bill comes to fruition",
         "description": "HJR 21 was first introduced on 2025-07-22. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-07-22",
+        "title": "Filed",
+        "description": "Filing - Filed"
       },
       {
         "date": "2026-08-24",
@@ -942,6 +1492,11 @@
         "description": "HB 294 was first introduced on 2025-08-08. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-08-08",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
         "date": "2026-09-02",
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
@@ -977,6 +1532,11 @@
         "date": "2025-08-04",
         "title": "First filed - bill comes to fruition",
         "description": "HB 259 was first introduced on 2025-08-04. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-04",
+        "title": "Filed",
+        "description": "Filing - Filed"
       },
       {
         "date": "2026-09-02",
@@ -1017,9 +1577,29 @@
         "description": "SR 95 was first introduced on 2025-08-13. This is when the bill came to fruition as an official Texas legislative record."
       },
       {
+        "date": "2025-08-13",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
         "date": "2025-08-15",
         "title": "Chamber passage recorded",
         "description": "A chamber recorded passage of SR 95 on 2025-08-15. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Read & adopted",
+        "description": "Introduction - Read & adopted"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
       },
       {
         "date": "2026-08-29",
