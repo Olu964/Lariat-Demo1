@@ -853,6 +853,113 @@ def origin_date_for_bill(bill: dict[str, Any], old: dict[str, Any] | None = None
     return ""
 
 
+def _history_date(value: Any) -> str:
+    """Normalize a history date to YYYY-MM-DD when possible, else ''."""
+    raw = str(value or "").strip()
+    match = re.match(r"^(\d{4})-(\d{2})-(\d{2})", raw)
+    return f"{match.group(1)}-{match.group(2)}-{match.group(3)}" if match else ""
+
+
+def _valid_history_events(value: Any) -> list[dict[str, str]]:
+    """Return only well-formed stored history events."""
+    if not isinstance(value, list):
+        return []
+    events: list[dict[str, str]] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        date = _history_date(item.get("date"))
+        title = re.sub(r"\s+", " ", str(item.get("title") or "").strip())
+        description = re.sub(r"\s+", " ", str(item.get("description") or "").strip())
+        if not title:
+            continue
+        events.append({"date": date, "title": title[:160], "description": description[:600]})
+    return events
+
+
+def build_bill_history(bill: dict[str, Any], old: dict[str, Any] | None = None) -> list[dict[str, str]]:
+    """Build a deterministic bill-history timeline that works for every bill.
+
+    Prefers the full Open States ``actions`` list when the fetcher captured it
+    (future bills), and otherwise derives the same timeline shape from the
+    origin / passage / latest-action fields every record already carries
+    (current bills). Stored history from a previous run is merged in so
+    re-runs never drop an earlier milestone.
+    """
+    identifier = str(bill.get("identifier") or "This bill").strip()
+    derived: list[dict[str, str]] = []
+
+    raw_actions = bill.get("actions")
+    if isinstance(raw_actions, list) and any(isinstance(item, dict) for item in raw_actions):
+        for item in raw_actions:
+            if not isinstance(item, dict):
+                continue
+            date = _history_date(item.get("date") or item.get("action_date"))
+            description = re.sub(
+                r"\s+", " ",
+                str(item.get("description") or item.get("text") or item.get("action") or "").strip().rstrip("."),
+            )
+            if not description:
+                continue
+            classification = item.get("classification")
+            if isinstance(classification, list) and classification:
+                kind = re.sub(r"\s+", " ", str(classification[0]).replace("-", " ").strip()).title()
+            else:
+                kind = str(item.get("organization") or item.get("chamber") or "").strip() or "Legislative action"
+            derived.append({
+                "date": date,
+                "title": capitalize_first(description[:160]) or kind[:160],
+                "description": f"{kind} - {capitalize_first(description)[:600]}".strip(" -"),
+            })
+        # Keep the timeline bounded: first milestone plus the most recent ones.
+        derived = sorted(derived, key=lambda event: (not event["date"], event["date"]))
+        if len(derived) > 12:
+            derived = derived[:1] + derived[-(11):]
+    else:
+        origin = _history_date(origin_date_for_bill(bill, old if isinstance(old, dict) else None))
+        if origin:
+            derived.append({
+                "date": origin,
+                "title": "First filed - bill comes to fruition",
+                "description": f"{identifier} was first introduced on {origin}. This is when the bill came to fruition as an official Texas legislative record.",
+            })
+        passage = _history_date(bill.get("latest_passage_date"))
+        if passage and passage != origin:
+            derived.append({
+                "date": passage,
+                "title": "Chamber passage recorded",
+                "description": f"A chamber recorded passage of {identifier} on {passage}. No enactment is implied beyond the recorded passage.",
+            })
+        latest_date = _history_date(bill.get("latest_action_date"))
+        latest_desc = re.sub(r"\s+", " ", str(bill.get("latest_action_description") or "").strip().rstrip("."))
+        if latest_desc and latest_date and latest_date not in (origin, passage):
+            derived.append({
+                "date": latest_date,
+                "title": capitalize_first(latest_desc)[:160],
+                "description": f"Latest official action on {identifier}: {capitalize_first(latest_desc)} on {latest_date}.",
+            })
+        elif latest_desc and not latest_date:
+            derived.append({
+                "date": "",
+                "title": capitalize_first(latest_desc)[:160],
+                "description": f"Latest recorded action on {identifier}: {capitalize_first(latest_desc)}.",
+            })
+        old_updated = _history_date((old or {}).get("updated_at")) if isinstance(old, dict) else ""
+        refreshed = old_updated or date.today().isoformat()
+        if refreshed not in {event["date"] for event in derived}:
+            derived.append({
+                "date": refreshed,
+                "title": "Lariat summary refreshed",
+                "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date.",
+            })
+
+    merged: dict[tuple[str, str], dict[str, str]] = {}
+    for event in _valid_history_events((old or {}).get("bill_history")) + derived:
+        merged[(event["date"], event["title"])] = event
+    timeline = sorted(merged.values(), key=lambda event: (not event["date"], event["date"]))
+    return timeline[:15]
+
+
 EXPANSION_PROMPT = f"""You are revising a Texas legislative bill summary and suggested action. Use ONLY the supplied official bill text, metadata, and draft. Return one JSON object containing exactly these keys: summary, suggested_action, impact_factors, impact_rationale. Rewrite the summary as one neutral paragraph between {MIN_SUMMARY_WORDS} and {MAX_SUMMARY_WORDS} words. Rewrite suggested_action as one neutral, practical paragraph between {MIN_SUGGESTED_ACTION_WORDS} and {MAX_SUGGESTED_ACTION_WORDS} words. Add useful source-supported facts such as operative changes, affected parties, requirements, exceptions, funding, effective dates, implementation questions, or status considerations when present. For ceremonial resolutions, explain that no legal or operational action is required while identifying any useful record-monitoring or verification step. Preserve or correct impact_factors as integers 0-2 for direct_compliance_requirement, financial_cost, operational_change, industry_breadth, enforcement_risk, effective_date_urgency, business_model_impact, and keep impact_rationale to one or two neutral sentences. {IMPACT_RUBRIC_TEXT} Do not pad with repetition or invent facts. Return JSON only."""
 
 
@@ -1056,6 +1163,7 @@ def normalize(record: dict[str, Any], bill: dict[str, Any], text_url: str | None
     for key in ("affects", "changes", "business_impact", "status", "summary", "suggested_action"):
         if key in output:
             output[key] = capitalize_first(output[key])
+    output["bill_history"] = build_bill_history(bill, old)
     if text_url: output["bill_text_source"] = text_url
     if text_hash:
         output["bill_text_hash"] = text_hash
@@ -1095,6 +1203,7 @@ def normalize_metadata(bill: dict[str, Any], old: dict[str, Any] | None = None) 
         result["impact_scores"] = scores
         result["impact_rationale"] = f"Metadata-only assessment: {rationale}"
         result["impact_framework"] = "v2-7-factor-metadata"
+    result["bill_history"] = build_bill_history(bill, old)
     return result
 
 
@@ -1119,6 +1228,7 @@ def refresh_script_owned_fields(record: dict[str, Any], bill: dict[str, Any]) ->
     if str(bill.get("id") or ""):
         record["id"] = str(bill.get("id"))
     record["source_url"] = capitol_url(bill)
+    record["bill_history"] = build_bill_history(bill, record)
     return record
 
 
@@ -1140,6 +1250,8 @@ def coerce_legacy_status(record: dict[str, Any]) -> dict[str, Any]:
         record["status"] = capitalize_first(raw)
     if not str(record.get("session_label") or "").strip() and str(record.get("session") or "").strip():
         record["session_label"] = session_label(record.get("session"))
+    if not _valid_history_events(record.get("bill_history")):
+        record["bill_history"] = build_bill_history(record, record)
     return record
 
 

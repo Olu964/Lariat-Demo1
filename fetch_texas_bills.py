@@ -142,7 +142,7 @@ def fetch_bills(
             "page": page,
             "per_page": min(per_page, limit - len(bills)),
             "sort": "updated_desc",
-            "include": ["abstracts", "documents", "versions"],
+            "include": ["abstracts", "actions", "documents", "versions"],
         }
         if session:
             params["session"] = session

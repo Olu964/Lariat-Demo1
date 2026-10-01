@@ -23,7 +23,29 @@
     "session_label": "89th Legislature, 2nd Called Session (2025)",
     "latest_action_date": "2025-09-05",
     "latest_action_description": "Effective immediately",
-    "latest_passage_date": "2025-09-04"
+    "latest_passage_date": "2025-09-04",
+    "bill_history": [
+      {
+        "date": "2025-08-18",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 1 was first introduced on 2025-08-18. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SB 1 on 2025-09-04. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-09-05",
+        "title": "Effective immediately",
+        "description": "Latest official action on SB 1: Effective immediately on 2025-09-05."
+      },
+      {
+        "date": "2026-09-11",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Voter-approval tax rate reform",
@@ -49,7 +71,29 @@
     "session_label": "89th Legislature, 2nd Called Session (2025)",
     "latest_action_date": "2025-09-02",
     "latest_action_description": "Reason for vote recorded in Journal",
-    "latest_passage_date": "2025-08-25"
+    "latest_passage_date": "2025-08-25",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 10 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-25",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SB 10 on 2025-08-25. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Reason for vote recorded in Journal",
+        "description": "Latest official action on SB 10: Reason for vote recorded in Journal on 2025-09-02."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Texas Women's Privacy Act",
@@ -75,7 +119,29 @@
     "session_label": "89th Legislature, 2nd Called Session (2025)",
     "latest_action_date": "2025-09-22",
     "latest_action_description": "Effective on . . . . . . . . . . . . . . .",
-    "latest_passage_date": "2025-09-03"
+    "latest_passage_date": "2025-09-03",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 8 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SB 8 on 2025-09-03. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-09-22",
+        "title": "Effective on . . . . . . . . . . . . . . ",
+        "description": "Latest official action on SB 8: Effective on . . . . . . . . . . . . . .  on 2025-09-22."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Disaster Response and Recovery Licensing",
@@ -101,7 +167,29 @@
     "session_label": "89th Legislature, 2nd Called Session (2025)",
     "latest_action_date": "2025-08-27",
     "latest_action_description": "House appoints conferees-reported",
-    "latest_passage_date": "2025-08-21"
+    "latest_passage_date": "2025-08-21",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 2 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-21",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SB 2 on 2025-08-21. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House appoints conferees-reported",
+        "description": "Latest official action on SB 2: House appoints conferees-reported on 2025-08-27."
+      },
+      {
+        "date": "2026-09-10",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Real Property Theft and Fraud Laws",
@@ -127,7 +215,29 @@
     "session_label": "89th Legislature, 2nd Called Session (2025)",
     "latest_action_date": "2025-09-17",
     "latest_action_description": "See remarks for effective date",
-    "latest_passage_date": "2025-08-28"
+    "latest_passage_date": "2025-08-28",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 16 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SB 16 on 2025-08-28. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-09-17",
+        "title": "See remarks for effective date",
+        "description": "Latest official action on SB 16: See remarks for effective date on 2025-09-17."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Disaster Relief Funding and Preparedness",
@@ -153,7 +263,29 @@
     "session_label": "89th Legislature, 2nd Called Session (2025)",
     "latest_action_date": "2025-09-18",
     "latest_action_description": "Effective immediately",
-    "latest_passage_date": "2025-09-04"
+    "latest_passage_date": "2025-09-04",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 5 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SB 5 on 2025-09-04. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-09-18",
+        "title": "Effective immediately",
+        "description": "Latest official action on SB 5: Effective immediately on 2025-09-18."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Flash Flood Siren Warning System",
@@ -179,7 +311,29 @@
     "session_label": "89th Legislature, 2nd Called Session (2025)",
     "latest_action_date": "2025-09-05",
     "latest_action_description": "Effective immediately",
-    "latest_passage_date": "2025-08-28"
+    "latest_passage_date": "2025-08-28",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 3 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SB 3 on 2025-08-28. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-09-05",
+        "title": "Effective immediately",
+        "description": "Latest official action on SB 3: Effective immediately on 2025-09-05."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Honoring Tedd L. Mitchell",
@@ -205,7 +359,24 @@
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-08-15",
     "latest_action_description": "Reported enrolled",
-    "latest_passage_date": "2025-08-15"
+    "latest_passage_date": "2025-08-15",
+    "bill_history": [
+      {
+        "date": "2025-07-30",
+        "title": "First filed - bill comes to fruition",
+        "description": "SR 76 was first introduced on 2025-07-30. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SR 76 on 2025-08-15. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2026-08-29",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Groundwater Permitting Changes",
@@ -231,7 +402,19 @@
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-07-31",
     "latest_action_description": "Filed",
-    "latest_passage_date": ""
+    "latest_passage_date": "",
+    "bill_history": [
+      {
+        "date": "2025-07-31",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 58 was first introduced on 2025-07-31. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Handgun License for Federal Judges",
@@ -257,7 +440,19 @@
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-07-21",
     "latest_action_description": "Filed",
-    "latest_passage_date": ""
+    "latest_passage_date": "",
+    "bill_history": [
+      {
+        "date": "2025-07-21",
+        "title": "First filed - bill comes to fruition",
+        "description": "HB 161 was first introduced on 2025-07-21. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Honoring Mexican Search and Rescue Team",
@@ -283,7 +478,19 @@
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-07-24",
     "latest_action_description": "Filed",
-    "latest_passage_date": ""
+    "latest_passage_date": "",
+    "bill_history": [
+      {
+        "date": "2025-07-24",
+        "title": "First filed - bill comes to fruition",
+        "description": "HR 32 was first introduced on 2025-07-24. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-08-29",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Municipal Emergency Warning Systems",
@@ -309,7 +516,19 @@
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-07-24",
     "latest_action_description": "Filed",
-    "latest_passage_date": ""
+    "latest_passage_date": "",
+    "bill_history": [
+      {
+        "date": "2025-07-24",
+        "title": "First filed - bill comes to fruition",
+        "description": "HB 200 was first introduced on 2025-07-24. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "County Impervious Cover Regulation",
@@ -335,7 +554,19 @@
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-07-23",
     "latest_action_description": "Filed",
-    "latest_passage_date": ""
+    "latest_passage_date": "",
+    "bill_history": [
+      {
+        "date": "2025-07-23",
+        "title": "First filed - bill comes to fruition",
+        "description": "HB 188 was first introduced on 2025-07-23. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Voter-approval tax rate reform",
@@ -361,7 +592,24 @@
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-08-06",
     "latest_action_description": "Reported engrossed",
-    "latest_passage_date": "2025-08-06"
+    "latest_passage_date": "2025-08-06",
+    "bill_history": [
+      {
+        "date": "2025-07-30",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 9 was first introduced on 2025-07-30. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-06",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SB 9 on 2025-08-06. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Honoring Bobby Gene Roberts Sr.",
@@ -387,7 +635,24 @@
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-08-15",
     "latest_action_description": "Reported enrolled",
-    "latest_passage_date": "2025-08-15"
+    "latest_passage_date": "2025-08-15",
+    "bill_history": [
+      {
+        "date": "2025-07-29",
+        "title": "First filed - bill comes to fruition",
+        "description": "SR 60 was first introduced on 2025-07-29. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SR 60 on 2025-08-15. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2026-08-29",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Lobbyist State Funding Ban",
@@ -412,7 +677,19 @@
     "summary_source": "official bill text",
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-07-24",
-    "latest_action_description": "Filed"
+    "latest_action_description": "Filed",
+    "bill_history": [
+      {
+        "date": "2025-07-24",
+        "title": "First filed - bill comes to fruition",
+        "description": "HB 194 was first introduced on 2025-07-24. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Urging Governor to Return Tax Relief",
@@ -435,7 +712,19 @@
     "summary_source": "metadata",
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-07-22",
-    "latest_action_description": "Filed"
+    "latest_action_description": "Filed",
+    "bill_history": [
+      {
+        "date": "2025-07-22",
+        "title": "First filed - bill comes to fruition",
+        "description": "HR 23 was first introduced on 2025-07-22. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-08-29",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "In memory of Linda Walton Semlear of Longview",
@@ -459,7 +748,24 @@
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-08-15",
     "latest_action_description": "Reported enrolled",
-    "latest_passage_date": "2025-08-15"
+    "latest_passage_date": "2025-08-15",
+    "bill_history": [
+      {
+        "date": "2025-07-28",
+        "title": "First filed - bill comes to fruition",
+        "description": "SR 23 was first introduced on 2025-07-28. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SR 23 on 2025-08-15. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2026-09-10",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Senate and House Quorum Rule Change",
@@ -482,7 +788,19 @@
     "summary_source": "metadata",
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-08-12",
-    "latest_action_description": "Filed"
+    "latest_action_description": "Filed",
+    "bill_history": [
+      {
+        "date": "2025-08-12",
+        "title": "First filed - bill comes to fruition",
+        "description": "HJR 40 was first introduced on 2025-08-12. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-08-29",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Congratulating Fraternal Order of Eagles",
@@ -507,7 +825,19 @@
     "summary_source": "official bill text",
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-07-25",
-    "latest_action_description": "Filed"
+    "latest_action_description": "Filed",
+    "bill_history": [
+      {
+        "date": "2025-07-25",
+        "title": "First filed - bill comes to fruition",
+        "description": "HR 35 was first introduced on 2025-07-25. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-08-29",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Flood Safety and Disaster Preparedness",
@@ -532,7 +862,19 @@
     "summary_source": "official bill text",
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-07-31",
-    "latest_action_description": "Filed"
+    "latest_action_description": "Filed",
+    "bill_history": [
+      {
+        "date": "2025-07-31",
+        "title": "First filed - bill comes to fruition",
+        "description": "HB 242 was first introduced on 2025-07-31. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Constitutional Amendment to Limit Commercial Property Taxes",
@@ -555,7 +897,19 @@
     "summary_source": "metadata",
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-07-22",
-    "latest_action_description": "Filed"
+    "latest_action_description": "Filed",
+    "bill_history": [
+      {
+        "date": "2025-07-22",
+        "title": "First filed - bill comes to fruition",
+        "description": "HJR 21 was first introduced on 2025-07-22. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-08-24",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Attorney General Enforcement Authority",
@@ -580,7 +934,19 @@
     "summary_source": "official bill text",
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-08-08",
-    "latest_action_description": "Filed"
+    "latest_action_description": "Filed",
+    "bill_history": [
+      {
+        "date": "2025-08-08",
+        "title": "First filed - bill comes to fruition",
+        "description": "HB 294 was first introduced on 2025-08-08. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Voter-approval tax rate threshold",
@@ -605,7 +971,19 @@
     "summary_source": "official bill text",
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-08-04",
-    "latest_action_description": "Filed"
+    "latest_action_description": "Filed",
+    "bill_history": [
+      {
+        "date": "2025-08-04",
+        "title": "First filed - bill comes to fruition",
+        "description": "HB 259 was first introduced on 2025-08-04. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   },
   {
     "title": "Congratulating James L. Grigsby Jr. on retirement",
@@ -631,6 +1009,23 @@
     "session_label": "89th Legislature, 1st Called Session (2025)",
     "latest_action_date": "2025-08-15",
     "latest_action_description": "Reported enrolled",
-    "latest_passage_date": "2025-08-15"
+    "latest_passage_date": "2025-08-15",
+    "bill_history": [
+      {
+        "date": "2025-08-13",
+        "title": "First filed - bill comes to fruition",
+        "description": "SR 95 was first introduced on 2025-08-13. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SR 95 on 2025-08-15. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2026-08-29",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
   }
 ]

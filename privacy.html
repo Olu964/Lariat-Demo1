@@ -60,7 +60,7 @@
       <div class="eyebrow"><span class="eyebrow-line"></span> Legal &amp; transparency</div>
       <h1>Privacy Policy</h1>
       <p>Lariat turns Texas bill summaries into clear, business-ready signals. This policy explains what information we collect, why we collect it, and the choices you have.</p>
-      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Effective September 23, 2026</div>
+      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Effective October 1, 2026</div>
     </section>
 
     <article class="legal-card">
@@ -68,7 +68,7 @@
         <h2>1. What this policy covers</h2>
         <p>This policy applies to the Lariat site, including the landing page, the <strong>Bill feed</strong>, <strong>Find your legislator</strong>, <strong>Calendar</strong>, <strong>Pricing</strong>, the offline fallback page, and the optional email subscription flow. Browsing does not require an account, payment, or login. Billing, customer accounts, and recurring bill-alert delivery are not active features in the current code. The frontend can be served as static files by Vercel, but the subscription and legislator features work only when a separately configured Lariat backend is reachable; a static deployment alone does not create that backend.</p>
         <p><strong>Offline fallback page.</strong> If your connection drops while browsing, the site redirects to a local offline page that explains the outage and offers a retry. That page collects no information, sends no requests, and returns you to your previous page automatically once you are back online.</p>
-        <p><strong>How the bill feed is produced.</strong> The feed is populated by an automated pipeline that fetches public Texas bill records from the <strong>Open States</strong> API and attempts to retrieve official Texas Legislature bill text over HTTPS. When usable official text is available, <strong>OpenRouter AI</strong> drafts a structured summary from that text and public record metadata. When usable official text cannot be obtained, the pipeline may publish a shorter, explicitly labeled metadata-only summary; it does not claim that metadata-only text is a substitute for bill text. Each record also carries its first-introduced date from the Open States record, shown on the site as <strong>Origin Date</strong>. The scheduled job runs through <strong>GitHub Actions</strong>, which can fetch, summarize, and commit updated public records. These pipeline steps are separate from visitor use of the site and do not intentionally include visitor personal information in AI requests. Bill-detail section titles show short hover explanations of where each field comes from; those explanations are static site text and involve no data collection.</p>
+        <p><strong>How the bill feed is produced.</strong> The feed is populated by an automated pipeline that fetches public Texas bill records from the <strong>Open States</strong> API and attempts to retrieve official Texas Legislature bill text over HTTPS. When usable official text is available, <strong>OpenRouter AI</strong> drafts a structured summary from that text and public record metadata. When usable official text cannot be obtained, the pipeline may publish a shorter, explicitly labeled metadata-only summary; it does not claim that metadata-only text is a substitute for bill text. Each record also carries its first-introduced date from the Open States record, shown on the site as <strong>Origin Date</strong>, and a bill-history timeline built from the record's first-introduced, passage, and latest-action dates (or the full recorded action list when the fetcher captured it). The scheduled job runs through <strong>GitHub Actions</strong>, which can fetch, summarize, and commit updated public records. These pipeline steps are separate from visitor use of the site and do not intentionally include visitor personal information in AI requests. Bill-detail section titles show short hover explanations of where each field comes from, and the <strong>View History</strong> title reveals a vertical bill-history timeline on hover. Those explanations and the timeline reuse record data already on the page, make no additional network requests, and involve no data collection.</p>
         <p><strong>Who operates this service.</strong> Lariat is the service name used by this prototype. It is currently presented as a demo rather than a finalized paid product or a statement of legal entity status. For privacy questions, requests, or concerns, use the contact address in section 11.</p>
       </section>
 
@@ -165,7 +165,7 @@
 
       <section class="legal-section">
         <h2>12. Changes to this policy</h2>
-        <p>We may update this policy as the site, providers, data flows, or legal requirements evolve. The effective date at the top of this page reflects the latest published version. Please check back here for changes. This policy describes the current prototype, including the Find your legislator address/ZIP lookup, explicitly saved legislators, public legislator profiles, available vote records, bill-detail field explanations, origin dates, the offline fallback page, Vercel-compatible static hosting, and the separate-backend requirement. It is not legal advice; obtain jurisdiction-specific privacy and consumer-protection review before collecting public subscriber or location data.</p>
+        <p>We may update this policy as the site, providers, data flows, or legal requirements evolve. The effective date at the top of this page reflects the latest published version. Please check back here for changes. This policy describes the current prototype, including the Find your legislator address/ZIP lookup, explicitly saved legislators, public legislator profiles, available vote records, bill-detail field explanations, bill-history hover timelines, origin dates, the offline fallback page, Vercel-compatible static hosting, and the separate-backend requirement. It is not legal advice; obtain jurisdiction-specific privacy and consumer-protection review before collecting public subscriber or location data.</p>
       </section>
     </article>
 
@@ -182,7 +182,7 @@
   <dialog id="terms-modal" class="legal-modal" aria-labelledby="terms-modal-title">
     <div class="modal-content">
       <div class="modal-header">
-        <div><div class="modal-kicker">Legal · Updated September 23, 2026</div><h2 id="terms-modal-title">Terms and Conditions</h2></div>
+        <div><div class="modal-kicker">Legal · Updated October 1, 2026</div><h2 id="terms-modal-title">Terms and Conditions</h2></div>
         <button class="modal-close" type="button" data-modal-close aria-label="Close Terms and Conditions" title="Close">×</button>
       </div>
       <div class="modal-body accessibility-body">
@@ -190,7 +190,7 @@
         <section><h3>Using the site</h3><ul><li>Use the site lawfully and do not attempt to disrupt it, bypass its access controls, probe its infrastructure, or submit malicious code or content.</li><li>Do not submit confidential, sensitive, or regulated information in bill notes. Notes are stored in your browser's localStorage and are not an encrypted workspace.</li><li>Keep any subscription access code private. Email verification is required for the current subscription flow, but the shared access code is an invitation gate rather than an account or authentication system.</li><li>When using Find your legislator, submit only an address or ZIP code you are authorized to use. Results are approximate for ZIP codes, depend on Census and Open States availability, and should be verified with the official Texas Legislature.</li><li>Verify important information with the linked official Texas legislative source before relying on it. The site may show metadata-only summaries when usable official bill text is unavailable.</li></ul></section>
         <section><h3>Subscriptions and email</h3><p>The current backend can request email verification and send a welcome email through Brevo when configured. In local console mode, testing values are printed to the server terminal instead. The current implementation does not send recurring bill alerts. You may unsubscribe by opening a valid welcome-email link and confirming the action. Subscription access codes are shared invitation gates, not accounts or authentication credentials.</p></section>
         <section><h3>Location lookup</h3><p>Find your legislator accepts a Texas street address or ZIP code. The configured backend sends the submitted location to Census for geocoding and resulting coordinates to Open States to identify current state legislators. ZIP results may be approximate, successful results may be cached for up to 24 hours, and you should submit only a location you are authorized to use.</p></section>
-        <section><h3>Content and availability</h3><p>Bill records, summaries, links, legislator matches, vote-history results, calendar dates, and service availability may change or contain errors. Third-party services and linked websites are outside Lariat's control. These prototype terms do not create a customer account, paid service, professional relationship, or promise of future functionality. The static frontend may be available on Vercel while the backend is unavailable, in which case lookup and subscription features may not work. If your connection drops while browsing, the site redirects to a local offline page until you are back online.</p></section>
+        <section><h3>Content and availability</h3><p>Bill records, summaries, links, bill-history timelines, legislator matches, vote-history results, calendar dates, and service availability may change or contain errors. Third-party services and linked websites are outside Lariat's control. These prototype terms do not create a customer account, paid service, professional relationship, or promise of future functionality. The static frontend may be available on Vercel while the backend is unavailable, in which case lookup and subscription features may not work. If your connection drops while browsing, the site redirects to a local offline page until you are back online.</p></section>
         <section><h3>No professional advice or warranty</h3><p>Lariat is provided for general informational use. It is not legal, legislative, regulatory, financial, investment, tax, lobbying, or other professional advice. To the extent permitted by applicable law, the prototype is provided without warranties and Lariat is not responsible for decisions made solely from its content. Verify important information with official sources and qualified professionals.</p></section>
         <section><h3>Operator and changes</h3><p>The operator's legal entity, governing law, and formal limitation-of-liability terms have not been finalized for this prototype. Those details must be completed by the operator and reviewed by counsel before public paid use. We may change or discontinue the prototype and will update these terms when material features or data practices change.</p></section>
       </div>
@@ -200,7 +200,7 @@
   <dialog id="cookie-modal" class="legal-modal" aria-labelledby="cookie-modal-title">
     <div class="modal-content">
       <div class="modal-header">
-        <div><div class="modal-kicker">Privacy · Updated September 23, 2026</div><h2 id="cookie-modal-title">Cookie Policy</h2></div>
+        <div><div class="modal-kicker">Privacy · Updated October 1, 2026</div><h2 id="cookie-modal-title">Cookie Policy</h2></div>
         <button class="modal-close" type="button" data-modal-close aria-label="Close Cookie Policy" title="Close">×</button>
       </div>
       <div class="modal-body accessibility-body">
@@ -215,7 +215,7 @@
   <dialog id="security-modal" class="legal-modal" aria-labelledby="security-modal-title">
     <div class="modal-content">
       <div class="modal-header">
-        <div><div class="modal-kicker">Security · Updated September 23, 2026</div><h2 id="security-modal-title">SSL / HTTPS Security</h2></div>
+        <div><div class="modal-kicker">Security · Updated October 1, 2026</div><h2 id="security-modal-title">SSL / HTTPS Security</h2></div>
         <button class="modal-close" type="button" data-modal-close aria-label="Close SSL and HTTPS Security" title="Close">×</button>
       </div>
       <div class="modal-body accessibility-body">
@@ -230,11 +230,11 @@
   <dialog id="disclaimer-modal" class="legal-modal" aria-labelledby="disclaimer-modal-title">
     <div class="modal-content">
       <div class="modal-header">
-        <div><div class="modal-kicker">Important · Updated September 23, 2026</div><h2 id="disclaimer-modal-title">Disclaimer</h2></div>
+        <div><div class="modal-kicker">Important · Updated October 1, 2026</div><h2 id="disclaimer-modal-title">Disclaimer</h2></div>
         <button class="modal-close" type="button" data-modal-close aria-label="Close Disclaimer" title="Close">×</button>
       </div>
       <div class="modal-body accessibility-body">
-        <section><h3>Informational content only</h3><p>Lariat's bill records, summaries, classifications, dates, impact labels, status labels, origin dates, calendar events, legislator matches, vote-history results, notes, and other content are provided for general information. Summaries may be drafted with OpenRouter AI from public records and official legislative text, or may be explicitly labeled metadata-only when official text is unavailable. AI-assisted, metadata-only, and external lookup content may be incomplete, outdated, or incorrect.</p></section>
+        <section><h3>Informational content only</h3><p>Lariat's bill records, summaries, classifications, dates, impact labels, status labels, origin dates, bill-history timelines, calendar events, legislator matches, vote-history results, notes, and other content are provided for general information. Summaries may be drafted with OpenRouter AI from public records and official legislative text, or may be explicitly labeled metadata-only when official text is unavailable. AI-assisted, metadata-only, and external lookup content may be incomplete, outdated, or incorrect.</p></section>
         <section><h3>Not professional advice</h3><p>Lariat does not provide legal, legislative, regulatory, financial, investment, tax, lobbying, or other professional advice. Nothing on this site creates an attorney-client, adviser-client, or other professional relationship. Consult a qualified professional for advice about your circumstances.</p></section>
         <section><h3>Verify before relying</h3><p>Texas legislative status, bill text, calendar dates, district assignments, and vote records can change. Use the linked official Texas Legislature source to verify the current identifier, text, status, dates, and effective provisions before making a decision or taking action. A displayed status label (Pending, Passed, Enacted, or Dead) is an application classification derived from the recorded latest action, not an official legal determination. A legislator result is not a guarantee of legal representation or district accuracy, especially when a ZIP code is used.</p></section>
         <section><h3>External services and availability</h3><p>Links to Texas Legislature, Open States, the U.S. Census Bureau, Brevo, Google Fonts, OpenRouter, GitHub, Vercel, and other third parties lead to services outside Lariat's control. Lariat does not guarantee their accuracy, availability, accessibility, security, or privacy practices. The prototype may be unavailable, changed, or discontinued without notice. If your connection drops while browsing, the site redirects to a local offline page until you are back online. This disclaimer is a plain-language product disclosure, not a complete legal limitation of liability.</p></section>
@@ -246,7 +246,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <div>
-          <div class="modal-kicker">Accessibility · Updated September 23, 2026</div>
+          <div class="modal-kicker">Accessibility · Updated October 1, 2026</div>
           <h2 id="accessibility-modal-title">Accessibility statement</h2>
         </div>
         <button class="modal-close" type="button" data-modal-close aria-label="Close accessibility statement" title="Close">×</button>

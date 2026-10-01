@@ -253,6 +253,92 @@
     return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   };
 
+  // Bill history timeline. Prefers the stored `bill_history` array written by
+  // summarize_bills.py (present on current backfilled records and all future
+  // summaries), and otherwise derives the same timeline shape from the
+  // origin / passage / latest-action fields every record already carries.
+  const historyDateOnly = (raw) => {
+    const match = String(raw || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return match ? `${match[1]}-${match[2]}-${match[3]}` : '';
+  };
+  const validHistoryEvents = (value) => {
+    if (!Array.isArray(value)) return [];
+    return value
+      .filter((item) => item && typeof item === 'object' && String(item.title || '').trim())
+      .map((item) => ({
+        date: historyDateOnly(item.date),
+        title: String(item.title || '').trim().slice(0, 160),
+        description: String(item.description || '').trim().slice(0, 600),
+      }));
+  };
+  const buildBillHistory = (bill) => {
+    const stored = validHistoryEvents(bill.bill_history);
+    if (stored.length) return stored.slice(0, 15);
+    const identifier = safe(bill.identifier).trim() || 'This bill';
+    const events = [];
+    const origin = historyDateOnly(bill.origin_date);
+    if (origin) {
+      events.push({
+        date: origin,
+        title: 'First filed — bill comes to fruition',
+        description: `${identifier} was first introduced on ${formatDateString(origin) || origin}. This is when the bill came to fruition as an official Texas legislative record.`,
+      });
+    }
+    const passage = historyDateOnly(bill.latest_passage_date);
+    if (passage && passage !== origin) {
+      events.push({
+        date: passage,
+        title: 'Chamber passage recorded',
+        description: `A chamber recorded passage of ${identifier} on ${formatDateString(passage) || passage}. No enactment is implied beyond the recorded passage.`,
+      });
+    }
+    const latestDate = historyDateOnly(bill.latest_action_date);
+    const latestDesc = String(bill.latest_action_description || '').trim().replace(/\.+$/, '');
+    if (latestDesc && latestDate && latestDate !== origin && latestDate !== passage) {
+      const title = latestDesc.replace(/^[a-z]/, (character) => character.toUpperCase()).slice(0, 160);
+      events.push({
+        date: latestDate,
+        title,
+        description: `Latest official action on ${identifier}: ${title} on ${formatDateString(latestDate) || latestDate}.`,
+      });
+    } else if (latestDesc && !latestDate) {
+      const title = latestDesc.replace(/^[a-z]/, (character) => character.toUpperCase()).slice(0, 160);
+      events.push({ date: '', title, description: `Latest recorded action on ${identifier}: ${title}.` });
+    }
+    const refreshed = historyDateOnly(bill.updated_at);
+    if (refreshed && !events.some((event) => event.date === refreshed)) {
+      events.push({
+        date: refreshed,
+        title: 'Lariat summary refreshed',
+        description: 'Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date.',
+      });
+    }
+    return events.slice(0, 15);
+  };
+  const billHistoryMarkup = (bill) => {
+    const events = buildBillHistory(bill);
+    if (!events.length) return '';
+    const popoverId = `bill-history-${Number.isInteger(bill.__index) ? bill.__index : String(safe(bill.identifier)).replace(/[^A-Za-z0-9]+/g, '-')}`;
+    return `
+      <section class="bill-history-field" aria-label="Bill history">
+        <h4 class="view-history-trigger" tabindex="0" aria-describedby="${escapeHtml(popoverId)}">View History</h4>
+        <div class="bill-timeline-popover" id="${escapeHtml(popoverId)}" role="tooltip">
+          <p class="bill-timeline-kicker">Bill history · oldest to newest</p>
+          <ol class="bill-timeline">
+            ${events.map((event) => `
+              <li class="bill-timeline-event">
+                <span class="bill-timeline-dot" aria-hidden="true"></span>
+                <div class="bill-timeline-text">
+                  ${event.date ? `<p class="bill-timeline-date">${escapeHtml(formatDateString(event.date) || event.date)}</p>` : ''}
+                  <p class="bill-timeline-title">${escapeHtml(event.title)}</p>
+                  ${event.description ? `<p class="bill-timeline-desc">${escapeHtml(event.description)}</p>` : ''}
+                </div>
+              </li>`).join('')}
+          </ol>
+        </div>
+      </section>`;
+  };
+
   const billNoteKey = (bill) => {
     const sourceId = safe(bill.id).trim();
     if (sourceId && sourceId !== 'Not provided') return `id::${sourceId}`;
@@ -402,7 +488,7 @@
       ? bill.source_url
       : 'https://capitol.texas.gov/';
     const detailFields = Object.entries(bill)
-      .filter(([key]) => !['id', 'identifier', 'title', 'impact_level', 'industry', 'specific_industry', 'source_url', 'bill_text_source', 'bill_text_hash', 'summary_word_count', '__index', '__groupId'].includes(key))
+      .filter(([key]) => !['id', 'identifier', 'title', 'impact_level', 'industry', 'specific_industry', 'source_url', 'bill_text_source', 'bill_text_hash', 'summary_word_count', 'bill_history', '__index', '__groupId'].includes(key))
       .slice(0, 30);
     modalBody.innerHTML = `
       <article class="modal-bill-card ${levelClass === 'high' ? 'high-impact' : ''}">
@@ -410,6 +496,7 @@
         <div class="bill-topline"><span class="bill-number">${escapeHtml(identifier)}</span><span class="bill-date">${escapeHtml(displaySpecificIndustry(bill.specific_industry, bill.industry))}</span></div>
         <div class="bill-heading"><h3>${escapeHtml(title)}</h3><div class="bill-badges">${statusBadge(bill)}<span class="impact-badge ${levelClass}"><span class="badge-dot"></span>${escapeHtml(level)} impact</span></div></div>
         <button class="updated-on-button" type="button" data-updated-on="${escapeHtml(updatedOn)}" aria-label="Summary updated on ${escapeHtml(updatedOn)}" title="This summary's dataset refresh date"><span aria-hidden="true">↻</span> Updated on · ${escapeHtml(updatedOn)}</button>
+        ${billHistoryMarkup(bill)}
         <div class="modal-fields">
           ${detailFields.map(([key, value]) => {
             const tip = fieldExplanation(key);
@@ -447,6 +534,17 @@
 
     modalBody.querySelector('[data-updated-on]')?.addEventListener('click', (event) => {
       showToast(`This local summary was last refreshed on ${event.currentTarget.dataset.updatedOn}.`);
+    });
+    // Touch / keyboard fallback: hover shows the timeline via CSS, while a tap
+    // or Enter press toggles it for devices without hover.
+    modalBody.querySelector('.view-history-trigger')?.addEventListener('click', (event) => {
+      event.currentTarget.closest('.bill-history-field')?.classList.toggle('is-open');
+    });
+    modalBody.querySelector('.view-history-trigger')?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        event.currentTarget.closest('.bill-history-field')?.classList.toggle('is-open');
+      }
     });
     modalBody.querySelector('[data-save-note]')?.addEventListener('click', () => {
       const noteInput = modalBody.querySelector('[data-save-note]')?.closest('.bill-notes')?.querySelector('.bill-note-input');
