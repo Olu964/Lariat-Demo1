@@ -59,6 +59,7 @@ function loadBills() {
 }
 
 function searchLocal(question, bills) {
+  // Shared logic with server/server.js searchLocalBills — keep in sync.
   const q = question.toLowerCase();
   const m = q.match(/\b([hs][bjr]{0,2})\s*-?\s*(\d{1,4})\b/i);
   if (m) {
@@ -66,13 +67,26 @@ function searchLocal(question, bills) {
     const hits = bills.filter((b) => String(b.identifier || '').replace(/\s+/g, '').toLowerCase() === compact);
     if (hits.length) return hits.slice(0, 3);
   }
-  const words = q.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !['what', 'does', 'the', 'and', 'for', 'texas', 'law', 'bill', 'about'].includes(w));
+  const stop = new Set(['what', 'does', 'the', 'and', 'for', 'texas', 'law', 'bill', 'about']);
+  const words = q.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !stop.has(w));
   return bills.map((b) => {
-    const hay = `${b.identifier || ''} ${b.title || ''} ${b.summary || ''} ${b.industry || ''}`.toLowerCase();
+    const hay = `${b.identifier || ''} ${b.title || ''} ${b.summary || ''} ${b.industry || ''} ${b.specific_industry || ''}`.toLowerCase();
     let s = 0;
     for (const w of words) if (hay.includes(w)) s += w.length > 5 ? 2 : 1;
     return { b, s };
   }).filter((x) => x.s > 0).sort((a, b2) => b2.s - a.s).slice(0, 3).map((x) => x.b);
+}
+
+// Follow-up like "why does this bill impact high schoolers" has no bill
+// number. If the frontend sends the bills from the previous turn
+// (contextIds), reuse them instead of keyword-guessing a new bill.
+function resolveFollowUp(question, bills, contextIds) {
+  if (!Array.isArray(contextIds) || !contextIds.length) return [];
+  if (/\b([hs][bjr]{0,2})\s*-?\s*(\d{1,4})\b/i.test(question)) return [];
+  if (!/\b(this|that|it|these|those|same|the bill|this bill|that bill)\b/i.test(question)) return [];
+  const wanted = new Set(contextIds.map((v) => String(v || '').replace(/\s+/g, '').toLowerCase()));
+  const hits = bills.filter((b) => wanted.has(String(b.identifier || '').replace(/\s+/g, '').toLowerCase()));
+  return hits.slice(0, 3);
 }
 
 async function fetchOpenStates(question, apiKey) {
@@ -167,7 +181,9 @@ module.exports = async (req, res) => {
   if (!question || question.length < 3) return sendErr(res, 400, 'Please ask a question about a Texas bill.', 'invalid_question');
 
   const cleanField = (v, n = 300) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, n);
-  let citations = searchLocal(question, loadBills()).map((b) => ({
+  const allBills = loadBills();
+  const followed = resolveFollowUp(question, allBills, body.contextIds);
+  let citations = (followed.length ? followed : searchLocal(question, allBills)).map((b) => ({
     identifier: String(b.identifier || ''), title: String(b.title || 'Untitled bill'),
     summary: String(b.summary || b.changes || ''), status: String(b.status || ''),
     industry: String(b.industry || ''), sourceUrl: safeUrl(b.source_url),
@@ -210,8 +226,11 @@ module.exports = async (req, res) => {
   let answer = extractive(question, citations);
   let aiEnhanced = false;
   const ctx = citations.map((c) => `- ${c.identifier}: ${c.title}. Affects: ${c.affects || 'n/a'}. Changes: ${c.changes || String(c.summary || '').slice(0, 200)}. ${String(c.summary).slice(0, 300)}`).join('\n');
+  const histLine = Array.isArray(body.history) && body.history.length
+    ? `Previous: ${body.history.slice(-2).map((h) => `Q: ${String(h.q || '').slice(0, 200)} A: ${String(h.a || '').slice(0, 300)}`).join(' | ').slice(0, 600)}\n`
+    : (followed.length ? `Note: "this bill" refers to ${followed.map((b) => b.identifier).join(', ')}. Answer about those bills.\n` : '');
   const orKey = process.env.OPENROUTER_API_KEY || '';
-  const firstUser = `Q: ${question}\n${ctx}`;
+  const firstUser = `${histLine}Q: ${question}\n${ctx}`;
   const orModels = [process.env.SUMMARIZER_MODEL || '', 'google/gemma-4-26b-a4b-it:free', 'qwen/qwen3.8-27b:free', 'liquid/lfm-2.5-2.6b:free'].filter(Boolean);
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   let partial = '';
@@ -259,7 +278,7 @@ module.exports = async (req, res) => {
           signal: AbortSignal.timeout(20_000),
           body: JSON.stringify({
             system_instruction: { parts: [{ text: 'Your name is Kevin. You are Kevin, the Texas Legislature helper — never claim any other name or model identity. Use only provided context. Cite identifiers. No preamble, never output tool calls, search queries, <|...|> tokens, or thinking — only the final answer. Plain text only, no markdown symbols or numbered lists. When asked who/how/why, answer with labeled lines starting Who:, How:, Why:. Short paragraphs separated by blank lines. Max 150 words. End: Not legal advice.' }] },
-            contents: [{ parts: [{ text: `Q: ${question}\n${ctx}` }] }],
+            contents: [{ parts: [{ text: `${histLine}Q: ${question}\n${ctx}` }] }],
             generationConfig: { maxOutputTokens: 700, temperature: 0.3 },
           }),
         });

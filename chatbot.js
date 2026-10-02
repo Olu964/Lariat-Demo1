@@ -59,6 +59,11 @@
   const input = host.querySelector('#lariat-chat-input');
   const messages = host.querySelector('.messages');
   let greeted = false;
+  // Memory for follow-ups like "why does this bill impact high schoolers".
+  // The backends (server/server.js, api/chat/ask.js) reuse these bills
+  // instead of keyword-guessing a new one.
+  let lastIds = [];
+  let lastQA = [];
 
   function setOpen(open) {
     host.classList.toggle('is-open', open);
@@ -98,7 +103,7 @@
       const res = await fetch(`${apiBase}/api/chat/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: text }),
+        body: JSON.stringify({ question: text, contextIds: lastIds, history: lastQA.slice(-2) }),
       });
       const data = await res.json().catch(() => ({}));
       typing.remove();
@@ -106,6 +111,9 @@
         addMessage(data.error || 'Sorry — I could not answer that right now. Try the bill feed instead.', 'agent');
         return;
       }
+      lastIds = Array.isArray(data.citations) ? data.citations.map((c) => c.identifier).filter(Boolean).slice(0, 3) : lastIds;
+      lastQA.push({ q: text, a: String(data.answer || '').slice(0, 500) });
+      if (lastQA.length > 4) lastQA = lastQA.slice(-4);
       addMessage(data.answer, 'agent', data.citations);
     } catch (error) {
       typing.remove();

@@ -841,7 +841,7 @@ const legislatorRateLimiter = makeRateLimiter(60 * 60 * 1000, 30);              
 const chatRateLimiter = makeRateLimiter(60 * 60 * 1000, 40);                                // chatbot questions per IP per hour
 // Bump this whenever chatbot behavior changes; surfaced via /api/health so a
 // stale local server is trivially detectable.
-const CHATBOT_ENGINE_VERSION = 6;
+const CHATBOT_ENGINE_VERSION = 7;
 
 const requestCooldowns = new Map(); // email::industry -> last request time
 function cooldownActive(email, industry) {
@@ -1223,6 +1223,7 @@ function loadBillSnapshot() {
 }
 
 function searchLocalBills(question, bills) {
+  // Shared logic with api/chat/ask.js searchLocal — keep in sync.
   const q = question.toLowerCase();
   const idMatch = q.match(/\b([hs][bjr]{0,2})\s*-?\s*(\d{1,4})\b/i);
   let idHits = [];
@@ -1232,7 +1233,8 @@ function searchLocalBills(question, bills) {
     idHits = bills.filter((b) => String(b.identifier || '').replace(/\s+/g, '').toLowerCase() === compact);
     if (idHits.length) return idHits.slice(0, 3);
   }
-  const words = q.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !['what', 'does', 'the', 'and', 'for', 'texas', 'law', 'bill', 'about', 'does'].includes(w));
+  const stop = new Set(['what', 'does', 'the', 'and', 'for', 'texas', 'law', 'bill', 'about']);
+  const words = q.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !stop.has(w));
   const scored = bills.map((b) => {
     const hay = `${b.identifier || ''} ${b.title || ''} ${b.summary || ''} ${b.industry || ''} ${b.specific_industry || ''}`.toLowerCase();
     let score = 0;
@@ -1240,6 +1242,17 @@ function searchLocalBills(question, bills) {
     return { bill: b, score };
   }).filter((s) => s.score > 0).sort((a, b) => b.score - a.score);
   return scored.slice(0, 3).map((s) => s.bill);
+}
+
+// Follow-up like "why does this bill impact high schoolers" has no bill
+// number. If the frontend sends the bills from the previous turn
+// (contextIds), reuse them instead of keyword-guessing a new bill.
+function resolveFollowUpBills(question, bills, contextIds) {
+  if (!Array.isArray(contextIds) || !contextIds.length) return [];
+  if (/\b([hs][bjr]{0,2})\s*-?\s*(\d{1,4})\b/i.test(question)) return [];
+  if (!/\b(this|that|it|these|those|same|the bill|this bill|that bill)\b/i.test(question)) return [];
+  const wanted = new Set(contextIds.map((v) => String(v || '').replace(/\s+/g, '').toLowerCase()));
+  return bills.filter((b) => wanted.has(String(b.identifier || '').replace(/\s+/g, '').toLowerCase())).slice(0, 3);
 }
 
 async function fetchOpenStatesBills(question) {
@@ -1269,10 +1282,13 @@ async function fetchOpenStatesBills(question) {
   }
 }
 
-async function rewriteWithGemini(question, citations) {
+async function rewriteWithGemini(question, citations, extra = {}) {
   if (!GEMINI_API_KEY) return null;
   try {
     const context = citations.map((c) => `- ${c.identifier}: ${c.title}. Affects: ${c.affects || 'n/a'}. Changes: ${c.changes || String(c.summary || '').slice(0, 200)}. ${String(c.summary || c.status || '').slice(0, 300)} (Source: ${c.sourceUrl})`).join('\n');
+    const histLine = Array.isArray(extra.history) && extra.history.length
+      ? `Previous: ${extra.history.map((h) => `Q: ${h.q} A: ${h.a}`).join(' | ').slice(0, 600)}\n`
+      : (extra.followedNote || '');
     const system = 'Your name is Kevin. You are Kevin, the Texas Legislature helper on the Lariat site — never claim any other name or model identity. Answer ONLY about Texas bills using the provided context. Cite bill identifiers. If unsure, say so and point to the bill feed. When the question asks who a bill affects, or how or why, answer with labeled lines starting Who:, How:, Why: — one question each, in that order. Start directly with the answer, no preamble. Never output tool calls, search queries, <|...|> tokens, or your thinking process — only the final answer. Write in plain text only: no markdown, no ** asterisks, no bullets, dashes, numbers, or # headings. Use short paragraphs separated by blank lines. End with: Not legal advice; verify with official sources. Max 150 words.';
     for (const model of [GEMINI_MODEL, 'gemini-3.8-flash', 'gemini-3.5-flash-lite']) {
       try {
@@ -1283,7 +1299,7 @@ async function rewriteWithGemini(question, citations) {
           signal: AbortSignal.timeout(20_000),
           body: JSON.stringify({
             system_instruction: { parts: [{ text: system }] },
-            contents: [{ parts: [{ text: `Question: ${question}\n\nContext:\n${context || '(no matching bills found)'}` }] }],
+            contents: [{ parts: [{ text: `${histLine}Question: ${question}\n\nContext:\n${context || '(no matching bills found)'}` }] }],
             generationConfig: { maxOutputTokens: 700, temperature: 0.3 },
           }),
         });
@@ -1340,11 +1356,14 @@ async function openRouterChat(model, messages) {
 const KEVIN_SYSTEM = 'Your name is Kevin. You are Kevin, the Texas Legislature helper on the Lariat site — never claim any other name or model identity. Answer ONLY about Texas bills using the provided context. Cite bill identifiers. If unsure, say so and point to the bill feed. When the question asks who a bill affects, or how or why, answer with labeled lines starting Who:, How:, Why: — one question each, in that order. Start directly with the answer, no preamble. Never output tool calls, search queries, <|...|> tokens, or your thinking process — only the final answer. Write in plain text only: no markdown, no ** asterisks, no bullets, dashes, numbers, or # headings. Use short paragraphs separated by blank lines. End with: Not legal advice; verify with official sources. Max 150 words.';
 const CONTINUE_PROMPT = 'Continue exactly where you left off. Do not repeat anything already written, do not restart, no preamble.';
 
-async function rewriteWithOpenRouter(question, citations) {
-  if (!OPENROUTER_API_KEY) return await rewriteWithGemini(question, citations);
+async function rewriteWithOpenRouter(question, citations, extra = {}) {
+  if (!OPENROUTER_API_KEY) return await rewriteWithGemini(question, citations, extra);
   try {
     const context = citations.map((c) => `- ${c.identifier}: ${c.title}. Affects: ${c.affects || 'n/a'}. Changes: ${c.changes || String(c.summary || '').slice(0, 200)}. ${String(c.summary || c.status || '').slice(0, 300)} (Source: ${c.sourceUrl})`).join('\n');
-    const firstUser = `Question: ${question}\n\nContext:\n${context || '(no matching bills found)'}`;
+    const histLine = Array.isArray(extra.history) && extra.history.length
+      ? `Previous: ${extra.history.map((h) => `Q: ${h.q} A: ${h.a}`).join(' | ').slice(0, 600)}\n`
+      : (extra.followedNote || '');
+    const firstUser = `${histLine}Question: ${question}\n\nContext:\n${context || '(no matching bills found)'}`;
     // Free-tier lanes are often congested (HTTP 429): rotate models and retry
     // once after a short pause before falling through to Gemini/extractive.
     const models = [OPENROUTER_MODEL, 'google/gemma-4-26b-a4b-it:free', 'qwen/qwen3.8-27b:free', 'liquid/lfm-2.5-2.6b:free'].filter(Boolean);
@@ -1390,7 +1409,7 @@ async function rewriteWithOpenRouter(question, citations) {
     }
   } catch (error) { /* fall through to Gemini, then extractive */ }
   if (partial) return partial.slice(0, 2400); // better a partial AI answer than none
-  return await rewriteWithGemini(question, citations);
+  return await rewriteWithGemini(question, citations, extra);
 }
 
 function extractiveAnswer(question, citations) {
@@ -1437,7 +1456,12 @@ async function handleChatAsk(req, res, body) {
 
   const bills = loadBillSnapshot();
   const cleanField = (v, n = 300) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, n);
-  let citations = searchLocalBills(question, bills).map((b) => ({
+  const followed = resolveFollowUpBills(question, bills, body.contextIds);
+  const history = Array.isArray(body.history) ? body.history.slice(-2).map((h) => ({
+    q: String(h.q || h.question || '').slice(0, 200),
+    a: String(h.a || h.answer || '').slice(0, 300),
+  })).filter((h) => h.q) : [];
+  let citations = (followed.length ? followed : searchLocalBills(question, bills)).map((b) => ({
     identifier: String(b.identifier || ''),
     title: String(b.title || 'Untitled bill'),
     summary: String(b.summary || b.changes || ''),
@@ -1454,7 +1478,10 @@ async function handleChatAsk(req, res, body) {
     citations = live.map((b) => ({ ...b, sourceUrl: typeof b.sourceUrl === 'string' && /^https?:\/\//i.test(b.sourceUrl) ? b.sourceUrl : '' }));
   }
 
-  const aiAnswer = await rewriteWithOpenRouter(question, citations);
+  const aiAnswer = await rewriteWithOpenRouter(question, citations, {
+    history,
+    followedNote: followed.length ? `Note: "this bill" refers to ${followed.map((b) => b.identifier).join(', ')}. Answer about those bills.\n` : '',
+  });
   const answer = aiAnswer || extractiveAnswer(question, citations);
   return sendJson(res, 200, {
     ok: true,
