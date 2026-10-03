@@ -1,5 +1,270 @@
 [
   {
+    "title": "Relating to election procedures regarding accepting a voter with a residence address that is not current and the immediate effect of a voter's registration after the registrar's receipt of certain change of address notices",
+    "affects": "Elections--Administration (I0277), Elections--General (I0310), Elections--Registration & Suffrage (I0265)",
+    "changes": "See the official text for changes proposed by HB 295.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 295 is listed in Texas legislative metadata with the title Relating to election procedures. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/acfcd8f1-c007-478e-bb11-bfcfc265c0b9",
+    "identifier": "HB 295",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-25",
+    "latest_action_date": "2025-08-28",
+    "latest_action_description": "Reported favorably w/o amendment(s)",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB295",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-25",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Referred to Elections",
+        "description": "Referral Committee - Referred to Elections"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Considered in formal meeting",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Considered in formal meeting"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Reported favorably w/o amendment(s)",
+        "description": "Committee Passage - Reported favorably w/o amendment(s)"
+      }
+    ]
+  },
+  {
+    "title": "Relating to the designation and use of certain spaces and facilities according to sex; authorizing a civil penalty and a private civil right of action",
+    "affects": "ATTORNEY GENERAL (V2811), ATTORNEY'S FEES (S0202), BIRTH & DEATH CERTIFICATES (S6418)",
+    "changes": "See the official text for changes proposed by HB 52.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 52 is listed in Texas legislative metadata with the title Relating to the designation. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/edef0125-c0ae-4c02-bc7f-a3d268563a8c",
+    "identifier": "HB 52",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-18",
+    "latest_action_description": "Referred to State Affairs",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB52",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 2,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, financial cost as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Referred to State Affairs",
+        "description": "Referral Committee - Referred to State Affairs"
+      }
+    ]
+  },
+  {
+    "title": "Relating to a vacancy in the office of senator or representative due to excessive absence",
+    "affects": "HOUSE OF REPRESENTATIVES (V0096), Legislature (I0520), SENATE, TEXAS (V0227)",
+    "changes": "See the official text for changes proposed by HB 298.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Members of the Texas House of Representatives and the Texas Senate should monitor the progress of this bill through the State Affairs committee and subsequent legislative stages. If enacted, legislators must track their attendance at floor sessions and ensure that any absences are formally approved by a majority vote of their respective chamber to avoid the automatic creation of a vacancy in their office. Legislative staff should review internal attendance tracking mechanisms to ensure alignment with the specific thresholds defined for Regular and Special Sessions. Verification of the final effective date is necessary, as the bill contains provisions for both immediate effect upon a two-thirds vote or a standard effective date 91 days after the session concludes.",
+    "summary": "House Bill 298 proposes an amendment to the Texas Election Code to establish criteria for the forfeiture of a legislative seat due to excessive absence. Under the proposed Section 201.031, a vacancy in the office of senator or representative would occur if a member fails to attend legislative floor sessions without a leave granted by a majority of their respective house. Specifically, a vacancy is triggered on the date of the fourteenth failure to attend during a Regular Session or the third failure to attend during a Special Session. The bill specifies that these rules apply only to absences occurring on or after the Act's effective date.",
+    "id": "ocd-bill/3cbb8973-3325-4fb4-b298-ef75ed2f4ed9",
+    "identifier": "HB 298",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-25",
+    "latest_action_date": "2025-08-26",
+    "latest_action_description": "Referred to State Affairs",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB298",
+    "impact_scores": {
+      "direct_compliance_requirement": 1,
+      "financial_cost": 0,
+      "operational_change": 1,
+      "industry_breadth": 0,
+      "enforcement_risk": 1,
+      "effective_date_urgency": 1,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill imposes a direct requirement on legislators regarding attendance and creates a risk of office forfeiture (enforcement risk) if thresholds are exceeded.",
+    "impact_framework": "v2-7-factor",
+    "bill_history": [
+      {
+        "date": "2025-08-25",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Referred to State Affairs",
+        "description": "Referral Committee - Referred to State Affairs"
+      }
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00298I.htm",
+    "bill_text_hash": "a0222056a999a4833a40c7e06029ef53cabee6e5556dd684be838630cfd9623a",
+    "summary_word_count": 108,
+    "summary_source": "official bill text"
+  },
+  {
+    "title": "Urging the federal government to take immediate action to curb the spread of the New World screwworm in Texas",
+    "affects": "Agriculture (I0020), NEW WORLD SCREWWORM (NF6WC), Resolutions--Legislative Policy (I0685)",
+    "changes": "See the official text for changes proposed by HCR 13.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Enacted",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HCR 13 is listed in Texas legislative metadata with the title Urging the federal government. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/4a64978c-af8a-4451-9ce3-f3a6a1444255",
+    "identifier": "HCR 13",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-22",
+    "latest_action_date": "2025-09-17",
+    "latest_action_description": "Signed by the Governor",
+    "latest_passage_date": "2025-09-03",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HCR13",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-22",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Rules suspended",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Rules suspended"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Laid before the Senate",
+        "description": "Receipt - Laid before the Senate"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Read",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Adopted",
+        "description": "Passage - Adopted"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Senate passage reported",
+        "description": "Passage - Senate passage reported"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
+      }
+    ]
+  },
+  {
     "title": "Campground and Youth Camp Safety",
     "affects": "youth camps, emergency management",
     "changes": "requires safety measures for campgrounds and youth camps",
@@ -99,6 +364,693 @@
         "date": "2026-09-11",
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ]
+  },
+  {
+    "title": "Relating to the exercise of the power of eminent domain by a political subdivision to acquire property outside the political subdivision's boundaries",
+    "affects": "CONDEMNATION (S0063), City Government--Annexation (I0063), County Government--General (I0096)",
+    "changes": "See the official text for changes proposed by HB 162.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 162 is a Texas legislative record titled Relating to. Available metadata lists CONDEMNATION (S0063) City Government--Annexation (I0063) and records this action: Filed on 2025-08-15. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/f4aafaf1-4742-4cfd-a0e4-439f756bd2c2",
+    "identifier": "HB 162",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-15",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB162",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Amending the House Rules of Procedure to authorize additional constitutionally compliant, proportional penalties for members absent without leave for purpose of impeding the action of the House that do not unfairly impair members' representative functions",
+    "affects": "N/A - ceremonial resolution",
+    "changes": "N/A - no substantive policy change",
+    "business_impact": "N/A - no business impact",
+    "impact_level": "Low",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Enacted",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HR 128 is a Texas legislative record titled Amending the. Available metadata lists Legislature (I0520) Resolutions--Rules (I0660) and records this action: Reported enrolled on 2025-09-04. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/3632a4b0-58bc-4984-b3c7-76916bf13cab",
+    "identifier": "HR 128",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-29",
+    "latest_action_date": "2025-09-04",
+    "latest_action_description": "Reported enrolled",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HR128",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-29",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Amended",
+        "description": "Amendment Passage - Amended"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Amendment(s) offered",
+        "description": "Amendment Introduction - Amendment(s) offered"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Point of order sustained (amendment)",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Point of order sustained (amendment)"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Point of order withdrawn (amendment)",
+        "description": "Withdrawal - Point of order withdrawn (amendment)"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Amendment withdrawn",
+        "description": "Amendment Withdrawal - Amendment withdrawn"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Adopted as amended",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Adopted as amended"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Record vote"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Statement(s) of vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Statement(s) of vote recorded in Journal"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Reason for vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Reason for vote recorded in Journal"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      }
+    ]
+  },
+  {
+    "title": "Relating to the composition of the districts for the election of members of the United States House of Representatives from the State of Texas",
+    "affects": "HOUSE OF REPRESENTATIVES, US (V0774), Legislature (I0520), Redistricting (I0645)",
+    "changes": "See the official text for changes proposed by HB 4.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Enacted",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 4 is a Texas legislative record titled Relating to. Available metadata lists HOUSE OF REPRESENTATIVES, US (V0774) and records this action: Effective on . . . . on 2025-09-05. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/950500d4-2d92-4073-a77c-33422da41cec",
+    "identifier": "HB 4",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-09-05",
+    "latest_action_description": "Effective on . . . . . . . . . . . . . . .",
+    "latest_passage_date": "2025-08-26",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB4",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-23",
+        "title": "Reason for vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Reason for vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-25",
+        "title": "Senate passage reported",
+        "description": "Passage - Senate passage reported"
+      },
+      {
+        "date": "2025-08-25",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-08-25",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
+        "date": "2025-08-29",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
+      },
+      {
+        "date": "2025-09-05",
+        "title": "Effective on . . . . . . . . . . . . . . ",
+        "description": "Became Law - Effective on . . . . . . . . . . . . . ."
+      }
+    ]
+  },
+  {
+    "title": "Urging Governor Abbott to return federal reconciliation bill funds to taxpayers through property tax relief",
+    "affects": "N/A - ceremonial resolution",
+    "changes": "N/A - no substantive policy change",
+    "business_impact": "N/A - no business impact",
+    "impact_level": "Low",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HR 19 is a Texas legislative record titled Urging Governor. Available metadata lists Governor (I0375) Resolutions--Legislative Policy (I0685) and records this action: Filed on 2025-08-15. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/a02629ad-2dd4-40b6-b812-21ca90f50acd",
+    "identifier": "HR 19",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-15",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HR19",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Relating to a pharmacist's authority to dispense ivermectin without a prescription",
+    "affects": "HEALTH & HUMAN SERVICES COMMISSION (V0177), Health Care Providers (I0387), Health--General (I0385)",
+    "changes": "See the official text for changes proposed by HB 25.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Enacted",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 25 is a Texas legislative record titled Relating to a. Available metadata lists HEALTH & HUMAN SERVICES COMMISSION and records this action: Effective on . . . . on 2025-09-17. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/06d256be-a3b6-469c-942c-631bef5c5b09",
+    "identifier": "HB 25",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-09-17",
+    "latest_action_description": "Effective on . . . . . . . . . . . . . . .",
+    "latest_passage_date": "2025-08-28",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB25",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Read 3rd time",
+        "description": "Reading 3 - Read 3rd time"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Passed",
+        "description": "Passage - Passed"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Senate passage reported",
+        "description": "Passage - Senate passage reported"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "Effective on . . . . . . . . . . . . . . ",
+        "description": "Became Law - Effective on . . . . . . . . . . . . . ."
+      }
+    ]
+  },
+  {
+    "title": "Relating to governmental oversight of youth camps, including youth camp rules, duties, and the advisory committee",
+    "affects": "CRIMINAL RECORDS (S0008), HEALTH & HUMAN SERVICES COMMISSION (V0177), Minors--Health & Safety (I0533)",
+    "changes": "See the official text for changes proposed by HB 265.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Passed",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 265 is listed in Texas legislative metadata with the title Relating to governmental oversight. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/8ef06cb4-58af-4c4d-b44f-d23317ce3369",
+    "identifier": "HB 265",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-20",
+    "latest_action_date": "2025-09-02",
+    "latest_action_description": "Received from the House",
+    "latest_passage_date": "2025-08-28",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB265",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-20",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Read 2nd time",
+        "description": "Reading 2 - Read 2nd time"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Passed to engrossment",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Passed to engrossment"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Record vote"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Statement(s) of vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Statement(s) of vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Read 3rd time",
+        "description": "Reading 3 - Read 3rd time"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Passed",
+        "description": "Passage - Passed"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Reason for vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Reason for vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-29",
+        "title": "Reported engrossed",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Reported engrossed"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Received from the House",
+        "description": "Introduction - Received from the House"
+      }
+    ]
+  },
+  {
+    "title": "Relating to medical school admissions, coursework, academic standards, and employment decisions in this state",
+    "affects": "Education--Higher--Admission & Attendance (I0257), Education--Higher--Faculty (I0236), Education--Higher--General (I0231)",
+    "changes": "See the official text for changes proposed by HB 291.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 291 is listed in Texas legislative metadata with the title Relating to medical school. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/7010db7c-966f-4aa4-819f-1a6382e10309",
+    "identifier": "HB 291",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-22",
+    "latest_action_date": "2025-08-22",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB291",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-22",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Relating to establishing minimum credentialing qualifications for Emergency Management Coordinators appointed by Emergency Management Directors",
+    "affects": "City Government--Employees/Officers (I0061), County Government--Employees/Officers (I0095), Disaster Preparedness & Relief (I0211)",
+    "changes": "See the official text for changes proposed by HB 95.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 95 is listed in Texas legislative metadata with the title Relating to establishing minimum. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/20461520-3639-48f7-9908-9b46ee38a8e6",
+    "identifier": "HB 95",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-18",
+    "latest_action_description": "Referred to Disaster Preparedness & Flooding",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB95",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Referred to Disaster Preparedness & Flooding",
+        "description": "Referral Committee - Referred to Disaster Preparedness & Flooding"
+      }
+    ]
+  },
+  {
+    "title": "Proposing a constitutional amendment relating to the determination of a quorum of the senate or house of representatives",
+    "affects": "Legislature (I0520), Resolutions--Constitutional Amendments (I0661)",
+    "changes": "See the official text for changes proposed by HJR 10.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Low",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HJR 10 is listed in Texas legislative metadata with the title Proposing a constitutional amendment. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/e98e1838-ec5d-48fa-9e43-cee3071dab22",
+    "identifier": "HJR 10",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-26",
+    "latest_action_description": "Referred to House Administration",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HJR10",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 1,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Referred to House Administration",
+        "description": "Referral Committee - Referred to House Administration"
+      }
+    ]
+  },
+  {
+    "title": "Relating to an affirmative defense to prosecution for certain victims of trafficking of persons or compelling prostitution",
+    "affects": "CRIME VICTIMS (S0046), Crimes--Against Morals (I0180), Crimes--Against Persons--General (I0170)",
+    "changes": "See the official text for changes proposed by HB 236.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 236 is listed in Texas legislative metadata with the title Relating to an affirmative. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/2f470c84-ebc3-4053-b718-592fe2779004",
+    "identifier": "HB 236",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-18",
+    "latest_action_date": "2025-08-20",
+    "latest_action_description": "Referred to Criminal Jurisprudence",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB236",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-18",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Referred to Criminal Jurisprudence",
+        "description": "Referral Committee - Referred to Criminal Jurisprudence"
+      }
+    ]
+  },
+  {
+    "title": "Relating to a vacancy in the office of senator or representative due to excessive absence",
+    "affects": "HOUSE OF REPRESENTATIVES (V0096), Legislature (I0520), SENATE, TEXAS (V0227)",
+    "changes": "See the official text for changes proposed by HB 64.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 64 is listed in Texas legislative metadata with the title Relating to a vacancy. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/f6d1ffe6-d259-48a6-8899-75e457d8e57b",
+    "identifier": "HB 64",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-20",
+    "latest_action_description": "Referred to State Affairs",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-03",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB64",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Referred to State Affairs",
+        "description": "Referral Committee - Referred to State Affairs"
       }
     ]
   },
