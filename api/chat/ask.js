@@ -67,14 +67,37 @@ function searchLocal(question, bills) {
     const hits = bills.filter((b) => String(b.identifier || '').replace(/\s+/g, '').toLowerCase() === compact);
     if (hits.length) return hits.slice(0, 3);
   }
-  const stop = new Set(['what', 'does', 'the', 'and', 'for', 'texas', 'law', 'bill', 'about']);
-  const words = q.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !stop.has(w));
+  // Generic request/audience verbs are NOT substantive — scoring them is what
+  // used to surface random bills (e.g. "one"/"that"/"affect" matching SB 58
+  // for a high-schooler question). Whole-word matching + field weights fix it.
+  const stop = new Set(['what', 'does', 'the', 'and', 'for', 'texas', 'law', 'laws', 'bill', 'bills', 'about', 'give', 'get', 'got', 'show', 'find', 'lists', 'list', 'tell', 'name', 'one', 'two', 'single', 'that', 'this', 'these', 'those', 'they', 'them', 'their', 'there', 'here', 'might', 'could', 'would', 'should', 'will', 'shall', 'may', 'can', 'must', 'affect', 'affects', 'affected', 'affecting', 'effect', 'effects', 'impact', 'impacts', 'why', 'how', 'who', 'whom', 'whose', 'which', 'when', 'where', 'whether', 'with', 'from', 'into', 'doing', 'done', 'are', 'was', 'were', 'been', 'have', 'has', 'had', 'please', 'like', 'just', 'really', 'very', 'much', 'many', 'some', 'any', 'each', 'every', 'all', 'both', 'few', 'more', 'most', 'other', 'same', 'only', 'own', 'such', 'than', 'then', 'also', 'me', 'you', 'your', 'our', 'hello', 'hi', 'hey', 'thanks', 'thank', 'okay']);
+  const baseWords = q.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !stop.has(w));
+  // Audience synonym expansion: "highschoolers" never appears verbatim in
+  // bill text, but "student/youth/teen/school/education" does.
+  const extra = new Set();
+  if (/high\s*school|highschool|student|teen|youth|kid\b|kids|child|school|education|college|campus|minor\b|minors|juvenile|pupil/.test(q)) {
+    ['student', 'students', 'youth', 'teen', 'teens', 'school', 'schools', 'education', 'camp', 'camps', 'child', 'children', 'minor'].forEach((w) => extra.add(w));
+  }
+  const words = [...new Set([...baseWords, ...extra])];
+  if (!words.length) return [];
+  const fieldTokens = (v) => new Set(String(v || '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean));
+  const hasWord = (set, w) => set.has(w) || (w.endsWith('s') && set.has(w.slice(0, -1))) || set.has(`${w}s`);
   return bills.map((b) => {
-    const hay = `${b.identifier || ''} ${b.title || ''} ${b.summary || ''} ${b.industry || ''} ${b.specific_industry || ''}`.toLowerCase();
-    let s = 0;
-    for (const w of words) if (hay.includes(w)) s += w.length > 5 ? 2 : 1;
-    return { b, s };
-  }).filter((x) => x.s > 0).sort((a, b2) => b2.s - a.s).slice(0, 3).map((x) => x.b);
+    const t = fieldTokens(b.title);
+    const a = fieldTokens(`${b.affects || ''} ${b.specific_industry || ''}`);
+    const c = fieldTokens(b.changes);
+    const s = fieldTokens(`${b.summary || ''} ${b.business_impact || ''}`);
+    const ind = fieldTokens(b.industry);
+    let score = 0;
+    for (const w of words) {
+      if (hasWord(t, w)) score += 4;
+      if (hasWord(a, w)) score += 4;
+      if (hasWord(c, w)) score += 2;
+      if (hasWord(s, w)) score += 1;
+      if (hasWord(ind, w)) score += 1;
+    }
+    return { b, s: score };
+  }).filter((x) => x.s >= 4).sort((a, b2) => b2.s - a.s).slice(0, 3).map((x) => x.b);
 }
 
 // Follow-up like "why does this bill impact high schoolers" has no bill
@@ -125,30 +148,42 @@ function looksTruncated(text) {
   return !/[.!?]['"”’)\]]?\s*$/.test(trimmed);
 }
 
+// Safety net: free-tier models often ignore the no-labels instruction, so
+// strip any Who:/How:/Why:/What: section headers the AI emits and keep the
+// content as plain prose paragraphs.
+function enforceProse(text) {
+  const out = String(text || '').replace(/^\s*(Who|What|How|Why|Bottom line)\s*:\s*/gim, '');
+  return out.replace(/(^|\n\n)\s*([a-z])/g, (m, p, c) => `${p}${c.toUpperCase()}`).trim();
+}
+
 function extractive(question, citations) {
   if (!citations.length) return 'I could not find a matching Texas bill in the current snapshot. Try a bill number (e.g. “What does SB 1 do?”) or browse the bill feed. Not legal advice — verify with official sources.';
   const top = citations[0];
   const cut = (s, n) => (s.length <= n ? s : s.slice(0, s.lastIndexOf(' ', n)).trimEnd());
   const q = String(question || '').toLowerCase();
-  const wantsWho = /\bwho\b|\bwhom\b|\baffect\b/.test(q);
-  const wantsHow = /\bhow\b/.test(q);
-  const wantsWhy = /\bwhy\b/.test(q);
-  if ((wantsWho || wantsHow || wantsWhy) && (top.affects || top.changes)) {
-    const sections = [`${top.identifier} — ${top.title}.`];
-    if (wantsWho && top.affects) sections.push(`Who: ${top.affects}.`);
-    if (wantsHow && top.changes) sections.push(`How: ${top.changes}.`);
-    if (wantsWhy) {
-      const reason = top.businessImpact && !/^n\/a\b/i.test(top.businessImpact)
-        ? top.businessImpact
-        : top.summary ? top.summary.split(/(?<=[.!?])\s/)[0] : '';
-      if (reason) sections.push(`Why: ${reason}`);
-    }
-    if (top.status) sections.push(`Status: ${top.status}.`);
-    return `${cut(sections.join('\n\n'), 1000)} See the linked source. Not legal advice.`;
-  }
+  // Safety net: audience query (e.g. high-schoolers) matched a bill with no
+  // audience link — be honest instead of presenting it as a direct answer.
+  const asksStudents = /high\s*school|highschool|student|teen|school|youth|child|kid|education/.test(q);
+  const blob = `${top.title || ''} ${top.summary || ''} ${top.affects || ''} ${top.changes || ''}`.toLowerCase();
+  const hasStudentLink = /student|youth|teen|school|education|child|camp|minor|juvenile|pupil/.test(blob);
+  const honestyPrefix = (asksStudents && !hasStudentLink)
+    ? 'No bill in the current snapshot directly targets high schoolers. Closest match, with a weak link: '
+    : '';
+  // Prose-only fallback: content adapts to the question (audience, mechanism,
+  // reason) but never uses Who:/How:/Why: labels.
+  const wantsAudience = /\bwho\b|\bwhom\b|\baffect(s|ed|ing)?\b|\bimpact(s|ed|ing)?\b|\bhigh\s*school|highschool|student|teen|school|youth|child|kid|education/.test(q);
+  const wantsMechanism = /\bhow\b/.test(q);
+  const withPeriod = (s) => {
+    const t = String(s || '').replace(/\s+/g, ' ').trim().replace(/[.。]+$/, '');
+    return t ? `${t}.` : '';
+  };
+  const parts = [`${honestyPrefix}${top.identifier} — ${top.title}.`];
+  if (wantsAudience && top.affects) parts.push(`It affects ${top.affects}.`);
+  if (wantsMechanism && top.changes) parts.push(withPeriod(top.changes));
+  if (top.summary) parts.push(top.summary.slice(0, 450));
+  if (top.status) parts.push(`Status: ${top.status}.`);
   const extra = citations.length > 1 ? ` Related: ${citations.slice(1).map((c) => c.identifier).join(', ')}.` : '';
-  const full = `${top.identifier} — ${top.title}. ${(top.summary || '').slice(0, 450)}${top.status ? ` Status: ${top.status}.` : ''}${extra} See the linked source. Not legal advice.`;
-  return cut(full, 1000);
+  return enforceProse(`${cut(parts.join(' '), 1000)}${extra} See the linked source. Not legal advice.`);
 }
 
 async function readBody(req) {
@@ -219,14 +254,18 @@ module.exports = async (req, res) => {
     const raw = typeof j?.choices?.[0]?.message?.content === 'string' ? j.choices[0].message.content : '';
     return sanitizeAiText(raw);
   };
-  const KEVIN_SYS = 'You are Kevin, the Texas Legislature helper — never claim any other name or model identity. Use only provided context. Cite identifiers. Max 150 words. End: Not legal advice.';
+  const KEVIN_SYS = 'You are Kevin, the Texas Legislature helper — never claim any other name or model identity. Use only provided context. Cite identifiers. If the context has no bill clearly related to the question (e.g. a high-schooler question with only a groundwater bill), say so honestly and label the closest as closest with a weak link — never present an unrelated bill as a direct answer. Always answer in plain sentences shaped by the question. Never use Who:, How:, Why:, What:, or Bottom line: labels or section headers. Copy Affects exactly; never invent groups or import audiences from history. Max 150 words. End: Not legal advice.';
   const CONTINUE = 'Continue exactly where you left off. Do not repeat anything already written, do not restart, no preamble.';
 
   // Optional AI rewrite when configured (OpenRouter preferred, Gemini fallback).
   let answer = extractive(question, citations);
   let aiEnhanced = false;
   const ctx = citations.map((c) => `- ${c.identifier}: ${c.title}. Affects: ${c.affects || 'n/a'}. Changes: ${c.changes || String(c.summary || '').slice(0, 200)}. ${String(c.summary).slice(0, 300)}`).join('\n');
-  const histLine = Array.isArray(body.history) && body.history.length
+  // Only include conversation history for true follow-ups ("this bill"...).
+  // Otherwise prior turns leak style/audiences (e.g. "high school students")
+  // into unrelated answers.
+  const isFollowUp = followed.length > 0;
+  const histLine = isFollowUp && Array.isArray(body.history) && body.history.length
     ? `Previous: ${body.history.slice(-2).map((h) => `Q: ${String(h.q || '').slice(0, 200)} A: ${String(h.a || '').slice(0, 300)}`).join(' | ').slice(0, 600)}\n`
     : (followed.length ? `Note: "this bill" refers to ${followed.map((b) => b.identifier).join(', ')}. Answer about those bills.\n` : '');
   const orKey = process.env.OPENROUTER_API_KEY || '';
@@ -277,7 +316,7 @@ module.exports = async (req, res) => {
           headers: { 'Content-Type': 'application/json' },
           signal: AbortSignal.timeout(20_000),
           body: JSON.stringify({
-            system_instruction: { parts: [{ text: 'Your name is Kevin. You are Kevin, the Texas Legislature helper — never claim any other name or model identity. Use only provided context. Cite identifiers. No preamble, never output tool calls, search queries, <|...|> tokens, or thinking — only the final answer. Plain text only, no markdown symbols or numbered lists. When asked who/how/why, answer with labeled lines starting Who:, How:, Why:. Short paragraphs separated by blank lines. Max 150 words. End: Not legal advice.' }] },
+            system_instruction: { parts: [{ text: 'Your name is Kevin. You are Kevin, the Texas Legislature helper — never claim any other name or model identity. Use only provided context. Cite identifiers. If the context has no bill clearly related to the question, say so honestly and label the closest as closest with a weak link — never present an unrelated bill as a direct answer. Always answer in plain sentences shaped by the question. Never use Who:, How:, Why:, What:, or Bottom line: labels or section headers. Copy Affects exactly; never invent groups or import audiences from history. No preamble, never output tool calls, search queries, <|...|> tokens, or thinking — only the final answer. Plain text only, no markdown symbols or numbered lists. Short paragraphs separated by blank lines. Max 150 words. End: Not legal advice.' }] },
             contents: [{ parts: [{ text: `${histLine}Q: ${question}\n${ctx}` }] }],
             generationConfig: { maxOutputTokens: 700, temperature: 0.3 },
           }),
@@ -292,5 +331,5 @@ module.exports = async (req, res) => {
     } catch (e) { /* keep extractive */ }
   }
 
-  return sendJson(res, 200, { ok: true, answer, citations: citations.slice(0, 3), aiEnhanced, openStatesUsed: Boolean(process.env.OPEN_STATES_API_KEY) });
+  return sendJson(res, 200, { ok: true, answer: enforceProse(answer), citations: citations.slice(0, 3), aiEnhanced, openStatesUsed: Boolean(process.env.OPEN_STATES_API_KEY) });
 };
