@@ -66,12 +66,12 @@
     "affects": "ATTORNEY GENERAL (V2811), ATTORNEY'S FEES (S0202), BIRTH & DEATH CERTIFICATES (S6418)",
     "changes": "See the official text for changes proposed by HB 52.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
-    "impact_level": "Moderate",
+    "impact_level": "High",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Affected political subdivisions, state agencies, TDCJ, BJC, family violence shelters, and their counsel should review the introduced bill text and monitor committee and floor action because the bill has not been enacted. If enacted, entities should inventory multiple-occupancy private spaces they own, operate, or control, confirm sex-based designations, update signage, policies, staff training, access controls, and emergency or assistance procedures, and document reasonable steps to prevent opposite-sex entry. TDCJ and BJC should prepare housing and rulemaking changes consistent with the statutory mandate. Shelters should verify service eligibility criteria. Because enforcement includes written notice, a three-business-day cure period, attorney general investigation, a 15-day cure period, civil penalties, and private declaratory or injunctive actions, organizations should establish complaint intake, response, cure, and legal-review workflows. They should also monitor the effective date, which is tied to the 91st day after the last day of the legislative session, and confirm final enacted text before implementing changes.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 52 is listed in Texas legislative metadata with the title Relating to the designation. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 52, the introduced Texas Women’s Privacy Act, would add Government Code Chapter 3002 requiring political subdivisions and state agencies to designate multiple-occupancy private spaces, such as restrooms, locker rooms, changing rooms, and shower rooms, for use by one biological sex and to take reasonable steps to prevent opposite-sex entry. It would require TDCJ to house inmates by sex and direct BJC to adopt implementing rules. Female-designated family violence shelters could serve only females and, in limited cases, their children 17 or younger. The bill authorizes civil penalties of $5,000 for a first violation and $25,000 for later violations, with each day of continuing violation treated separately. It creates an attorney general enforcement process and a private civil action for declaratory and injunctive relief plus costs and fees. It also includes immunity, jurisdiction, and fee-shifting provisions. The act would apply only to causes of action accruing after its effective date, stated as the 91st day after the last day of the legislative session.",
     "id": "ocd-bill/edef0125-c0ae-4c02-bc7f-a3d268563a8c",
     "identifier": "HB 52",
     "session": "892",
@@ -80,21 +80,19 @@
     "latest_action_date": "2025-08-18",
     "latest_action_description": "Referred to State Affairs",
     "latest_passage_date": "",
-    "updated_at": "2026-10-03",
+    "updated_at": "2026-10-04",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB52",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
+      "direct_compliance_requirement": 2,
       "financial_cost": 2,
-      "operational_change": 0,
+      "operational_change": 2,
       "industry_breadth": 2,
       "enforcement_risk": 2,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
+      "effective_date_urgency": 1,
+      "business_model_impact": 1
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, financial cost as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The strongest factors are direct compliance duties for political subdivisions and state agencies, civil penalties with daily continuing violations, and broad operational changes to space designation, inmate housing, shelter services, and enforcement procedures. The effective-date urgency is moderate because the bill sets a future effective date tied to the legislative session rather than immediate effect.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
@@ -111,7 +109,11 @@
         "title": "Referred to State Affairs",
         "description": "Referral Committee - Referred to State Affairs"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00052I.htm",
+    "bill_text_hash": "b4da38841f22a8d809cf7f9fd2d7f2c866aab45824891eece4b101ecc92abaf6",
+    "summary_word_count": 165,
+    "summary_source": "official bill text"
   },
   {
     "title": "Relating to a vacancy in the office of senator or representative due to excessive absence",
@@ -417,9 +419,9 @@
     "impact_level": "Low",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Affected parties should monitor whether HR 128 is adopted, enrolled, and effective as part of the 89th Legislature’s House rules. Members, House staff, and the House Business Office should review the amended leave-of-absence rule to confirm how absence without leave is determined, what penalties may apply, and whether the House can excuse fines, operating-budget forfeitures, chair-loss penalties, or seniority recalculation by majority vote. Staff should prepare procedures for calculating per-diem-based fines, sergeant-at-arms costs, pro rata operating-budget forfeitures, seniority adjustments, roster revisions, and payment notices. The Committee on House Administration should confirm its notice, investigation, and reporting duties, including the 24-hour report requirement before expulsion consideration and the 24-hour return requirement before imposing a penalty under the “other penalty” provision. Members should verify payment deadlines, the prohibition on paying from operating accounts or political contributions, and the 30 percent monthly operating-account reduction if fines remain past due.",
     "status": "Enacted",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HR 128 is a Texas legislative record titled Amending the. Available metadata lists Legislature (I0520) Resolutions--Rules (I0660) and records this action: Reported enrolled on 2025-09-04. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "summary": "HR 128 amends House Rule 5, Section 3 to add penalties for members absent without leave when the absence is for the purpose of impeding House action. The resolution preserves constitutional protections and states that penalties are proportional. It authorizes fines equal to three times the Texas Ethics Commission per diem for each calendar day of absence, payment of the member’s pro rata share of sergeant-at-arms costs, reprimand, censure, seniority recalculation, loss of chair or vice-chair designation or appointment, expulsion, and other penalties allowed by House rules. Additional penalties apply when the House is operating under a call: forfeiture of a pro rata portion of the member’s monthly operating budget for each day absent without leave, loss of chair or vice-chair status after at least two consecutive days, and seniority reduced by two years for each day after at least three consecutive days. The Committee on House Administration would notify members of unpaid fines and costs, and nonpayment could trigger a 30 percent monthly reduction in the member’s operating account credit until paid.",
     "id": "ocd-bill/3632a4b0-58bc-4984-b3c7-76916bf13cab",
     "identifier": "HR 128",
     "session": "892",
@@ -428,10 +430,8 @@
     "latest_action_date": "2025-09-04",
     "latest_action_description": "Reported enrolled",
     "latest_passage_date": "",
-    "updated_at": "2026-10-03",
+    "updated_at": "2026-10-04",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HR128",
-    "summary_word_count": 40,
-    "summary_source": "metadata",
     "impact_scores": {
       "direct_compliance_requirement": 0,
       "financial_cost": 0,
@@ -441,8 +441,8 @@
       "effective_date_urgency": 0,
       "business_model_impact": 0
     },
-    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The strongest factors are internal financial and operational changes for House members and staff, including fines, operating-budget debits, seniority recalculation, and payment-tracking workflows. There is no direct private-sector compliance duty, industry-wide effect, or external enforcement mechanism.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-29",
@@ -499,7 +499,11 @@
         "title": "Reported enrolled",
         "description": "Enrolled - Reported enrolled"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HR00128I.htm",
+    "bill_text_hash": "ecfbe70a4038d5795e9ef61632cd272f9ee2bffa0b2839d540fb27f636a50836",
+    "summary_word_count": 173,
+    "summary_source": "official bill text"
   },
   {
     "title": "Relating to the composition of the districts for the election of members of the United States House of Representatives from the State of Texas",
@@ -509,9 +513,9 @@
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Affected organizations and individuals should verify the final enacted status of HB 4, including whether it received the two-thirds vote for immediate effect or will take effect on the 91st day after the last day of the session, because the supplied metadata shows an effective-date field that is not fully populated. Election officials, voter-registration agencies, local election administrators, candidates, campaigns, and civic organizations should confirm which census tracts, block groups, and blocks are assigned to each congressional district and reconcile those assignments against the official 2020 Census TIGER/Line Shapefiles. They should monitor for any court review or correction of omitted geographic areas under Article III, Section 2, and confirm that the new districts apply only to the 2026 primary and general elections for the 120th Congress. Businesses and organizations with voter outreach, polling-place planning, ballot production, or election-services operations should review implementation timelines and confirm that no prior district maps remain in use for the affected elections.",
     "status": "Enacted",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 4 is a Texas legislative record titled Relating to. Available metadata lists HOUSE OF REPRESENTATIVES, US (V0774) and records this action: Effective on . . . . on 2025-09-05. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "summary": "HB 4 is a Texas redistricting act that establishes the geographic composition of the state’s congressional districts for electing members of the United States House of Representatives. Article I provides that one member is elected from each district established by the act. Article II defines each district using counties and detailed census tracts, block groups, and blocks, with the middle of the document omitted in the supplied text. Article III defines tract, block group, and block by reference to 2020 Census TIGER/Line Shapefiles, directs courts to include erroneously omitted areas according to legislative intent, supersedes and repeels prior congressional district enactments, and states that the districts apply beginning with the 2026 primary and general elections for the 120th Congress without affecting the 119th Congress. The act takes effect immediately if it receives the two-thirds vote required by the Texas Constitution; otherwise, it takes effect on the 91st day after the last day of the legislative session.",
     "id": "ocd-bill/950500d4-2d92-4073-a77c-33422da41cec",
     "identifier": "HB 4",
     "session": "892",
@@ -520,21 +524,19 @@
     "latest_action_date": "2025-09-05",
     "latest_action_description": "Effective on . . . . . . . . . . . . . . .",
     "latest_passage_date": "2025-08-26",
-    "updated_at": "2026-10-03",
+    "updated_at": "2026-10-04",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB4",
-    "summary_word_count": 40,
-    "summary_source": "metadata",
     "impact_scores": {
       "direct_compliance_requirement": 0,
-      "financial_cost": 0,
-      "operational_change": 0,
+      "financial_cost": 1,
+      "operational_change": 1,
       "industry_breadth": 2,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
+      "effective_date_urgency": 2,
       "business_model_impact": 0
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The strongest factors are effective_date_urgency, because the act’s effectiveness depends on a constitutional vote threshold or a fixed post-session date, and industry_breadth, because congressional redistricting affects election administration and political activity statewide. The financial and operational factors are indirect, reflecting likely administrative adjustments rather than new taxes, fees, penalties, or private-business mandates.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
@@ -578,10 +580,19 @@
       },
       {
         "date": "2025-09-05",
+        "title": "Effective on . . . . . . . . . . . . . .",
+        "description": "Became Law - Effective on . . . . . . . . . . . . . ."
+      },
+      {
+        "date": "2025-09-05",
         "title": "Effective on . . . . . . . . . . . . . . ",
         "description": "Became Law - Effective on . . . . . . . . . . . . . ."
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00004E.htm",
+    "bill_text_hash": "3d5af9ef1fe604dda7a7ac3c6c87d9c56bceb036c44dbcf0608ce4f75cafdc40",
+    "summary_word_count": 157,
+    "summary_source": "official bill text"
   },
   {
     "title": "Urging Governor Abbott to return federal reconciliation bill funds to taxpayers through property tax relief",
@@ -712,6 +723,11 @@
       },
       {
         "date": "2025-09-17",
+        "title": "Effective on . . . . . . . . . . . . . .",
+        "description": "Became Law - Effective on . . . . . . . . . . . . . ."
+      },
+      {
+        "date": "2025-09-17",
         "title": "Effective on . . . . . . . . . . . . . . ",
         "description": "Became Law - Effective on . . . . . . . . . . . . . ."
       }
@@ -722,12 +738,12 @@
     "affects": "CRIMINAL RECORDS (S0008), HEALTH & HUMAN SERVICES COMMISSION (V0177), Minors--Health & Safety (I0533)",
     "changes": "See the official text for changes proposed by HB 265.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
-    "impact_level": "Moderate",
+    "impact_level": "High",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Youth camp operators, camp staff supervisors, volunteer coordinators, and related camp organizations should review the bill’s new duties and prepare internal compliance procedures before the effective date. Operators should confirm that adult staff and volunteers with unsupervised camper contact will receive annual criminal history record checks and sex offender database checks, and that records are retained appropriately. Camps should also establish a process to ensure each adult staff member completes at least one hour of first aid and CPR training from an accredited organization or licensed health care professional. Organizations should monitor the Health and Human Services Commission’s rulemaking process, the April 1, 2026 comprehensive rule review deadline, and the advisory committee appointment process, including the October 1, 2025 appointment deadline if the Act takes effect immediately. Camps should also verify their abuse and neglect reporting procedures align with Family Code Chapter 261 requirements and confirm whether the bill received the two-thirds vote needed for immediate effect.",
     "status": "Passed",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 265 is listed in Texas legislative metadata with the title Relating to governmental oversight. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 265 amends the Texas Health and Safety Code to strengthen governmental oversight of youth camps. It requires the Health and Human Services Commission executive commissioner to complete a comprehensive review and revision of youth camp rules by April 1, 2026, in consultation with the youth camp advisory committee. The bill adds a mandatory reporting duty for youth camp staff members and volunteers who have reasonable cause to believe a child has been abused or neglected. It also requires youth camp operators to provide safe and healthful conditions, conduct annual criminal history record checks and sex offender database checks before adults have unsupervised contact with campers, and ensure adult staff complete at least one hour of first aid and CPR training. The bill restructures the advisory committee to 11 members, adds eligibility restrictions for members affiliated with youth camps, and requires new appointments after existing terms expire. The Act takes effect immediately if it receives a two-thirds vote in each house; otherwise, it takes effect on the 91st day after the last day of the legislative session.",
     "id": "ocd-bill/8ef06cb4-58af-4c4d-b44f-d23317ce3369",
     "identifier": "HB 265",
     "session": "892",
@@ -736,21 +752,19 @@
     "latest_action_date": "2025-09-02",
     "latest_action_description": "Received from the House",
     "latest_passage_date": "2025-08-28",
-    "updated_at": "2026-10-03",
+    "updated_at": "2026-10-04",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB265",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 0,
-      "operational_change": 0,
-      "industry_breadth": 2,
+      "direct_compliance_requirement": 2,
+      "financial_cost": 1,
+      "operational_change": 2,
+      "industry_breadth": 1,
       "enforcement_risk": 2,
-      "effective_date_urgency": 0,
+      "effective_date_urgency": 2,
       "business_model_impact": 0
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The strongest factors are direct compliance duties for youth camp operators and staff, major operational changes involving background checks, training, and reporting, and enforcement risk through mandatory abuse reporting and agency rulemaking. The effective-date urgency is also significant because the Act may take effect immediately or shortly after the session.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-20",
@@ -802,7 +816,11 @@
         "title": "Received from the House",
         "description": "Introduction - Received from the House"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00265E.htm",
+    "bill_text_hash": "734964236ddbb761922d66e7cebf4c35e60ce50ef0a14d9856f7e7183468b780",
+    "summary_word_count": 177,
+    "summary_source": "official bill text"
   },
   {
     "title": "Relating to medical school admissions, coursework, academic standards, and employment decisions in this state",
@@ -854,9 +872,9 @@
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Affected local governments, joint boards, and emergency management directors should review whether their current emergency management coordinator designations would satisfy future minimum credentialing qualifications once the Texas Division of Emergency Management adopts rules. Agencies should monitor the bill’s committee status, any amendments, and whether it receives the two-thirds vote needed for immediate effect. If the bill advances, coordinators and appointing officials should confirm whether the coordinator’s credentials meet the division’s rule-based standards and identify any training, certification, or documentation gaps. Counties with populations of 500,000 or more should also verify that their coordinators fall within the amended training provision. Because the rulemaking requirement is not detailed in the bill text, agencies should confirm the division’s implementation timeline, applicable credentialing standards, and any transition or compliance deadlines before making personnel or training decisions.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 95 is listed in Texas legislative metadata with the title Relating to establishing minimum. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 95 would amend Texas Government Code sections 418.1015 and 418.005. It would require a person designated as an emergency management coordinator by an emergency management director to meet minimum credentialing qualifications established by rule by the Texas Division of Emergency Management. The bill would also limit the emergency management training provision to certain elected law enforcement officers, county judges, appointed public officers with emergency management responsibilities, and emergency management coordinators designated by emergency management directors of counties with populations of 500,000 or more. The bill would take effect immediately if it receives a two-thirds vote in each house; otherwise, it would take effect on the 91st day after the last day of the legislative session. The supplied text is the introduced version, and the latest recorded action is referral to the Disaster Preparedness & Flooding committee.",
     "id": "ocd-bill/20461520-3639-48f7-9908-9b46ee38a8e6",
     "identifier": "HB 95",
     "session": "892",
@@ -865,21 +883,19 @@
     "latest_action_date": "2025-08-18",
     "latest_action_description": "Referred to Disaster Preparedness & Flooding",
     "latest_passage_date": "",
-    "updated_at": "2026-10-03",
+    "updated_at": "2026-10-04",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB95",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 0,
-      "operational_change": 0,
+      "direct_compliance_requirement": 1,
+      "financial_cost": 1,
+      "operational_change": 1,
       "industry_breadth": 2,
-      "enforcement_risk": 0,
-      "effective_date_urgency": 0,
+      "enforcement_risk": 1,
+      "effective_date_urgency": 2,
       "business_model_impact": 0
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The strongest factors are the broad application to city, county, and joint-board emergency management coordinators and the immediate-or-91-day effective-date provision. The bill also creates a rule-based credentialing requirement and a limited training applicability change, but it does not impose a direct private-business duty or a specific penalty.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
@@ -896,7 +912,11 @@
         "title": "Referred to Disaster Preparedness & Flooding",
         "description": "Referral Committee - Referred to Disaster Preparedness & Flooding"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00095I.htm",
+    "bill_text_hash": "53917cfcd662321f796077c1b99f5747c5a9617d9327cc736b8596470c694d2f",
+    "summary_word_count": 139,
+    "summary_source": "official bill text"
   },
   {
     "title": "Proposing a constitutional amendment relating to the determination of a quorum of the senate or house of representatives",
@@ -1010,9 +1030,9 @@
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Affected legislative staff, chamber leadership, and officials responsible for attendance, leave, and vacancy procedures should monitor whether HB 64 advances, receives the constitutional two-thirds vote for immediate effect, or instead takes effect 91 days after the last day of the session. If the bill becomes law, they should confirm how “all proceedings,” “seven consecutive days on which that house meets,” and “leave of absence granted by that house” will be documented and applied. They should also verify whether existing attendance rules, leave-granting processes, vacancy declarations, and any related administrative or constitutional procedures need clarification. Because the bill affects only absences occurring on or after its effective date, any transition plan should identify the effective date and ensure records are maintained for absences beginning after that date. No private business or industry compliance action is indicated by the text.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 64 is listed in Texas legislative metadata with the title Relating to a vacancy. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 64 would add Section 301.074 to Subchapter F, Chapter 301, Government Code, creating a vacancy in the office of a Texas senator or representative if the member is absent from all proceedings of that member’s house, without a leave of absence granted by that house, for seven consecutive days on which the house meets. The provision would apply only to absences occurring on or after the Act’s effective date. The Act would take effect immediately if it receives the two-thirds vote of all members elected to each house required by Section 39, Article III of the Texas Constitution; otherwise, it would take effect on the 91st day after the last day of the legislative session. The bill is currently an introduced version and was referred to State Affairs on August 20, 2025.",
     "id": "ocd-bill/f6d1ffe6-d259-48a6-8899-75e457d8e57b",
     "identifier": "HB 64",
     "session": "892",
@@ -1021,21 +1041,19 @@
     "latest_action_date": "2025-08-20",
     "latest_action_description": "Referred to State Affairs",
     "latest_passage_date": "",
-    "updated_at": "2026-10-03",
+    "updated_at": "2026-10-04",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB64",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
       "direct_compliance_requirement": 0,
       "financial_cost": 0,
-      "operational_change": 0,
-      "industry_breadth": 2,
+      "operational_change": 1,
+      "industry_breadth": 0,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
+      "effective_date_urgency": 2,
       "business_model_impact": 0
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The strongest factors are effective_date_urgency, because the bill may take effect immediately upon a two-thirds vote or otherwise 91 days after the session ends, and operational_change, because legislative staff may need to track absences, leave, and vacancy declarations.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
@@ -1052,7 +1070,11 @@
         "title": "Referred to State Affairs",
         "description": "Referral Committee - Referred to State Affairs"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00064I.htm",
+    "bill_text_hash": "e954cc08b9044fb0e86dcc0631fdf3467ef59d5fc1b766f2e646d2eea14f0fb1",
+    "summary_word_count": 134,
+    "summary_source": "official bill text"
   },
   {
     "title": "Voter-approval tax rate reform",
