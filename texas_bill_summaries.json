@@ -655,9 +655,9 @@
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Pharmacies and pharmacists should monitor the Texas State Board of Pharmacy for any forthcoming standardized procedures, protocols, or rules concerning ivermectin dispensing under this new chapter. They should review their current policies to determine whether to adopt the new authority, ensuring any decision to dispense ivermectin without a prescription aligns with Board‑issued guidance and includes proper patient instructions. Organizations should verify liability protections apply to their staff and confirm that internal training or documentation reflects the permissive nature of the authority. Since the effective date is set relative to the session’s conclusion, stakeholders should check the exact effective date once the legislative session’s final day is known and prepare any operational changes well before that date. No immediate compliance actions are required, but proactive review of Board communications and internal policy updates is advisable.",
     "status": "Enacted",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 25 is a Texas legislative record titled Relating to a. Available metadata lists HEALTH & HUMAN SERVICES COMMISSION and records this action: Effective on . . . . on 2025-09-17. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "summary": "HB 25 permits Texas pharmacists to dispense ivermectin without a prescription, provided they follow any standardized procedures or protocols issued by the Texas State Board of Pharmacy and give appropriate use instructions. The bill also grants pharmacists immunity from criminal, civil, or professional liability when acting in a reasonably prudent manner under this authority. The Texas State Board of Pharmacy may adopt rules to implement the chapter, and the act takes effect on the 91st day after the last day of the legislative session. No mandate requires pharmacists to dispense ivermectin; the authority is permissive.",
     "id": "ocd-bill/06d256be-a3b6-469c-942c-631bef5c5b09",
     "identifier": "HB 25",
     "session": "892",
@@ -666,21 +666,19 @@
     "latest_action_date": "2025-09-17",
     "latest_action_description": "Effective on . . . . . . . . . . . . . . .",
     "latest_passage_date": "2025-08-28",
-    "updated_at": "2026-10-03",
+    "updated_at": "2026-10-05",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB25",
-    "summary_word_count": 40,
-    "summary_source": "metadata",
     "impact_scores": {
       "direct_compliance_requirement": 0,
       "financial_cost": 0,
-      "operational_change": 0,
-      "industry_breadth": 2,
+      "operational_change": 1,
+      "industry_breadth": 1,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
+      "effective_date_urgency": 1,
+      "business_model_impact": 2
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "Deterministic signals rate business model impact, effective date urgency as the strongest factors.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
@@ -742,7 +740,11 @@
         "title": "Effective on . . . . . . . . . . . . . . ",
         "description": "Became Law - Effective on . . . . . . . . . . . . . ."
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00025E.htm",
+    "bill_text_hash": "f75ac2825b03ad02843e392f622bf083a31d15187c306179ec092042ad79cb18",
+    "summary_word_count": 95,
+    "summary_source": "official bill text"
   },
   {
     "title": "Youth Camp Safety Oversight",
