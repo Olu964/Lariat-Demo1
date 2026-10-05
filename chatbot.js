@@ -29,7 +29,7 @@
       <div class="messages" aria-live="polite"></div>
       <form class="chat-form">
         <label class="sr-only" for="lariat-chat-input">Type your message</label>
-        <input id="lariat-chat-input" autocomplete="off" maxlength="500" placeholder="Ask about a Texas bill...">
+        <input id="lariat-chat-input" autocomplete="off" maxlength="500" placeholder="Ask about bills or this site...">
         <button type="submit" aria-label="Send message">➤</button>
       </form>
       <div class="chat-disclaimer">Answers start from official Texas records + OpenStates. Verify with official sources. Not legal advice.</div>
@@ -74,7 +74,7 @@
       host.classList.add('seen');
       if (!greeted) {
         greeted = true;
-        addMessage('Hi! I’m Kevin. Ask me any questions you may have about the Texas Legislature.', 'agent');
+        addMessage('Hi! I’m Kevin. Ask me about Texas bills or anything on this site — the feed, alerts, pricing, privacy, key dates, or finding your legislator.', 'agent');
       }
       setTimeout(() => input.focus(), 220);
     }

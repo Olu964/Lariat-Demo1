@@ -213,13 +213,37 @@
     summary_source: 'Whether this summary came from the full official bill text or just metadata (title + subjects + last action).',
     impact_scores: 'How the 7-factor impact signals scored this bill (0 = absent, 1 = possible, 2 = direct).',
     impact_rationale: 'Why the impact level was assigned — the strongest signals behind it.',
-    impact_framework: 'The versioned ruleset used to assign the impact level.',
   };
   const fieldExplanation = (key) => {
     const normalized = String(key || '').toLowerCase();
     if (FIELD_EXPLANATIONS[normalized]) return FIELD_EXPLANATIONS[normalized];
     if (['updatedon', 'last_updated', 'generated_at'].includes(normalized)) return FIELD_EXPLANATIONS.updated_at;
     return '';
+  };
+  // Impact scores arrive as a raw 7-factor object. The generic formatter
+  // would dump it as JSON (the ugly {"direct_compliance_requirement":0,…}
+  // seen on newer bills), so render it as plain words instead.
+  const IMPACT_FACTOR_LABELS = {
+    direct_compliance_requirement: 'Direct compliance',
+    financial_cost: 'Financial cost',
+    operational_change: 'Operational change',
+    industry_breadth: 'Industry breadth',
+    enforcement_risk: 'Enforcement risk',
+    effective_date_urgency: 'Effective date urgency',
+    business_model_impact: 'Business model impact',
+  };
+  const formatImpactScores = (value) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return formatValue(value);
+    const words = ['absent', 'possible', 'direct'];
+    const parts = Object.keys(IMPACT_FACTOR_LABELS)
+      .filter((key) => Object.prototype.hasOwnProperty.call(value, key))
+      .map((key) => {
+        const score = Number(value[key]);
+        const word = words[score] || 'absent';
+        return `${IMPACT_FACTOR_LABELS[key]}: ${word} (${Number.isFinite(score) ? score : 0})`;
+      });
+    if (!parts.length) return formatValue(value);
+    return parts.join('\n');
   };
   const formatDateString = (raw) => {
     const match = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ].*)?$/);
@@ -488,7 +512,7 @@
       ? bill.source_url
       : 'https://capitol.texas.gov/';
     const detailFields = Object.entries(bill)
-      .filter(([key]) => !['id', 'identifier', 'title', 'impact_level', 'industry', 'specific_industry', 'source_url', 'bill_text_source', 'bill_text_hash', 'summary_word_count', 'bill_history', '__index', '__groupId'].includes(key))
+      .filter(([key]) => !['id', 'identifier', 'title', 'impact_level', 'industry', 'specific_industry', 'source_url', 'bill_text_source', 'bill_text_hash', 'summary_word_count', 'bill_history', 'impact_framework', '__index', '__groupId'].includes(key))
       .slice(0, 30);
     modalBody.innerHTML = `
       <article class="modal-bill-card ${levelClass === 'high' ? 'high-impact' : ''}">
@@ -500,15 +524,16 @@
         <div class="modal-fields">
           ${detailFields.map(([key, value]) => {
             const tip = fieldExplanation(key);
+            const display = key === 'impact_scores' ? formatImpactScores(value) : formatValue(value);
             if (!tip) return `
             <section class="modal-field">
               <h4>${escapeHtml(formatLabel(key))}</h4>
-              <p>${escapeHtml(formatValue(value))}</p>
+              <p>${escapeHtml(display)}</p>
             </section>`;
             return `
             <section class="modal-field">
               <h4 class="field-label" tabindex="0">${escapeHtml(formatLabel(key))}<span class="field-info" aria-hidden="true">i</span><span class="field-tip" role="tooltip">${escapeHtml(tip)}</span></h4>
-              <p>${escapeHtml(formatValue(value))}</p>
+              <p>${escapeHtml(display)}</p>
             </section>`;
           }).join('')}
         </div>

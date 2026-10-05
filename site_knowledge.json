@@ -1,0 +1,180 @@
+{
+  "version": 1,
+  "updated": "2026-10-04",
+  "site": {
+    "name": "Lariat",
+    "tagline": "Texas bill intelligence for businesses — official Texas bill text turned into plain-English summaries: what changed, who it affects, business impact.",
+    "status": "Free-use demo prototype. Everything is free while in demo; billing and automatic alerts are not active yet.",
+    "feedback_email": "lariatfeed@gmail.com",
+    "pages": {
+      "home": "index.html",
+      "feed": "feed.html",
+      "legislator": "legislator.html",
+      "calendar": "key-events.html",
+      "pricing": "pricing.html",
+      "privacy": "privacy.html",
+      "accessibility": "accessibility.html"
+    }
+  },
+  "topics": [
+    {
+      "id": "what-is-lariat",
+      "keywords": [
+        "what is lariat",
+        "what does lariat do",
+        "about lariat",
+        "how does lariat work",
+        "what is this site",
+        "what is this website"
+      ],
+      "answer": "Lariat is Texas bill intelligence for businesses. It fetches Texas bills, downloads the official bill text, and writes plain-English summaries covering what changed, who it affects, and the business impact. This is a free demo prototype, so everything is free for now. Always verify with official sources — answers are not legal advice. Feedback: lariatfeed@gmail.com."
+    },
+    {
+      "id": "bill-feed",
+      "keywords": [
+        "bill feed",
+        "browse bills",
+        "filter bills",
+        "filter by industry",
+        "how to use the feed",
+        "find a bill",
+        "feed page"
+      ],
+      "answer": "The bill feed (feed.html) is the dashboard of tracked Texas bills from 89th Legislature special sessions (2025). Each card shows the bill number, title, industry or General Bill, session, filed date, status badge (Pending, Passed, Enacted, Dead), impact badge (high, moderate, low), and your legislator's vote if you saved one. You can filter by industry and open any card for the full summary modal. Deep links work too: feed.html?impact=high and feed.html?industry=Energy %26 Utilities."
+    },
+    {
+      "id": "bill-fields",
+      "keywords": [
+        "what does affects mean",
+        "what does business impact mean",
+        "what is suggested action",
+        "summary source",
+        "metadata-only",
+        "what is impact level",
+        "impact badge",
+        "status badge",
+        "what does pending mean",
+        "what does enacted mean",
+        "origin date",
+        "updated on"
+      ],
+      "answer": "On a bill card: status is the recorded stage — Pending, Passed, Enacted, or Dead, derived from official actions. Impact level (high, moderate, low) comes from a 7-factor signals check. In the full summary: Affects says who the bill touches, Changes says what it does, Business impact covers practical costs or rule changes, Suggested action lists what to review or prepare, and Summary is the plain-English version — full when official text was available, shorter metadata-only when it was not. Origin date is when the bill was first introduced; Updated on is when Lariat refreshed the summary, not when the Legislature acted."
+    },
+    {
+      "id": "impact-scores",
+      "keywords": [
+        "impact score",
+        "7-factor",
+        "seven factor",
+        "how is impact calculated",
+        "impact rationale",
+        "direct compliance",
+        "enforcement risk"
+      ],
+      "answer": "Each bill is scored 0 (absent), 1 (possible), or 2 (direct) on 7 factors: direct compliance requirement, financial cost, operational change, industry breadth, enforcement risk, effective date urgency, and business model impact. High needs a direct compliance duty plus real cost or operational weight plus enforcement or urgency; otherwise meaningful signals give Moderate. The rationale line names the strongest factors. Bills scored from metadata alone say so explicitly."
+    },
+    {
+      "id": "subscriptions",
+      "keywords": [
+        "subscribe",
+        "subscription",
+        "email alert",
+        "email update",
+        "access code",
+        "verification code",
+        "unsubscribe",
+        "lockout",
+        "locked out"
+      ],
+      "answer": "To get email updates, open the feed in single-industry view and use Subscribe to email updates. Enter your email plus the private access code from your invite, then enter the 6-digit code emailed to you (expires in 10 minutes, one-time use). Three wrong access-code attempts locks requests for 24 hours. To stop emails, use the unsubscribe link in your welcome email and confirm — there is no login. Note: this demo sends verification and welcome emails only; recurring automatic bill alerts are not active yet, and no payment is required."
+    },
+    {
+      "id": "pricing",
+      "keywords": [
+        "pricing",
+        "price",
+        "cost",
+        "plan",
+        "free",
+        "professional",
+        "business tier",
+        "$29",
+        "$99",
+        "how much"
+      ],
+      "answer": "Because this is a demo, everything is free and plan buttons only change browser demo state. Displayed tiers: Free ($0/month, 1 industry), Professional ($29/month, up to 5 industries, most popular), Business ($99/month, all industries). All include email verification. Billing, payments, accounts, and scheduled automatic alerts are not active yet. See the Pricing page."
+    },
+    {
+      "id": "privacy",
+      "keywords": [
+        "privacy",
+        "data collect",
+        "cookies",
+        "tracking",
+        "my data",
+        "delete my data",
+        "personal information"
+      ],
+      "answer": "Lariat needs no account and sets no application cookies, analytics, or ad trackers — it uses browser localStorage for preferences, notes, plan, and saved legislators. If you subscribe, it stores your email and industry, a scrypt hash of your verification code (10-minute expiry), and rate-limit data; the private access code is checked, never stored. You can unsubscribe via your welcome-email link, clear browser data via Reset, or contact lariatfeed@gmail.com for access or corrections. Full details on the Privacy page (effective October 1, 2026)."
+    },
+    {
+      "id": "calendar",
+      "keywords": [
+        "calendar",
+        "key date",
+        "key event",
+        "deadline",
+        "sine die",
+        "when does the legislature",
+        "session date",
+        "prefiling",
+        "election day",
+        "veto deadline",
+        "effective date",
+        "filing deadline"
+      ],
+      "answer": "Key dates for the 90th Legislature regular session (see the Calendar page; click any card for When and Why): General Election Nov 3, 2026; prefiling opens Nov 9, 2026; convenes Jan 12, 2027; committees may vote non-emergency bills ~Feb 10, 2027; filing deadline ~Mar 12, 2027; House last day for House bills May 14, 2027; for Senate bills May 26, 2027; last conference reports May 30, 2027; Sine Die May 31, 2027; governor sign/veto deadline Jun 20, 2027; interim charges Jun-Aug 2027; most new laws effective Sep 1, 2027."
+    },
+    {
+      "id": "legislator-lookup",
+      "keywords": [
+        "my legislator",
+        "find my legislator",
+        "who represents me",
+        "my senator",
+        "my representative",
+        "legislator lookup",
+        "voting history",
+        "how did my legislator vote"
+      ],
+      "answer": "On the Find your legislator page, enter your full Texas street address (most precise, up to 240 characters) or a 5-digit ZIP (approximate). You get back exactly two people — your state senator and state representative — with chamber, district, name, party, and photo. Opening a profile shows recent major-bill voting history with verify links when available; unavailable votes are stated, never guessed. Use Make them your legislator to save them (max 2, one per chamber) and the feed will badge how they voted. Lookups outside Texas or that cannot be geocoded return an error."
+    },
+    {
+      "id": "demo-limits",
+      "keywords": [
+        "demo",
+        "limitation",
+        "not working",
+        "no backend",
+        "account button",
+        "offline",
+        "theme",
+        "dark mode",
+        "notes"
+      ],
+      "answer": "Demo limits: the TX account button is disabled, billing and automatic alerts are off, and plan selection only affects this browser. Subscribing needs the local backend running (node server/server.js). Bill notes save in this browser only (up to 5000 characters). There is a light/dark theme toggle, and an offline page that collects nothing."
+    },
+    {
+      "id": "verification",
+      "keywords": [
+        "verify",
+        "official source",
+        "is this legal advice",
+        "legal advice",
+        "accurate",
+        "up to date"
+      ],
+      "answer": "Lariat starts from official Texas records plus Open States data, but always verify with the official source — every bill links Verify with Texas Legislature. Answers are informational only, never legal advice."
+    }
+  ]
+}

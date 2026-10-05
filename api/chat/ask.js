@@ -58,6 +58,53 @@ function loadBills() {
   return billsCache;
 }
 
+let siteKbCache = null;
+
+// Site knowledge (Lariat pages: feed, privacy, pricing, calendar, legislator).
+// Shared logic with server/server.js — keep in sync.
+function loadSiteKb() {
+  if (siteKbCache) return siteKbCache;
+  try {
+    const parsed = require('../../site_knowledge.json');
+    siteKbCache = parsed && Array.isArray(parsed.topics) ? parsed : { topics: [] };
+  } catch (e) { siteKbCache = { topics: [] }; }
+  return siteKbCache;
+}
+
+const SITE_SINGLETONS = new Set(['privacy', 'pricing', 'calendar', 'unsubscribe', 'prefiling', 'legislator', 'legislators', 'subscribe', 'subscription', 'subscriptions', 'subscribed', 'cookies', 'offline', 'deadline']);
+
+function matchSiteTopic(question) {
+  const q = String(question || '').toLowerCase();
+  const words = new Set(q.split(/[^a-z0-9]+/).filter(Boolean));
+  let best = null;
+  for (const t of (loadSiteKb().topics || [])) {
+    if (!t || !Array.isArray(t.keywords)) continue;
+    let score = 0;
+    let multi = false;
+    for (const kw of t.keywords) {
+      const k = String(kw || '').toLowerCase();
+      if (!k || !q.includes(k)) continue;
+      // Multi-word phrases and unambiguous site singletons (privacy, pricing,
+      // calendar, unsubscribe, ...) each count 3: "privacy policy" must beat
+      // the Texas Women's Privacy Act bill match.
+      if (k.split(' ').length > 1 || SITE_SINGLETONS.has(k)) { score += 3; multi = true; }
+      else score += 1;
+    }
+    if (score > 0 && (!best || score > best.score)) best = { topic: t, score, multi };
+  }
+  if (!best) return null;
+  const singleton = [...words].some((w) => SITE_SINGLETONS.has(w));
+  if (best.score >= 3 || best.multi || singleton) return best;
+  return null;
+}
+
+// A bill number anchors the question to the bill path, unless the question
+// also carries explicit site intent (subscribe, privacy, legislator, ...).
+function hasBillAnchor(question) {
+  if (!/\b([hs][bjr]{0,2})\s*-?\s*(\d{1,4})\b/i.test(String(question || ''))) return false;
+  return !/unsubscrib|privacy|my legislator|find.*legislator|calendar|key date|pricing|subscrib|verification code|access code|impact score|impact level|\bmean\b|how.*calculat|legislator lookup/i.test(String(question || '').toLowerCase());
+}
+
 function searchLocal(question, bills) {
   // Shared logic with server/server.js searchLocalBills — keep in sync.
   const q = question.toLowerCase();
@@ -157,7 +204,7 @@ function enforceProse(text) {
 }
 
 function extractive(question, citations) {
-  if (!citations.length) return 'I could not find a matching Texas bill in the current snapshot. Try a bill number (e.g. “What does SB 1 do?”) or browse the bill feed. Not legal advice — verify with official sources.';
+  if (!citations.length) return 'I could not find a matching Texas bill in the current bill feed. Try a bill number (e.g. “What does SB 1 do?”) or browse the bill feed. Not legal advice — verify with official sources.';
   const top = citations[0];
   const cut = (s, n) => (s.length <= n ? s : s.slice(0, s.lastIndexOf(' ', n)).trimEnd());
   const q = String(question || '').toLowerCase();
@@ -167,7 +214,7 @@ function extractive(question, citations) {
   const blob = `${top.title || ''} ${top.summary || ''} ${top.affects || ''} ${top.changes || ''}`.toLowerCase();
   const hasStudentLink = /student|youth|teen|school|education|child|camp|minor|juvenile|pupil/.test(blob);
   const honestyPrefix = (asksStudents && !hasStudentLink)
-    ? 'No bill in the current snapshot directly targets high schoolers. Closest match, with a weak link: '
+    ? 'No bill in the current bill feed directly targets high schoolers. Closest match, with a weak link: '
     : '';
   // Prose-only fallback: content adapts to the question (audience, mechanism,
   // reason) but never uses Who:/How:/Why: labels.
@@ -226,7 +273,10 @@ module.exports = async (req, res) => {
     businessImpact: cleanField(b.business_impact),
   })).filter((c) => c.identifier);
 
-  if (!citations.length) citations = await fetchOpenStates(question, process.env.OPEN_STATES_API_KEY || '');
+  if (!citations.length && !(matchSiteTopic(question) && !followed.length && !hasBillAnchor(question))) citations = await fetchOpenStates(question, process.env.OPEN_STATES_API_KEY || '');
+  const siteHit = matchSiteTopic(question);
+  const useSite = Boolean(siteHit && !followed.length && !hasBillAnchor(question) && (!citations.length || siteHit.score >= 3));
+  const siteCtx = useSite ? `Site info:\n${siteHit.topic.answer}` : '';
 
   const joinContinuation = (draft, chunk) => {
     const left = String(draft || '').trimEnd();
@@ -254,11 +304,12 @@ module.exports = async (req, res) => {
     const raw = typeof j?.choices?.[0]?.message?.content === 'string' ? j.choices[0].message.content : '';
     return sanitizeAiText(raw);
   };
-  const KEVIN_SYS = 'You are Kevin, the Texas Legislature helper — never claim any other name or model identity. Use only provided context. Cite identifiers. If the context has no bill clearly related to the question (e.g. a high-schooler question with only a groundwater bill), say so honestly and label the closest as closest with a weak link — never present an unrelated bill as a direct answer. Always answer in plain sentences shaped by the question. Never use Who:, How:, Why:, What:, or Bottom line: labels or section headers. Copy Affects exactly; never invent groups or import audiences from history. Max 150 words. End: Not legal advice.';
+  const KEVIN_SYS = 'You are Kevin, the Texas Legislature helper — never claim any other name or model identity. Answer using ONLY the provided context, which may be Texas bill records or Lariat site information. Cite bill identifiers when discussing bills. If none of the bills clearly relates to a bill question, say so starting with the words "No bill in the current bill feed" and label the closest as closest with a weak link — never present an unrelated bill as a direct answer. Always answer in plain sentences shaped by the question. Never use Who:, How:, Why:, What:, or Bottom line: labels or section headers. Copy Affects exactly; never invent groups or import audiences from history. Max 150 words. End: Not legal advice.';
   const CONTINUE = 'Continue exactly where you left off. Do not repeat anything already written, do not restart, no preamble.';
 
   // Optional AI rewrite when configured (OpenRouter preferred, Gemini fallback).
-  let answer = extractive(question, citations);
+  // Site questions use the curated topic answer; bill questions use citations.
+  let answer = useSite ? siteHit.topic.answer : extractive(question, citations);
   let aiEnhanced = false;
   const ctx = citations.map((c) => `- ${c.identifier}: ${c.title}. Affects: ${c.affects || 'n/a'}. Changes: ${c.changes || String(c.summary || '').slice(0, 200)}. ${String(c.summary).slice(0, 300)}`).join('\n');
   // Only include conversation history for true follow-ups ("this bill"...).
@@ -269,13 +320,13 @@ module.exports = async (req, res) => {
     ? `Previous: ${body.history.slice(-2).map((h) => `Q: ${String(h.q || '').slice(0, 200)} A: ${String(h.a || '').slice(0, 300)}`).join(' | ').slice(0, 600)}\n`
     : (followed.length ? `Note: "this bill" refers to ${followed.map((b) => b.identifier).join(', ')}. Answer about those bills.\n` : '');
   const orKey = process.env.OPENROUTER_API_KEY || '';
-  const firstUser = `${histLine}Q: ${question}\n${ctx}`;
+  const firstUser = `${histLine}Q: ${question}\n${useSite ? siteCtx : ctx}`;
   const orModels = [process.env.SUMMARIZER_MODEL || '', 'google/gemma-4-26b-a4b-it:free', 'qwen/qwen3.8-27b:free', 'liquid/lfm-2.5-2.6b:free'].filter(Boolean);
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   let partial = '';
   let carry = ''; // truncated thread passed model-to-model until finished
   for (const model of orModels) {
-    if (aiEnhanced || !orKey || !citations.length) break;
+    if (aiEnhanced || !orKey || !(citations.length || useSite)) break;
     let draft = carry;
     for (let round = 0; round < 3; round += 1) {
       const fresh = !draft;
@@ -308,7 +359,7 @@ module.exports = async (req, res) => {
   }
   if (!aiEnhanced && partial) { answer = partial.slice(0, 2400); aiEnhanced = true; }
   const gemKey = process.env.GEMINI_API_KEY || '';
-  if (!aiEnhanced && gemKey && citations.length) {
+  if (!aiEnhanced && gemKey && (citations.length || useSite)) {
     try {
       for (const model of [process.env.GEMINI_MODEL || 'gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.5-flash-lite']) {
         const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(gemKey)}`, {
@@ -316,8 +367,8 @@ module.exports = async (req, res) => {
           headers: { 'Content-Type': 'application/json' },
           signal: AbortSignal.timeout(20_000),
           body: JSON.stringify({
-            system_instruction: { parts: [{ text: 'Your name is Kevin. You are Kevin, the Texas Legislature helper — never claim any other name or model identity. Use only provided context. Cite identifiers. If the context has no bill clearly related to the question, say so honestly and label the closest as closest with a weak link — never present an unrelated bill as a direct answer. Always answer in plain sentences shaped by the question. Never use Who:, How:, Why:, What:, or Bottom line: labels or section headers. Copy Affects exactly; never invent groups or import audiences from history. No preamble, never output tool calls, search queries, <|...|> tokens, or thinking — only the final answer. Plain text only, no markdown symbols or numbered lists. Short paragraphs separated by blank lines. Max 150 words. End: Not legal advice.' }] },
-            contents: [{ parts: [{ text: `${histLine}Q: ${question}\n${ctx}` }] }],
+            system_instruction: { parts: [{ text: 'Your name is Kevin. You are Kevin, the Texas Legislature helper — never claim any other name or model identity. Answer using ONLY the provided context, which may be Texas bill records or Lariat site information. Cite bill identifiers when discussing bills. If none of the bills clearly relates to a bill question, say so starting with the words "No bill in the current bill feed" and label the closest as closest with a weak link — never present an unrelated bill as a direct answer. Always answer in plain sentences shaped by the question. Never use Who:, How:, Why:, What:, or Bottom line: labels or section headers. Copy Affects exactly; never invent groups or import audiences from history. No preamble, never output tool calls, search queries, <|...|> tokens, or thinking — only the final answer. Plain text only, no markdown symbols or numbered lists. Short paragraphs separated by blank lines. Max 150 words. End: Not legal advice.' }] },
+            contents: [{ parts: [{ text: `${histLine}Q: ${question}\n${useSite ? siteCtx : ctx}` }] }],
             generationConfig: { maxOutputTokens: 700, temperature: 0.3 },
           }),
         });
@@ -331,5 +382,5 @@ module.exports = async (req, res) => {
     } catch (e) { /* keep extractive */ }
   }
 
-  return sendJson(res, 200, { ok: true, answer: enforceProse(answer), citations: citations.slice(0, 3), aiEnhanced, openStatesUsed: Boolean(process.env.OPEN_STATES_API_KEY) });
+  return sendJson(res, 200, { ok: true, answer: enforceProse(answer), citations: useSite ? [] : citations.slice(0, 3), topic: useSite ? `site:${siteHit.topic.id}` : 'bills', aiEnhanced, openStatesUsed: Boolean(process.env.OPEN_STATES_API_KEY) });
 };

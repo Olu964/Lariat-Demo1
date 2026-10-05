@@ -1,6 +1,6 @@
 [
   {
-    "title": "Relating to election procedures regarding accepting a voter with a residence address that is not current and the immediate effect of a voter's registration after the registrar's receipt of certain change of address notices",
+    "title": "Election Procedures for Voter Acceptance",
     "affects": "Elections--Administration (I0277), Elections--General (I0310), Elections--Registration & Suffrage (I0265)",
     "changes": "See the official text for changes proposed by HB 295.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -62,7 +62,7 @@
     ]
   },
   {
-    "title": "Relating to the designation and use of certain spaces and facilities according to sex; authorizing a civil penalty and a private civil right of action",
+    "title": "Texas Women's Privacy Act",
     "affects": "ATTORNEY GENERAL (V2811), ATTORNEY'S FEES (S0202), BIRTH & DEATH CERTIFICATES (S6418)",
     "changes": "See the official text for changes proposed by HB 52.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -116,7 +116,7 @@
     "summary_source": "official bill text"
   },
   {
-    "title": "Relating to a vacancy in the office of senator or representative due to excessive absence",
+    "title": "Legislative Seat Forfeiture Criteria",
     "affects": "HOUSE OF REPRESENTATIVES (V0096), Legislature (I0520), SENATE, TEXAS (V0227)",
     "changes": "See the official text for changes proposed by HB 298.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -170,7 +170,7 @@
     "summary_source": "official bill text"
   },
   {
-    "title": "Urging the federal government to take immediate action to curb the spread of the New World screwworm in Texas",
+    "title": "Federal Action Against New World Screwworm",
     "affects": "Agriculture (I0020), NEW WORLD SCREWWORM (NF6WC), Resolutions--Legislative Policy (I0685)",
     "changes": "See the official text for changes proposed by HCR 13.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -271,7 +271,7 @@
     "affects": "youth camps, emergency management",
     "changes": "requires safety measures for campgrounds and youth camps",
     "business_impact": "N/A  -  no business impact",
-    "impact_level": "Low",
+    "impact_level": "High",
     "industry": "N/A",
     "specific_industry": "N/A",
     "status": "Enacted",
@@ -367,10 +367,21 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 2,
+      "financial_cost": 2,
+      "operational_change": 2,
+      "industry_breadth": 1,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 1,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "The bill directly imposes compliance, operational, and enforcement burdens on youth camp and campground operators through license restrictions, emergency-plan approval, redundant internet, training, and equipment requirements. It also creates financial and business-model impacts by mandating costly safety infrastructure and limiting floodplain operations, with specific 2026 implementation dates.",
+    "impact_framework": "v2-7-factor"
   },
   {
-    "title": "Relating to the exercise of the power of eminent domain by a political subdivision to acquire property outside the political subdivision's boundaries",
+    "title": "Eminent Domain Exercise",
     "affects": "CONDEMNATION (S0063), City Government--Annexation (I0063), County Government--General (I0096)",
     "changes": "See the official text for changes proposed by HB 162.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -412,7 +423,7 @@
     ]
   },
   {
-    "title": "Amending the House Rules of Procedure to authorize additional constitutionally compliant, proportional penalties for members absent without leave for purpose of impeding the action of the House that do not unfairly impair members' representative functions",
+    "title": "House Absence Penalties",
     "affects": "N/A - ceremonial resolution",
     "changes": "N/A - no substantive policy change",
     "business_impact": "N/A - no business impact",
@@ -506,7 +517,7 @@
     "summary_source": "official bill text"
   },
   {
-    "title": "Relating to the composition of the districts for the election of members of the United States House of Representatives from the State of Texas",
+    "title": "Congressional District Redistricting Act",
     "affects": "HOUSE OF REPRESENTATIVES, US (V0774), Legislature (I0520), Redistricting (I0645)",
     "changes": "See the official text for changes proposed by HB 4.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -595,7 +606,7 @@
     "summary_source": "official bill text"
   },
   {
-    "title": "Urging Governor Abbott to return federal reconciliation bill funds to taxpayers through property tax relief",
+    "title": "Federal Reconciliation Funds Tax Relief",
     "affects": "N/A - ceremonial resolution",
     "changes": "N/A - no substantive policy change",
     "business_impact": "N/A - no business impact",
@@ -637,7 +648,7 @@
     ]
   },
   {
-    "title": "Relating to a pharmacist's authority to dispense ivermectin without a prescription",
+    "title": "Pharmacist Ivermectin Dispensing Authority",
     "affects": "HEALTH & HUMAN SERVICES COMMISSION (V0177), Health Care Providers (I0387), Health--General (I0385)",
     "changes": "See the official text for changes proposed by HB 25.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -734,7 +745,7 @@
     ]
   },
   {
-    "title": "Relating to governmental oversight of youth camps, including youth camp rules, duties, and the advisory committee",
+    "title": "Youth Camp Safety Oversight",
     "affects": "CRIMINAL RECORDS (S0008), HEALTH & HUMAN SERVICES COMMISSION (V0177), Minors--Health & Safety (I0533)",
     "changes": "See the official text for changes proposed by HB 265.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -823,7 +834,7 @@
     "summary_source": "official bill text"
   },
   {
-    "title": "Relating to medical school admissions, coursework, academic standards, and employment decisions in this state",
+    "title": "Medical School Admissions and Standards",
     "affects": "Education--Higher--Admission & Attendance (I0257), Education--Higher--Faculty (I0236), Education--Higher--General (I0231)",
     "changes": "See the official text for changes proposed by HB 291.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -865,7 +876,7 @@
     ]
   },
   {
-    "title": "Relating to establishing minimum credentialing qualifications for Emergency Management Coordinators appointed by Emergency Management Directors",
+    "title": "Emergency Management Coordinator Qualifications",
     "affects": "City Government--Employees/Officers (I0061), County Government--Employees/Officers (I0095), Disaster Preparedness & Relief (I0211)",
     "changes": "See the official text for changes proposed by HB 95.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -919,7 +930,7 @@
     "summary_source": "official bill text"
   },
   {
-    "title": "Proposing a constitutional amendment relating to the determination of a quorum of the senate or house of representatives",
+    "title": "Senate and House Quorum Determination",
     "affects": "Legislature (I0520), Resolutions--Constitutional Amendments (I0661)",
     "changes": "See the official text for changes proposed by HJR 10.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -971,7 +982,7 @@
     ]
   },
   {
-    "title": "Relating to an affirmative defense to prosecution for certain victims of trafficking of persons or compelling prostitution",
+    "title": "Affirmative Defense for Certain Victims",
     "affects": "CRIME VICTIMS (S0046), Crimes--Against Morals (I0180), Crimes--Against Persons--General (I0170)",
     "changes": "See the official text for changes proposed by HB 236.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -1023,7 +1034,7 @@
     ]
   },
   {
-    "title": "Relating to a vacancy in the office of senator or representative due to excessive absence",
+    "title": "Legislative Absence Vacancies",
     "affects": "HOUSE OF REPRESENTATIVES (V0096), Legislature (I0520), SENATE, TEXAS (V0227)",
     "changes": "See the official text for changes proposed by HB 64.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
@@ -1177,14 +1188,25 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 2,
+      "financial_cost": 1,
+      "operational_change": 2,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 1,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill directly requires taxing units to calculate no-new-revenue and voter-approval tax rates under revised formulas, creating a clear operational change and broad impact across multiple taxing-unit categories. It also sets a January 1, 2026 effective date for ad valorem tax years, indicating moderate timing relevance without imposing new enforcement penalties or a specific private business-model change.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Texas Women's Privacy Act",
     "affects": "Women, women's shelters",
     "changes": "Authorizes a civil penalty and a private civil right of action for violations of the Texas Women's Privacy Act.",
     "business_impact": "Businesses may need to update policies and procedures to comply with the new law.",
-    "impact_level": "Moderate",
+    "impact_level": "High",
     "industry": "N/A",
     "specific_industry": "N/A",
     "status": "Enacted",
@@ -1280,7 +1302,18 @@
         "title": "Effective on . . . . . . . . . . . . . . ",
         "description": "Became Law - Effective on . . . . . . . . . . . . . ."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 2,
+      "financial_cost": 2,
+      "operational_change": 2,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 1,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill creates direct compliance mandates, imposes significant financial penalties, and requires broad operational adjustments across multiple public sectors.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Disaster Response and Recovery Licensing",
@@ -1383,14 +1416,25 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 2,
+      "financial_cost": 1,
+      "operational_change": 2,
+      "industry_breadth": 1,
+      "enforcement_risk": 1,
+      "effective_date_urgency": 1,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill directly imposes training, licensing, drill, and reporting duties on emergency-management officials and related public officers, creating strong operational and compliance impacts. It also references a small-business disaster recovery program and fee authorization, suggesting possible but not clearly quantified financial effects.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Real Property Theft and Fraud Laws",
     "affects": "Real estate professionals, property owners, law enforcement",
     "changes": "Creates new offenses and procedures for real property theft and fraud, requires recording of certain documents, and establishes restitution procedures.",
     "business_impact": "Businesses in the real estate industry may need to adapt to new recording requirements and procedures for handling real property transactions.",
-    "impact_level": "Moderate",
+    "impact_level": "High",
     "industry": "Real Estate & Land Use",
     "specific_industry": "Real Property Transactions",
     "status": "Enacted",
@@ -1486,14 +1530,25 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 2,
+      "financial_cost": 1,
+      "operational_change": 2,
+      "industry_breadth": 2,
+      "enforcement_risk": 1,
+      "effective_date_urgency": 2,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "The bill directly establishes new criminal offenses of real property theft and fraud with graduated felony classifications, mandatory restitution, and specific filing procedures, representing a strong direct compliance requirement. It introduces significant operational changes by adding Chapter 5C to the Code of Criminal Procedure with new procedural mandates for judges and county clerks. The legislation broadly impacts real property owners, lenders, title companies, and county clerks, demonstrating wide industry breadth. While restitution creates financial costs for defendants, the bill notes no specific funding mechanisms beyond standard judicial processes. Implementation begins September 1, 2025 with additional provisions effective January 1, 2026, indicating moderate effective date urgency. The changes affect title companies and insurers through restitution requirements, though the overall business model impact is relatively limited.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Disaster Relief Funding and Preparedness",
     "affects": "State agencies, disaster relief efforts",
     "changes": "Makes supplemental appropriations for disaster relief and preparedness, and gives the Governor direction and adjustment authority.",
     "business_impact": "Businesses may be impacted by changes in disaster relief funding and preparedness measures.",
-    "impact_level": "Moderate",
+    "impact_level": "Low",
     "industry": "Government & Municipal Operations",
     "specific_industry": "N/A",
     "status": "Enacted",
@@ -1589,14 +1644,25 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 1,
+      "industry_breadth": 1,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 1,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill primarily appropriates disaster-relief funds and funds state disaster-relief programs, with possible operational effects for local governments and emergency-services entities. Its industry breadth and effective-date urgency are limited because the funding is targeted to specific counties, disaster programs, and a two-year period beginning September 1, 2025.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Flash Flood Siren Warning System",
     "affects": "Water Development Board, Texas",
     "changes": "Requires the Texas Water Development Board to provide outdoor warning sirens in flash flood-prone areas.",
     "business_impact": "Businesses in flood-prone areas may need to consider the new warning system requirements.",
-    "impact_level": "Low",
+    "impact_level": "High",
     "industry": "Government & Municipal Operations",
     "specific_industry": "N/A",
     "status": "Enacted",
@@ -1692,7 +1758,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 2,
+      "financial_cost": 1,
+      "operational_change": 2,
+      "industry_breadth": 2,
+      "enforcement_risk": 1,
+      "effective_date_urgency": 2,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "The bill establishes a mandatory grant program requiring municipalities and counties to install outdoor warning sirens in flash flood-prone areas, creating a clear direct compliance requirement. Significant operational changes are mandated for local governments regarding siren installation, maintenance, and operation. The legislation takes effect immediately upon a two-thirds vote or within 91 days, demonstrating urgent implementation timing.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Honoring Tedd L. Mitchell",
@@ -1755,14 +1832,25 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The supplied record describes SR 76 as a ceremonial Senate resolution recognizing an individual, with no legal effect, obligations, or funding. There is no evidence of direct compliance requirements, financial costs, or operational changes.",
+    "impact_framework": "v2-7-factor-metadata"
   },
   {
     "title": "Groundwater Permitting Changes",
     "affects": "Groundwater conservation districts",
     "changes": "Groundwater conservation districts may consider modeled available groundwater when issuing permits.",
     "business_impact": "Groundwater conservation districts may have new considerations when issuing permits.",
-    "impact_level": "Low",
+    "impact_level": "High",
     "industry": "N/A",
     "specific_industry": "N/A",
     "status": "Pending",
@@ -1803,7 +1891,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 2,
+      "financial_cost": 0,
+      "operational_change": 2,
+      "industry_breadth": 1,
+      "enforcement_risk": 1,
+      "effective_date_urgency": 1,
+      "business_model_impact": 2
+    },
+    "impact_rationale": "The bill imposes a clear direct compliance requirement on groundwater conservation districts to consider modeled available groundwater when evaluating permits, representing a fundamental shift in their permitting authority. Operational changes are substantial as districts must now incorporate this new constraint into their permit review processes. Business model impact is high because the 5% cap fundamentally alters how these districts manage groundwater allocation.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Handgun License for Federal Judges",
@@ -1846,7 +1945,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill only expands the definition of 'federal judge' for handgun license applications and applies prospectively to applications submitted on or after the 91st day after the legislative session. It imposes no new obligations, costs, enforcement mechanisms, or broad operational changes, so direct_compliance_requirement, financial_cost, and business_model_impact are absent.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Honoring Mexican Search and Rescue Team",
@@ -1889,14 +1999,25 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill record explicitly characterizes HR 32 as a ceremonial congratulatory resolution with no legal effect, imposing no legal requirements, funding obligations, or enforceable duties, resulting in zero scores for direct_compliance_requirement, financial_cost, and operational_change. No evidence in the supplied text indicates effects on industry breadth, enforcement risk, effective_date_urgency, or business_model_impact.",
+    "impact_framework": "v2-7-factor-metadata"
   },
   {
     "title": "Municipal Emergency Warning Systems",
     "affects": "Municipalities, counties, emergency services",
     "changes": "The bill would relate to emergency warning systems operated by municipalities and counties.",
     "business_impact": "N/A  -  no business impact",
-    "impact_level": "Low",
+    "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
     "status": "Pending",
@@ -1932,7 +2053,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 1,
+      "financial_cost": 1,
+      "operational_change": 2,
+      "industry_breadth": 1,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill directly requires the Department of Public Safety to add consent fields to driver's license applications and to disclose contact information to participating local governments, creating a clear operational change. It also indirectly affects a broad population of driver's license applicants and local emergency-warning systems, with possible implementation costs but no stated funding or enforcement penalties.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "County Impervious Cover Regulation",
@@ -1975,14 +2107,25 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 1,
+      "financial_cost": 1,
+      "operational_change": 1,
+      "industry_breadth": 1,
+      "enforcement_risk": 1,
+      "effective_date_urgency": 0,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "The bill authorizes counties to regulate impervious cover in unincorporated areas, creating possible compliance, operational, and enforcement impacts if counties adopt rules. It does not impose a direct mandate or urgent effective date.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Voter-approval tax rate reform",
     "affects": "taxing units",
     "changes": "the bill modifies the voter-approval tax rate calculation",
     "business_impact": "N/A  -  no business impact",
-    "impact_level": "Low",
+    "impact_level": "Moderate",
     "industry": "Government & Municipal Operations",
     "specific_industry": "N/A",
     "status": "Passed",
@@ -2063,7 +2206,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 1,
+      "financial_cost": 2,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 1,
+      "business_model_impact": 2
+    },
+    "impact_rationale": "Deterministic signals rate business model impact, financial cost as the strongest factors.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Honoring Bobby Gene Roberts Sr.",
@@ -2126,7 +2280,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
+    "impact_framework": "v2-7-factor-metadata"
   },
   {
     "title": "Lobbyist State Funding Ban",
@@ -2168,7 +2333,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
+    "impact_framework": "v2-7-factor-metadata"
   },
   {
     "title": "Urging Governor to Return Tax Relief",
@@ -2208,10 +2384,21 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
+    "impact_framework": "v2-7-factor-metadata"
   },
   {
-    "title": "In memory of Linda Walton Semlear of Longview",
+    "title": "In Memory of Linda Walton Semlear",
     "affects": "N/A - ceremonial resolution",
     "changes": "N/A - no substantive policy change",
     "business_impact": "N/A - no business impact",
@@ -2269,7 +2456,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
+    "impact_framework": "v2-7-factor-metadata"
   },
   {
     "title": "Senate and House Quorum Rule Change",
@@ -2309,7 +2507,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
+    "impact_framework": "v2-7-factor-metadata"
   },
   {
     "title": "Congratulating Fraternal Order of Eagles",
@@ -2351,7 +2560,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
+    "impact_framework": "v2-7-factor-metadata"
   },
   {
     "title": "Flood Safety and Disaster Preparedness",
@@ -2393,15 +2613,26 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
+    "impact_framework": "v2-7-factor-metadata"
   },
   {
-    "title": "Constitutional Amendment to Limit Commercial Property Taxes",
+    "title": "Commercial Property Tax Limits",
     "summary": "HJR 21 is a Texas legislative record concerning commercial property tax appraisal. Metadata identifies a proposed constitutional amendment with no further action recorded. Official bill text was unavailable, so specific provisions require verification from the official source.",
     "affects": "Commercial property owners",
     "changes": "Proposes a constitutional amendment to limit maximum appraised value of commercial real property for tax purposes.",
     "business_impact": "Businesses with commercial property may benefit from reduced tax liability if the amendment is passed.",
-    "impact_level": "Moderate",
+    "impact_level": "Low",
     "industry": "Real Estate & Land Use",
     "specific_industry": "Commercial Property",
     "status": "Pending",
@@ -2433,7 +2664,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Deterministic signals rate financial cost as the strongest factors.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Attorney General Enforcement Authority",
@@ -2475,7 +2717,18 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 1,
+      "financial_cost": 1,
+      "operational_change": 0,
+      "industry_breadth": 1,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 1,
+      "business_model_impact": 2
+    },
+    "impact_rationale": "Deterministic signals rate business model impact, enforcement risk as the strongest factors.",
+    "impact_framework": "v2-7-factor"
   },
   {
     "title": "Voter-approval tax rate threshold",
@@ -2517,10 +2770,21 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
+    "impact_framework": "v2-7-factor-metadata"
   },
   {
-    "title": "Congratulating James L. Grigsby Jr. on retirement",
+    "title": "Congratulating James L. Grigsby Jr.",
     "affects": "N/A  -  no one or entity is affected",
     "changes": "N/A  -  no changes are made by this bill",
     "business_impact": "N/A  -  no business impact",
@@ -2580,6 +2844,17 @@
         "title": "Lariat summary refreshed",
         "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
       }
-    ]
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: No direct compliance, cost, or enforcement signals detected.",
+    "impact_framework": "v2-7-factor-metadata"
   }
 ]

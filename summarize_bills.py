@@ -963,6 +963,58 @@ def build_bill_history(bill: dict[str, Any], old: dict[str, Any] | None = None) 
 EXPANSION_PROMPT = f"""You are revising a Texas legislative bill summary and suggested action. Use ONLY the supplied official bill text, metadata, and draft. Return one JSON object containing exactly these keys: summary, suggested_action, impact_factors, impact_rationale. Rewrite the summary as one neutral paragraph between {MIN_SUMMARY_WORDS} and {MAX_SUMMARY_WORDS} words. Rewrite suggested_action as one neutral, practical paragraph between {MIN_SUGGESTED_ACTION_WORDS} and {MAX_SUGGESTED_ACTION_WORDS} words. Add useful source-supported facts such as operative changes, affected parties, requirements, exceptions, funding, effective dates, implementation questions, or status considerations when present. For ceremonial resolutions, explain that no legal or operational action is required while identifying any useful record-monitoring or verification step. Preserve or correct impact_factors as integers 0-2 for direct_compliance_requirement, financial_cost, operational_change, industry_breadth, enforcement_risk, effective_date_urgency, business_model_impact, and keep impact_rationale to one or two neutral sentences. {IMPACT_RUBRIC_TEXT} Do not pad with repetition or invent facts. Return JSON only."""
 
 
+TITLE_PROMPT = """You are naming a Texas bill for a public bill-feed card. Use ONLY the supplied record (identifier, caption, summary, affected parties). Return one JSON object only, with no markdown or commentary, containing exactly this key: short_title. The short_title MUST be a complete display name of 2-6 words in Title Case, with no period and no ellipsis — a full short name like "Campground and Youth Camp Safety", never a cut-off fragment. Never start with "Relating". Never invent facts beyond condensing what the record states. This is informational, not legal advice."""
+
+
+def valid_short_title(value: Any) -> str:
+    """Return a cleaned short title, or '' when the AI output is unusable."""
+    if not isinstance(value, str):
+        return ""
+    t = value.strip().strip("\"'.").strip()
+    t = re.sub(r"\s+", " ", t)
+    words = t.split()
+    if not 2 <= len(words) <= 6:
+        return ""
+    if re.match(r"(?i)^relating to\b", t):
+        return ""
+    if t.endswith(("…", "...")) or re.search(r"[.:;…]$", t):
+        return ""
+    return t[:1].upper() + t[1:] if t else ""
+
+
+def short_title_context(record: dict[str, Any]) -> str:
+    """Ground a short-name request in the stored record (already sourced from
+    official text or explicitly labeled metadata) — no refetch needed."""
+    return "\n".join(f"{key}: {value}" for key, value in [
+        ("identifier", record.get("identifier")),
+        ("caption", record.get("title")),
+        ("affects", record.get("affects")),
+        ("changes", record.get("changes")),
+        ("summary", str(record.get("summary") or "")[:800]),
+    ] if value)
+
+
+def generate_short_title(
+    context: str,
+    models: list[str],
+    start_index: int,
+    api_key: str,
+) -> tuple[str, int]:
+    """Try each model once for a 2-6 word display name. Raises on failure."""
+    last_error: Exception | None = None
+    for index in range(start_index, len(models)):
+        model = models[index]
+        try:
+            output = extract_json(call_ai(context, model, api_key, system_prompt=TITLE_PROMPT))
+            title = valid_short_title(output.get("short_title") if isinstance(output, dict) else None)
+            if title:
+                return title, index
+            last_error = ValueError(f"{model} returned no usable short_title")
+        except (ModelCapacityError, RuntimeError, ValueError) as exc:
+            last_error = exc
+    raise RuntimeError(f"No model produced a valid short title: {last_error}")
+
+
 def generate_ai_record(
     context: str,
     models: list[str],
@@ -1019,6 +1071,24 @@ def generate_ai_record(
     raise RuntimeError(f"All OpenRouter models failed to produce a valid summary: {last_error}") from last_error
 
 
+def short_display_title(raw: str, limit: int = 64) -> str:
+    """Derive a concise feed title from a raw legislative caption.
+
+    New bills keep the official "Relating to ..." caption when the AI has not
+    (yet) produced a short display title, which is why recent feed cards look
+    so long next to legacy short titles like "Campground and Youth Camp
+    Safety". Stripping the boilerplate prefix and capping length keeps the
+    feed readable without inventing facts.
+    """
+    t = re.sub(r"\s+", " ", str(raw or "").strip().rstrip("."))
+    t = re.sub(r"(?i)^relating to\s+", "", t)
+    t = t[:1].upper() + t[1:] if t else t
+    if len(t) <= limit:
+        return t
+    cut = t[:limit].rsplit(" ", 1)[0]
+    return cut.rstrip(" ,;:") + "…"
+
+
 def fallback_display_fields(bill: dict[str, Any], old: dict[str, Any] | None) -> dict[str, str]:
     """Provide non-AI display fields without inventing legislative details.
 
@@ -1038,7 +1108,13 @@ def fallback_display_fields(bill: dict[str, Any], old: dict[str, Any] | None) ->
         )}
     else:
         fields = {}
-    fields["title"] = fields.get("title") or bill_title
+    cached_title = str(old.get("title") or "").strip() if old else ""
+    # A cached title that is itself a raw caption ("Relating to ...") was
+    # stored before short titles existed — shorten it instead of preserving it.
+    if cached_title and not re.match(r"(?i)^relating to\b", cached_title):
+        fields["title"] = cached_title
+    else:
+        fields["title"] = short_display_title(bill_title) if re.match(r"(?i)^relating to\b", bill_title) else (cached_title or bill_title)
     fields["affects"] = fields.get("affects") or ("N/A - ceremonial resolution" if ceremonial else ", ".join(subjects[:3]) or "Affected parties identified in the official text")
     fields["changes"] = fields.get("changes") or ("N/A - no substantive policy change" if ceremonial else f"See the official text for changes proposed by {identifier}.")
     fields["business_impact"] = fields.get("business_impact") or ("N/A - no business impact" if ceremonial else "Practical effects should be determined from the official text and the bill's current status.")
@@ -1287,7 +1363,17 @@ def main() -> int:
             if not api_key:
                 raise RuntimeError("OPENROUTER_API_KEY is unavailable for an official-text summary")
             output, active_model_index = generate_ai_record(bill_context(bill, text, text_url), models, active_model_index, api_key)
-            records.append(normalize(output, bill, text_url, digest, old, text)); print(f"[{index}/{len(bills)}] {identifier} -> AI ({models[active_model_index]})")
+            record = normalize(output, bill, text_url, digest, old, text)
+            if re.match(r"(?i)^relating to\b", record.get("title") or "") or (record.get("title") or "").endswith("…"):
+                # Raw captions and trimmed fallbacks read badly on feed cards.
+                # A short AI name is best-effort: it must never fail the bill.
+                try:
+                    short, active_model_index = generate_short_title(short_title_context(record), models, active_model_index, api_key)
+                    record["title"] = short
+                    print(f"{identifier}: short title -> {short}", file=sys.stderr)
+                except Exception as exc:
+                    print(f"{identifier}: keeping fallback title ({exc})", file=sys.stderr)
+            records.append(record); print(f"[{index}/{len(bills)}] {identifier} -> AI ({models[active_model_index]})")
             time.sleep(args.delay)
         except Exception as exc:
             failures += 1
