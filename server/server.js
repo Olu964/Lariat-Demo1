@@ -841,7 +841,7 @@ const legislatorRateLimiter = makeRateLimiter(60 * 60 * 1000, 30);              
 const chatRateLimiter = makeRateLimiter(60 * 60 * 1000, 40);                                // chatbot questions per IP per hour
 // Bump this whenever chatbot behavior changes; surfaced via /api/health so a
 // stale local server is trivially detectable.
-const CHATBOT_ENGINE_VERSION = 12;
+const CHATBOT_ENGINE_VERSION = 13;
 
 const requestCooldowns = new Map(); // email::industry -> last request time
 function cooldownActive(email, industry) {
@@ -1233,7 +1233,6 @@ function loadBillSnapshot() {
 const SITE_KNOWLEDGE_FILE = path.join(ROOT, 'site_knowledge.json');
 
 // Site knowledge (Lariat pages: feed, privacy, pricing, calendar, legislator).
-// Shared logic with api/chat/ask.js — keep in sync.
 function loadSiteKnowledge() {
   try {
     const parsed = JSON.parse(fs.readFileSync(SITE_KNOWLEDGE_FILE, 'utf8'));
@@ -1242,31 +1241,12 @@ function loadSiteKnowledge() {
   return { topics: [] };
 }
 
-const SITE_SINGLETONS = new Set(['privacy', 'pricing', 'calendar', 'unsubscribe', 'prefiling', 'legislator', 'legislators', 'subscribe', 'subscription', 'subscriptions', 'subscribed', 'cookies', 'offline', 'deadline']);
-
-function matchSiteTopic(question) {
-  const q = String(question || '').toLowerCase();
-  const words = new Set(q.split(/[^a-z0-9]+/).filter(Boolean));
-  let best = null;
-  for (const t of (loadSiteKnowledge().topics || [])) {
-    if (!t || !Array.isArray(t.keywords)) continue;
-    let score = 0;
-    let multi = false;
-    for (const kw of t.keywords) {
-      const k = String(kw || '').toLowerCase();
-      if (!k || !q.includes(k)) continue;
-      // Multi-word phrases and unambiguous site singletons (privacy, pricing,
-      // calendar, unsubscribe, ...) each count 3: "privacy policy" must beat
-      // the Texas Women's Privacy Act bill match.
-      if (k.split(' ').length > 1 || SITE_SINGLETONS.has(k)) { score += 3; multi = true; }
-      else score += 1;
-    }
-    if (score > 0 && (!best || score > best.score)) best = { topic: t, score, multi };
-  }
-  if (!best) return null;
-  const singleton = [...words].some((w) => SITE_SINGLETONS.has(w));
-  if (best.score >= 3 || best.multi || singleton) return best;
-  return null;
+// Whole site knowledge, compacted (keywords stripped — the model matches by meaning).
+function siteContext(kb) {
+  const site = (kb && kb.site) || {};
+  const pages = site.pages ? `Pages: home, feed, legislator, calendar, pricing, privacy, accessibility.` : '';
+  const topics = ((kb && kb.topics) || []).map((t) => `- [${t.id}] ${t.answer}`).join('\n');
+  return `${site.tagline || ''} Status: ${site.status || ''} Feedback email: ${site.feedback_email || ''}\n${pages}\n${topics}`;
 }
 
 // Full-feed context: ~40 bills in compact form (~2.5k tokens). This replaces
@@ -1304,95 +1284,6 @@ function citationsFromAnswer(answer, bills, clean) {
   return out.map((b) => clean(b)).filter((c) => c.identifier);
 }
 
-// A bill number anchors the question to the bill path, unless the question
-// also carries explicit site intent (subscribe, privacy, legislator, ...).
-function hasBillAnchor(question) {
-  if (!/\b([hs][bjr]{0,2})\s*-?\s*(\d{1,4})\b/i.test(String(question || ''))) return false;
-  return !/unsubscrib|privacy|my legislator|find.*legislator|calendar|key date|pricing|subscrib|verification code|access code|impact score|impact level|\bmean\b|how.*calculat|legislator lookup/i.test(String(question || '').toLowerCase());
-}
-
-function searchLocalBills(question, bills) {
-  // Shared logic with api/chat/ask.js searchLocal — keep in sync.
-  searchLocalBills._relaxed = [];
-  const q = question.toLowerCase();
-  const idMatch = q.match(/\b([hs][bjr]{0,2})\s*-?\s*(\d{1,4})\b/i);
-  let idHits = [];
-  if (idMatch) {
-    const norm = `${idMatch[1].toUpperCase().replace(/\s+/g, ' ')} ${idMatch[2]}`.replace(/^HJR/, 'HJR').replace(/^SJR/, 'SJR');
-    const compact = norm.replace(/\s+/g, '').toLowerCase();
-    idHits = bills.filter((b) => String(b.identifier || '').replace(/\s+/g, '').toLowerCase() === compact);
-    if (idHits.length) return idHits.slice(0, 3);
-  }
-  // Generic request/audience verbs are NOT substantive — scoring them is what
-  // used to surface random bills (e.g. "one"/"that"/"affect" matching SB 58
-  // for a high-schooler question). Whole-word matching + field weights fix it.
-  const stop = new Set(['what', 'does', 'the', 'and', 'for', 'texas', 'law', 'laws', 'bill', 'bills', 'about', 'give', 'get', 'got', 'show', 'find', 'lists', 'list', 'tell', 'name', 'one', 'two', 'single', 'that', 'this', 'these', 'those', 'they', 'them', 'their', 'there', 'here', 'might', 'could', 'would', 'should', 'will', 'shall', 'may', 'can', 'must', 'affect', 'affects', 'affected', 'affecting', 'effect', 'effects', 'impact', 'impacts', 'why', 'how', 'who', 'whom', 'whose', 'which', 'when', 'where', 'whether', 'with', 'from', 'into', 'doing', 'done', 'are', 'was', 'were', 'been', 'have', 'has', 'had', 'please', 'like', 'just', 'really', 'very', 'much', 'many', 'some', 'any', 'each', 'every', 'all', 'both', 'few', 'more', 'most', 'other', 'same', 'only', 'own', 'such', 'than', 'then', 'also', 'me', 'you', 'your', 'our', 'hello', 'hi', 'hey', 'thanks', 'thank', 'okay']);
-  const baseWords = q.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !stop.has(w));
-  // Audience synonym expansion: "highschoolers" never appears verbatim in
-  // bill text, but "student/youth/teen/school/education" does. Same for
-  // woman/women, workers, homeowners, etc.
-  const AUDIENCE_EXPANSIONS = [
-    [/high\s*school|highschool|student|teen|youth|kid\b|kids|child|school|education|college|campus|minor\b|minors|juvenile|pupil/, ['student', 'students', 'youth', 'teen', 'teens', 'school', 'schools', 'education', 'camp', 'camps', 'child', 'children', 'minor']],
-    [/\bwoman\b|\bwomen\b|female|girl\b|girls\b|lady/, ['woman', 'women', 'female', 'girl', 'lady', 'shelter']],
-    [/\bman\b|\bmen\b|\bmale\b|boy\b|boys\b/, ['man', 'men', 'male', 'boy']],
-    [/texan|resident|family|families|parent/, ['texan', 'resident', 'residents', 'family', 'parent', 'people']],
-    [/senior|elderly|retiree|retirement/, ['senior', 'elderly', 'retiree', 'retirement']],
-    [/\bveteran\b/, ['veteran', 'military']],
-    [/worker|employee|workplace/, ['worker', 'employee', 'workplace', 'business']],
-    [/business|company|companies|small business|owner/, ['business', 'company', 'employer', 'owner', 'industry']],
-    [/homeowner|renter|tenant|landlord|housing/, ['homeowner', 'renter', 'tenant', 'landlord', 'housing', 'property']],
-    [/driver|license|motorist/, ['driver', 'license', 'motorist']],
-    [/gun|firearm|handgun/, ['gun', 'firearm', 'handgun']],
-    [/\btax\b|taxes|taxation/, ['tax', 'taxes', 'taxation']],
-  ];
-  const extra = new Set();
-  for (const [re, words] of AUDIENCE_EXPANSIONS) {
-    if (re.test(q)) words.forEach((w) => extra.add(w));
-  }
-  const stemWord = (w) => {
-    const irregular = { women: 'woman', men: 'man', children: 'child', people: 'person' };
-    if (irregular[w]) return irregular[w];
-    if (w.length > 3 && w.endsWith('s') && !w.endsWith('ss')) return w.slice(0, -1);
-    return w;
-  };
-  const words = [...new Set([...baseWords, ...extra])].map(stemWord);
-  if (!words.length) return [];
-  const fieldTokens = (v) => new Set(String(v || '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).map(stemWord));
-  const hasWord = (set, w) => set.has(w) || set.has(`${w}s`);
-  const scored = bills.map((b) => {
-    const t = fieldTokens(b.title);
-    const a = fieldTokens(`${b.affects || ''} ${b.specific_industry || ''}`);
-    const c = fieldTokens(b.changes);
-    const s = fieldTokens(`${b.summary || ''} ${b.business_impact || ''}`);
-    const ind = fieldTokens(b.industry);
-    let score = 0;
-    for (const w of words) {
-      if (hasWord(t, w)) score += 4;
-      if (hasWord(a, w)) score += 4;
-      if (hasWord(c, w)) score += 2;
-      if (hasWord(s, w)) score += 1;
-      if (hasWord(ind, w)) score += 1;
-    }
-    return { bill: b, score };
-  });
-  const strict = scored.filter((s) => s.score >= 4).sort((a, b) => b.score - a.score);
-  // Stash relaxed candidates (threshold 2) for the conversational no-match
-  // path: justify the closest bills instead of dead-ending.
-  searchLocalBills._relaxed = scored.filter((s) => s.score >= 2).sort((a, b) => b.score - a.score).slice(0, 3).map((s) => s.bill);
-  return strict.slice(0, 3).map((s) => s.bill);
-}
-
-// Follow-up like "why does this bill impact high schoolers" has no bill
-// number. If the frontend sends the bills from the previous turn
-// (contextIds), reuse them instead of keyword-guessing a new bill.
-function resolveFollowUpBills(question, bills, contextIds) {
-  if (!Array.isArray(contextIds) || !contextIds.length) return [];
-  if (/\b([hs][bjr]{0,2})\s*-?\s*(\d{1,4})\b/i.test(question)) return [];
-  if (!/\b(this|that|it|these|those|same|the bill|this bill|that bill)\b/i.test(question)) return [];
-  const wanted = new Set(contextIds.map((v) => String(v || '').replace(/\s+/g, '').toLowerCase()));
-  return bills.filter((b) => wanted.has(String(b.identifier || '').replace(/\s+/g, '').toLowerCase())).slice(0, 3);
-}
-
 async function fetchOpenStatesBills(question) {
   if (!OPEN_STATES_API_KEY) return [];
   try {
@@ -1420,19 +1311,13 @@ async function fetchOpenStatesBills(question) {
   }
 }
 
-async function rewriteWithGemini(question, citations, extra = {}) {
+async function rewriteWithGemini(question, extra = {}) {
   if (!GEMINI_API_KEY) return null;
   try {
-  // Thread memory: the last exchange rides along for conversational
-  // continuity ("it", "that one", "what about renters?"). The brief tells
-  // the model history is continuity only — never import people or positions
-  // from earlier turns unless the user refers back to them.
-  const histLine = (Array.isArray(extra.history) && extra.history.length)
-    ? `Previous: ${extra.history.map((h) => `Q: ${h.q} A: ${h.a}`).join(' | ').slice(0, 600)}\n`
-    : (extra.followedNote || '');
-    const siteCtx = typeof extra.siteAnswer === 'string' && extra.siteAnswer ? `Site info:\n${extra.siteAnswer}` : '';
-    const context = extra.fullFeed || citations.map((c) => `- ${c.identifier}: ${c.title}. Affects: ${c.affects || 'n/a'}. Changes: ${c.changes || String(c.summary || '').slice(0, 200)}. ${String(c.summary || c.status || '').slice(0, 300)} (Source: ${c.sourceUrl})`).join('\n');
-    const system = 'Your name is Kevin. You are Kevin, the Texas Legislature helper on the Lariat site — never claim any other name or model identity. You are Kevin, a conversational Texas Legislature helper on the Lariat site — never claim any other name or model identity. Talk like a helpful person, not a form. You see the full bill feed below: pick what is relevant, compare bills when useful, and explain in everyday words how a bill connects to the asker (use would/could for inference). If asked for an opinion or what is most important, give a direct judgment call and justify it. If the question is ambiguous, ask ONE clarifying question instead of guessing. Previous turns are continuity only — never import people, groups, or positions from them unless the user refers back. Use ONLY the feed and site info provided; name the bill identifiers you discuss. If nothing fits, say so starting with the words "No bill in the current bill feed" and suggest how to browse. Never use Who:, How:, Why:, What:, or Bottom line: labels. Copy the Affects field exactly when stating who a bill affects; never invent affected groups. If unsure, say so and point to the bill feed. Start directly with the answer, no preamble. Never output tool calls, search queries, <|...|> tokens, or your thinking process — only the final answer. Write in plain text only: no markdown, no ** asterisks, no bullets, dashes, numbers, or # headings. Use short paragraphs separated by blank lines. End with: Not legal advice; verify with official sources. Max 150 words.';
+    const histLine = (Array.isArray(extra.history) && extra.history.length)
+      ? `Conversation so far: ${extra.history.map((h) => `User: ${h.q} || Kevin: ${h.a}`).join(' ||| ').slice(0, 900)}\n`
+      : '';
+    const system = 'Your name is Kevin. You are Kevin, a conversational Texas Legislature helper on the Lariat site — never claim any other name or model identity. Talk like a helpful person, not a form. Below you have Lariat site info, the full Texas bill feed, and possibly OpenStates records (marked, outside the feed). Decide yourself whether the user asks about the site or about bills. Pick relevant bills yourself, compare when useful, and explain in everyday words how a bill connects to the asker (use would/could for inference). If asked for an opinion or what is most important, give a direct judgment call and justify it. If the question is ambiguous, ask ONE clarifying question instead of guessing. Use the conversation history for follow-ups ("it", "that one", "what about renters?"). Answer THIS question fresh; never repeat a previous answer unless the user asked for the same thing. Ground everything in the sources; name the bill identifiers you discuss. If nothing fits, say so starting with the words "No bill in the current bill feed" and suggest how to browse. Never use Who:, How:, Why:, What:, or Bottom line: labels. Copy the Affects field exactly when stating who a bill affects; never invent affected groups. If unsure, say so and point to the bill feed. Start directly with the answer, no preamble. Never output tool calls, search queries, <|...|> tokens, or your thinking process — only the final answer. Write in plain text only: no markdown, no ** asterisks, no bullets, dashes, numbers, or # headings. Use short paragraphs separated by blank lines. End with: Not legal advice; verify with official sources. Max 150 words (a clarifying question may be shorter).';
     for (const model of [GEMINI_MODEL, 'gemini-3.8-flash', 'gemini-3.5-flash-lite']) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
@@ -1442,7 +1327,7 @@ async function rewriteWithGemini(question, citations, extra = {}) {
           signal: AbortSignal.timeout(20_000),
           body: JSON.stringify({
             system_instruction: { parts: [{ text: system }] },
-            contents: [{ parts: [{ text: `${histLine}Question: ${question}\n\n${siteCtx || extra.noMatchCtx || `Context:\n${context || '(no matching bills found)'}`}` }] }],
+            contents: [{ parts: [{ text: `${histLine}User asks: ${question}\n\n${extra.bigCtx || '(no sources available)'}` }] }],
             generationConfig: { maxOutputTokens: 700, temperature: 0.3 },
           }),
         });
@@ -1496,26 +1381,20 @@ async function openRouterChat(model, messages) {
   return sanitizeAiText(raw);
 }
 
-const KEVIN_SYSTEM = 'Your name is Kevin. You are Kevin, the Texas Legislature helper on the Lariat site — never claim any other name or model identity. You are Kevin, a conversational Texas Legislature helper on the Lariat site — never claim any other name or model identity. Talk like a helpful person, not a form. You see the full bill feed below: pick what is relevant, compare bills when useful, and explain in everyday words how a bill connects to the asker (use would/could for inference). If asked for an opinion or what is most important, give a direct judgment call and justify it. If the question is ambiguous, ask ONE clarifying question instead of guessing. Previous turns are continuity only — never import people, groups, or positions from them unless the user refers back. Use ONLY the feed and site info provided; name the bill identifiers you discuss. If nothing fits, say so starting with the words "No bill in the current bill feed" and suggest how to browse. Never use Who:, How:, Why:, What:, or Bottom line: labels. Copy the Affects field exactly when stating who a bill affects; never invent affected groups. If unsure, say so and point to the bill feed. Start directly with the answer, no preamble. Never output tool calls, search queries, <|...|> tokens, or your thinking process — only the final answer. Write in plain text only: no markdown, no ** asterisks, no bullets, dashes, numbers, or # headings. Use short paragraphs separated by blank lines. End with: Not legal advice; verify with official sources. Max 150 words.';
+const KEVIN_SYSTEM = 'You are Kevin, a conversational Texas Legislature helper on the Lariat site — never claim any other name or model identity. Talk like a helpful person, not a form. Below you have Lariat site info, the full Texas bill feed, and possibly OpenStates records (marked, outside the feed). Decide yourself whether the user asks about the site or about bills. Pick relevant bills yourself, compare when useful, and explain in everyday words how a bill connects to the asker (use would/could for inference). If asked for an opinion or what is most important, give a direct judgment call and justify it. If the question is ambiguous, ask ONE clarifying question instead of guessing. Use the conversation history for follow-ups ("it", "that one", "what about renters?"). Answer THIS question fresh; never repeat a previous answer unless the user asked for the same thing. Ground everything in the sources; name the bill identifiers you discuss. If nothing fits, say so starting with the words "No bill in the current bill feed" and suggest how to browse. Never use Who:, How:, Why:, What:, or Bottom line: labels. Copy the Affects field exactly when stating who a bill affects; never invent affected groups. If unsure, say so and point to the bill feed. Start directly with the answer, no preamble. Never output tool calls, search queries, <|...|> tokens, or your thinking process — only the final answer. Write in plain text only: no markdown, no ** asterisks, no bullets, dashes, numbers, or # headings. Use short paragraphs separated by blank lines. End with: Not legal advice; verify with official sources. Max 150 words (a clarifying question may be shorter).';
 const CONTINUE_PROMPT = 'Continue exactly where you left off. Do not repeat anything already written, do not restart, no preamble.';
 
-async function rewriteWithOpenRouter(question, citations, extra = {}) {
-  if (!OPENROUTER_API_KEY) return await rewriteWithGemini(question, citations, extra);
+async function rewriteWithOpenRouter(question, extra = {}) {
+  if (!OPENROUTER_API_KEY) return await rewriteWithGemini(question, extra);
   // `partial`/`carry` live outside try so the fallback below can read them
   // even when every model fails (otherwise: ReferenceError on 429 streaks).
   let partial = '';
   let carry = ''; // truncated thread passed model-to-model until finished
   try {
-  // Thread memory: the last exchange rides along for conversational
-  // continuity ("it", "that one", "what about renters?"). The brief tells
-  // the model history is continuity only — never import people or positions
-  // from earlier turns unless the user refers back to them.
-  const histLine = (Array.isArray(extra.history) && extra.history.length)
-    ? `Previous: ${extra.history.map((h) => `Q: ${h.q} A: ${h.a}`).join(' | ').slice(0, 600)}\n`
-    : (extra.followedNote || '');
-    const siteCtx = typeof extra.siteAnswer === 'string' && extra.siteAnswer ? `Site info:\n${extra.siteAnswer}` : '';
-    const context = extra.fullFeed || citations.map((c) => `- ${c.identifier}: ${c.title}. Affects: ${c.affects || 'n/a'}. Changes: ${c.changes || String(c.summary || '').slice(0, 200)}. ${String(c.summary || c.status || '').slice(0, 300)} (Source: ${c.sourceUrl})`).join('\n');
-    const firstUser = `${histLine}Question: ${question}\n\n${siteCtx || extra.noMatchCtx || `Context:\n${context || '(no matching bills found)'}`}`;
+    const histLine = (Array.isArray(extra.history) && extra.history.length)
+      ? `Conversation so far: ${extra.history.map((h) => `User: ${h.q} || Kevin: ${h.a}`).join(' ||| ').slice(0, 900)}\n`
+      : '';
+    const firstUser = `${histLine}User asks: ${question}\n\n${extra.bigCtx || '(no sources available)'}`;
     // Free-tier lanes are often congested (HTTP 429): rotate models and retry
     // once after a short pause before falling through to Gemini/extractive.
     const models = [OPENROUTER_MODEL, 'google/gemma-4-26b-a4b-it:free', 'qwen/qwen3.8-27b:free', 'liquid/lfm-2.5-2.6b:free'].filter(Boolean);
@@ -1559,41 +1438,7 @@ async function rewriteWithOpenRouter(question, citations, extra = {}) {
     }
   } catch (error) { /* fall through to Gemini, then extractive */ }
   if (partial) return partial.slice(0, 2400); // better a partial AI answer than none
-  return await rewriteWithGemini(question, citations, extra);
-}
-
-function extractiveAnswer(question, citations) {
-  if (!citations.length) {
-    return 'I could not find a matching Texas bill in the current bill feed. Try asking with a bill number (e.g. “What does SB 1 do?”), an industry like “Energy & Utilities”, or browse the bill feed. For statutes beyond bills, check Texas Legislature Online. Not legal advice — verify with official sources.';
-  }
-  const top = citations[0];
-  // Cut at a word boundary so the fallback never ends mid-word.
-  const cut = (s, n) => (s.length <= n ? s : s.slice(0, s.lastIndexOf(' ', n)).trimEnd());
-  const q = String(question || '').toLowerCase();
-  // Safety net: audience query (e.g. high-schoolers) matched a bill with no
-  // audience link — be honest instead of presenting it as a direct answer.
-  const asksStudents = /high\s*school|highschool|student|teen|school|youth|child|kid|education/.test(q);
-  const blob = `${top.title || ''} ${top.summary || ''} ${top.affects || ''} ${top.changes || ''}`.toLowerCase();
-  const hasStudentLink = /student|youth|teen|school|education|child|camp|minor|juvenile|pupil/.test(blob);
-  const honestyPrefix = (asksStudents && !hasStudentLink)
-    ? 'No bill in the current bill feed directly targets high schoolers. Closest match, with a weak link: '
-    : '';
-  // Prose-only fallback: content adapts to the question (audience, mechanism)
-  // but never uses Who:/How:/Why: labels.
-  const wantsAudience = /\bwho\b|\bwhom\b|\baffect(s|ed|ing)?\b|\bimpact(s|ed|ing)?\b|\bhigh\s*school|highschool|student|teen|school|youth|child|kid|education/.test(q);
-  const wantsMechanism = /\bhow\b/.test(q);
-  const withPeriod = (s) => {
-    const t = String(s || '').replace(/\s+/g, ' ').trim().replace(/[.。]+$/, '');
-    return t ? `${t}.` : '';
-  };
-  const parts = [`${honestyPrefix}${top.identifier} — ${top.title || 'Texas bill'}.`];
-  if (wantsAudience && top.affects) parts.push(`It affects ${top.affects}.`);
-  if (wantsMechanism && top.changes) parts.push(withPeriod(top.changes));
-  if (top.summary) parts.push(top.summary.slice(0, 450));
-  if (top.status) parts.push(`Status: ${top.status}.`);
-  const bits = parts.filter(Boolean).join(' ');
-  const extra = citations.length > 1 ? ` Related: ${citations.slice(1).map((c) => c.identifier).join(', ')}.` : '';
-  return `${cut(`${bits}${extra}`, 900)} See the linked source for the official record. Not legal advice.`;
+  return await rewriteWithGemini(question, extra);
 }
 
 async function handleChatAsk(req, res, body) {
@@ -1606,7 +1451,7 @@ async function handleChatAsk(req, res, body) {
   const toCitation = (b) => ({
     identifier: String(b.identifier || ''),
     title: String(b.title || 'Untitled bill'),
-    summary: String(b.summary || b.changes || ''),
+    summary: String(b.summary || b.changes || '').slice(0, 600),
     status: String(b.status || b.latest_action_description || ''),
     industry: String(b.industry || ''),
     affects: cleanField(b.affects),
@@ -1614,53 +1459,53 @@ async function handleChatAsk(req, res, body) {
     businessImpact: cleanField(b.business_impact),
     sourceUrl: typeof b.source_url === 'string' && /^https?:\/\//i.test(b.source_url) ? b.source_url : '',
   });
-  const followed = resolveFollowUpBills(question, bills, body.contextIds);
   const history = Array.isArray(body.history) ? body.history.slice(-2).map((h) => ({
     q: String(h.q || h.question || '').slice(0, 200),
     a: String(h.a || h.answer || '').slice(0, 300),
   })).filter((h) => h.q) : [];
-  let citations = (followed.length ? followed : searchLocalBills(question, bills)).map(toCitation).filter((c) => c.identifier);
-  // Relaxed candidates for the conversational no-match path (justify the
-  // closest bills instead of dead-ending with "could not find").
-  const relaxed = (!followed.length && !citations.length
-    ? (searchLocalBills._relaxed || []).map(toCitation).filter((c) => c.identifier)
-    : []);
 
-  if (!citations.length && !relaxed.length && !(matchSiteTopic(question) && !followed.length && !hasBillAnchor(question))) {
-    const live = await fetchOpenStatesBills(question);
-    citations = live.map((b) => ({ ...b, sourceUrl: typeof b.sourceUrl === 'string' && /^https?:\/\//i.test(b.sourceUrl) ? b.sourceUrl : '' }));
+  // OpenStates supplements the feed only when the question names a bill the
+  // snapshot does not contain (otherwise the feed already covers it).
+  let osResults = [];
+  if (OPEN_STATES_API_KEY) {
+    const ids = new Set(bills.map((b) => String(b.identifier || '').replace(/\s+/g, '').toLowerCase()));
+    const re = /\b([hs][bjr]{0,2})\s*-?\s*(\d{1,4})\b/gi;
+    let m;
+    let allKnown = true;
+    while ((m = re.exec(question))) {
+      if (!ids.has(`${m[1]}${m[2]}`.replace(/\s+/g, '').toLowerCase())) { allKnown = false; break; }
+    }
+    if (!allKnown) {
+      const live = await fetchOpenStatesBills(question);
+      osResults = live.map((b) => ({ ...b, sourceUrl: typeof b.sourceUrl === 'string' && /^https?:\/\//i.test(b.sourceUrl) ? b.sourceUrl : '' }));
+    }
   }
-  const siteHit = matchSiteTopic(question);
-  const useSite = Boolean(siteHit && !followed.length && !hasBillAnchor(question) && (!citations.length || siteHit.score >= 3));
-  const noMatchCtx = (!citations.length && !useSite && relaxed.length)
-    ? `No strong match in the bill feed. Closest records:\n${relaxed.map((c) => `- ${c.identifier}: ${c.title}. Affects: ${c.affects || 'n/a'}. ${String(c.summary).slice(0, 300)}`).join('\n')}\nRecommend the best fit if defensible and justify the connection in plain sentences. If none truly fits, say so starting with the words "No bill in the current bill feed" and point to the bill feed.`
+  const osCtx = osResults.length
+    ? `\n\nOPEN STATES RECORDS (outside the Lariat feed):\n${osResults.map((c) => `- ${c.identifier}: ${c.title}. ${String(c.summary).slice(0, 300)}`).join('\n')}`
     : '';
-  const conversationalFallback = () => {
-    const names = relaxed.slice(0, 2).map((c) => `${c.identifier} — ${c.title}`).join(' and ');
-    const first = relaxed[0].summary ? relaxed[0].summary.split(/(?<=[.!?])\s/)[0] : '';
-    return `I don't have a direct match for that, but the closest in the feed ${relaxed.length > 1 ? 'are' : 'is'} ${names}.${first ? ` ${first}` : ''} Browse the bill feed or ask with a bill number for details. Not legal advice.`;
-  };
-
   // The model sees the whole live snapshot, so bills added by the GitHub
   // workflow are automatically in context — no per-bill registration.
-  const fullFeed = useSite ? '' : feedContext(bills);
-  const aiAnswer = await rewriteWithOpenRouter(question, citations, {
-    history,
-    isFollowUp: followed.length > 0,
-    followedNote: followed.length ? `Note: "this bill" refers to ${followed.map((b) => b.identifier).join(', ')}. Answer about those bills.\n` : '',
-    siteAnswer: useSite ? siteHit.topic.answer : '',
-    noMatchCtx,
-    fullFeed,
-  });
-  const answer = enforceProse(useSite && !aiAnswer ? siteHit.topic.answer : (aiAnswer || (relaxed.length && !citations.length ? conversationalFallback() : extractiveAnswer(question, citations))));
-  const cited = !useSite && aiAnswer ? citationsFromAnswer(aiAnswer, bills, toCitation) : [];
-  const outCites = useSite ? [] : (cited.length ? cited : (citations.length ? citations.slice(0, 3) : relaxed.slice(0, 3)));
+  const bigCtx = `LARIAT SITE INFO:\n${siteContext(loadSiteKnowledge())}\n\nTEXAS BILL FEED (${bills.length} bills, plain-English summaries of official text):\n${feedContext(bills)}${osCtx}`;
+
+  const aiAnswer = await rewriteWithOpenRouter(question, { history, bigCtx });
+  if (!aiAnswer) {
+    return sendJson(res, 200, {
+      ok: true,
+      answer: 'My answer engine is unreachable right now, so I cannot reason over the feed. Please browse the bill feed directly or try again in a bit. Not legal advice.',
+      citations: [],
+      topic: 'busy',
+      aiEnhanced: false,
+      openStatesUsed: Boolean(OPEN_STATES_API_KEY),
+    });
+  }
+  const answer = enforceProse(aiAnswer);
+  const cited = citationsFromAnswer(answer, [...bills, ...osResults], toCitation);
   return sendJson(res, 200, {
     ok: true,
     answer,
-    citations: outCites,
-    topic: useSite ? `site:${siteHit.topic.id}` : 'bills',
-    aiEnhanced: Boolean(aiAnswer),
+    citations: cited.slice(0, 3),
+    topic: 'chat',
+    aiEnhanced: true,
     openStatesUsed: Boolean(OPEN_STATES_API_KEY),
   });
 }
