@@ -878,6 +878,8 @@ const CENSUS_ZCTA_URL = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TI
 const CENSUS_GEOGRAPHIES_URL = 'https://geocoding.geo.census.gov/geocoder/geographies/coordinates';
 const OPEN_STATES_GEO_URL = 'https://v3.openstates.org/people.geo';
 const OPEN_STATES_BILL_URL = 'https://v3.openstates.org/bills';
+const OPEN_STATES_COMMITTEES_URL = 'https://v3.openstates.org/committees';
+const COMMITTEES_CACHE_TTL_MS = 60 * 60 * 1000;
 const LEGISLATOR_CACHE_FILE = path.join(DATA_DIR, 'legislator-lookups.json');
 const LEGISLATOR_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_ADDRESS_LENGTH = 240;
@@ -894,6 +896,12 @@ function cachedLegislatorsAreUsable(legislators) {
       && person.district !== 'Texas'
       && typeof person.votingHistoryStatus === 'string'
       && Array.isArray(person.votingHistory)
+      && typeof person.committeesStatus === 'string'
+      && Array.isArray(person.committees)
+      && typeof person.sponsoredBillsStatus === 'string'
+      && Array.isArray(person.sponsoredBills)
+      && Array.isArray(person.leadershipRoles)
+      && person.votingPattern && typeof person.votingPattern === 'object'
       && !Object.prototype.hasOwnProperty.call(person, 'email')
       && !Object.prototype.hasOwnProperty.call(person, 'links')
       && !Object.prototype.hasOwnProperty.call(person, 'offices'));
@@ -1035,7 +1043,505 @@ function normalizeLegislator(person) {
     party: firstString(person.party) || 'Party not listed',
     district: role.district === null || role.district === undefined ? '' : String(role.district),
     photoUrl: safeHttpUrl(person.image) || null,
+    roleTitle: firstString(role.title),
   };
+}
+
+// --- Profile enrichment: committees, sponsored bills, leadership, patterns ---
+
+let texasCommitteesCache = { at: 0, list: null };
+
+async function fetchTexasCommittees() {
+  const now = Date.now();
+  if (texasCommitteesCache.list && now - texasCommitteesCache.at < COMMITTEES_CACHE_TTL_MS) {
+    return texasCommitteesCache.list;
+  }
+  if (!OPEN_STATES_API_KEY) return [];
+  const all = [];
+  try {
+    for (let page = 1; page <= 3; page += 1) {
+      const url = new URL(OPEN_STATES_COMMITTEES_URL);
+      url.searchParams.set('jurisdiction', 'Texas');
+      url.searchParams.set('per_page', '100');
+      url.searchParams.set('page', String(page));
+      url.searchParams.set('include', 'memberships');
+      const body = await fetchJson(url, { headers: { 'X-API-KEY': OPEN_STATES_API_KEY, Accept: 'application/json' } });
+      const results = Array.isArray(body?.results) ? body.results : [];
+      if (!results.length) break;
+      all.push(...results);
+      const pagination = body?.pagination || {};
+      if (Number(pagination.page) >= Number(pagination.max_page || page)) break;
+      if (results.length < 100) break;
+    }
+  } catch (error) {
+    return texasCommitteesCache.list || [];
+  }
+  texasCommitteesCache = { at: now, list: all };
+  return all;
+}
+
+function uuidOfPersonId(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  const parts = raw.split('/');
+  return parts[parts.length - 1].trim();
+}
+
+function normPersonName(value) {
+  return String(value || '').toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function lastNameOf(fullName) {
+  const tokens = normPersonName(fullName).split(' ').filter(Boolean)
+    .filter((t) => !['jr', 'sr', 'ii', 'iii', 'iv', 'v'].includes(t));
+  return tokens.length ? tokens[tokens.length - 1] : '';
+}
+
+function personNamesMatch(a, b) {
+  const na = normPersonName(a);
+  const nb = normPersonName(b);
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  const ta = na.split(' ').filter(Boolean);
+  const tb = nb.split(' ').filter(Boolean);
+  if (ta.length > 1 && ta.slice().sort().join(' ') === tb.slice().sort().join(' ')) return true;
+  if ((ta.length === 1 && tb.includes(ta[0]) && ta[0].length >= 3)
+    || (tb.length === 1 && ta.includes(tb[0]) && tb[0].length >= 3)) return true;
+  const la = lastNameOf(na);
+  const lb = lastNameOf(nb);
+  if (la && la === lb && la.length >= 3) return true;
+  if (la && tb.includes(la) && la.length >= 3) return true;
+  if (lb && ta.includes(lb) && lb.length >= 3) return true;
+  return false;
+}
+
+function personIdsMatch(wantedId, candidateId) {
+  const w = String(wantedId || '').trim();
+  const c = String(candidateId || '').trim();
+  if (!w || !c) return false;
+  if (w === c) return true;
+  return uuidOfPersonId(w) !== '' && uuidOfPersonId(w) === uuidOfPersonId(c);
+}
+
+function committeeMembershipPerson(membership) {
+  if (!membership || typeof membership !== 'object') return { id: '', name: '' };
+  const nested = membership.person && typeof membership.person === 'object' ? membership.person : null;
+  const nestedId = typeof membership.person === 'string' ? membership.person : nested?.id;
+  return {
+    id: firstString(membership.person_id, membership.personId, membership.personIdHint, nestedId),
+    name: firstString(membership.person_name, membership.name, membership.personName, nested?.name),
+  };
+}
+
+function committeesForPerson(allCommittees, person) {
+  const wantedId = String(person?.personId || '');
+  const wantedName = String(person?.name || '');
+  const wantedLast = lastNameOf(wantedName);
+  const matched = [];
+  for (const committee of allCommittees || []) {
+    const memberships = Array.isArray(committee?.memberships) ? committee.memberships : [];
+    const mine = memberships.find((m) => {
+      const who = committeeMembershipPerson(m);
+      if (wantedId && who.id && personIdsMatch(wantedId, who.id)) return true;
+      if (personNamesMatch(wantedName, who.name)) return true;
+      if (wantedLast && wantedLast.length >= 3) {
+        const haystack = Object.values(m || {}).filter((v) => typeof v === 'string').join(' ').toLowerCase();
+        if (haystack.includes(wantedLast) && normPersonName(haystack).includes(normPersonName(wantedName).split(' ')[0] || '___unlikely___')) return true;
+      }
+      return false;
+    });
+    if (!mine) continue;
+    matched.push({
+      id: firstString(committee?.id).slice(0, 120),
+      name: firstString(committee?.name) || 'Committee',
+      chamber: firstString(committee?.chamber).slice(0, 20),
+      classification: firstString(committee?.classification).slice(0, 40),
+      role: firstString(mine?.role) || 'Member',
+    });
+    if (matched.length >= 15) break;
+  }
+  matched.sort((a, b) => {
+    const rank = (role) => (/chair/i.test(role || '') && !/vice/i.test(role || '') ? 0 : /vice/i.test(role || '') ? 1 : 2);
+    return rank(a.role) - rank(b.role) || String(a.name).localeCompare(String(b.name));
+  });
+  return matched;
+}
+
+async function fetchSponsoredBills(person) {
+  if (!OPEN_STATES_API_KEY || (!person?.personId && !person?.name)) {
+    return { status: 'unavailable', records: [] };
+  }
+  const seenQueries = new Set();
+  const queries = [];
+  for (const q of [person.personId, uuidOfPersonId(person.personId), person.name, lastNameOf(person.name)]) {
+    if (typeof q === 'string' && q.trim() && !seenQueries.has(q.trim())) {
+      seenQueries.add(q.trim());
+      queries.push(q.trim());
+    }
+  }
+  for (const sponsorQuery of queries) {
+    try {
+      const url = new URL(OPEN_STATES_BILL_URL);
+      url.searchParams.set('jurisdiction', 'Texas');
+      url.searchParams.set('sponsor', sponsorQuery);
+      url.searchParams.set('per_page', '10');
+      url.searchParams.set('sort', 'updated_desc');
+      url.searchParams.set('include', 'sponsorships');
+      const body = await fetchJson(url, { headers: { 'X-API-KEY': OPEN_STATES_API_KEY, Accept: 'application/json' } });
+      const results = Array.isArray(body?.results) ? body.results : [];
+      if (!results.length) continue;
+      const records = results.slice(0, 8).map((bill) => {
+        const sponsorships = Array.isArray(bill?.sponsorships) ? bill.sponsorships : [];
+        const mine = sponsorships.find((s) => {
+          const sid = firstString(s?.person?.id, s?.person_id, typeof s?.person === 'string' ? s.person : '');
+          const sname = firstString(s?.person?.name, s?.name);
+          if (person.personId && sid && personIdsMatch(person.personId, sid)) return true;
+          return personNamesMatch(person.name, sname);
+        });
+        const primary = mine ? mine.primary !== false : undefined;
+        return {
+          id: firstString(bill?.id).slice(0, 120),
+          identifier: firstString(bill?.identifier).slice(0, 40),
+          title: firstString(bill?.title).slice(0, 200) || 'Untitled bill',
+          session: firstString(bill?.session).slice(0, 20),
+          classification: (Array.isArray(bill?.classification) ? bill.classification.join(', ') : firstString(bill?.classification)).slice(0, 60),
+          sponsorshipRole: firstString(mine?.classification, mine?.primary === true ? 'primary' : '').slice(0, 40),
+          primary: primary === undefined ? null : Boolean(primary),
+          latestAction: firstString(bill?.latest_action_description).slice(0, 200),
+          latestActionDate: firstString(bill?.latest_action_date).slice(0, 20),
+          sourceUrl: safeHttpUrl(bill?.openstates_url) || safeHttpUrl(bill?.sources?.[0]?.url),
+        };
+      }).filter((r) => r.identifier);
+      if (records.length) return { status: 'available', records };
+    } catch (error) { /* try next query */ }
+  }
+  return { status: 'unavailable', records: [] };
+}
+
+// --- Official Texas Legislature fallback (capitol.texas.gov, no API key) ---
+// Open States committee coverage for Texas is experimental and often empty.
+// The official Texas Legislature Online (TLO) publishes per-member committee
+// assignments and authored-bill reports as plain HTML with stable URL shapes,
+// so we scrape those (allowlisted host only) when Open States comes up empty.
+
+const TLO_BASE = 'https://capitol.texas.gov';
+const TLO_TIMEOUT_MS = 10_000;
+const TLO_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const TLO_LEGS = ['89', '90'];
+const TLO_REPORT_SESS = '89R';
+const tloRosterCache = { at: 0, byChamber: null };
+const tloMemberCache = new Map(); // code -> { at, committees, sponsored }
+
+async function fetchTloText(pathAndQuery) {
+  const url = new URL(pathAndQuery, TLO_BASE);
+  if (url.host !== 'capitol.texas.gov' || url.protocol !== 'https:') {
+    throw new Error('TLO host not allowed');
+  }
+  const response = await fetch(url, {
+    headers: { 'User-Agent': 'LariatLegislatorLookup/1.0 (+https://lariatdemo.com)', Accept: 'text/html' },
+    signal: AbortSignal.timeout(TLO_TIMEOUT_MS),
+  });
+  if (!response.ok) throw new Error(`TLO HTTP ${response.status}`);
+  const text = await response.text();
+  if (!text || text.length < 500) throw new Error('TLO empty response');
+  return text;
+}
+
+function decodeTloEntities(value) {
+  return String(value || '')
+    .replace(/&#(\d+);/g, (_, code) => {
+      const n = Number(code);
+      return Number.isFinite(n) && n > 0 && n < 0x10FFFF ? String.fromCodePoint(n) : '';
+    })
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+
+function parseTloRoster(html) {
+  const entries = [];
+  const re = /<option\s+value="(A\d+)"[^>]*>([^<]+)<\/option>/gi;
+  let m;
+  while ((m = re.exec(html)) && entries.length < 500) {
+    const code = m[1].trim();
+    const rawLabel = decodeTloEntities(m[2]);
+    const label = rawLabel.replace(/\s*\([A-Z]-A\d+\)\s*$/, '').trim();
+    if (code && label && !/select a name/i.test(label)) entries.push({ code, label });
+  }
+  return entries;
+}
+
+async function fetchTloRoster() {
+  const now = Date.now();
+  if (tloRosterCache.byChamber && now - tloRosterCache.at < TLO_CACHE_TTL_MS) {
+    return tloRosterCache.byChamber;
+  }
+  const [houseHtml, senateHtml] = await Promise.all([
+    fetchTloText('/Committees/ByMember.aspx?chamber=H'),
+    fetchTloText('/Committees/ByMember.aspx?chamber=S'),
+  ]);
+  const byChamber = { H: parseTloRoster(houseHtml), S: parseTloRoster(senateHtml) };
+  tloRosterCache.at = now;
+  tloRosterCache.byChamber = byChamber;
+  return byChamber;
+}
+
+function resolveTloCode(candidates, person) {
+  const list = Array.isArray(candidates) ? candidates : [];
+  if (!list.length || !person?.name) return '';
+  const exact = list.find((c) => personNamesMatch(person.name, c.label));
+  if (exact && !list.some((o) => o !== exact && personNamesMatch(person.name, o.label)
+    && normPersonName(o.label) !== normPersonName(exact.label))) return exact.code;
+  const surname = lastNameOf(person.name);
+  if (surname && surname.length >= 3) {
+    const hits = list.filter((c) => normPersonName(c.label).split(' ').includes(surname));
+    if (hits.length === 1) return hits[0].code;
+  }
+  const sortedWant = normPersonName(person.name).split(' ').filter(Boolean).sort().join(' ');
+  const fullHits = list.filter((c) => normPersonName(c.label).split(' ').filter(Boolean).sort().join(' ') === sortedWant);
+  if (fullHits.length === 1) return fullHits[0].code;
+  return exact && fullHits.length !== 0 ? exact.code : '';
+}
+
+function parseTloCommittees(html, chamber) {
+  const section = (() => {
+    const m = /<div id="committeeAssignments">([\s\S]*?)<div id="legislativeInformation">/.exec(html);
+    return m ? m[1] : html;
+  })();
+  const block = (() => {
+    const parts = section.split(/Conference Committees/i);
+    return parts[0] || '';
+  })();
+  const out = [];
+  const re = /<a[^>]*>([^<]+)<\/a>\s*(\(([^)]*)\))?/gi;
+  let m;
+  while ((m = re.exec(block)) && out.length < 15) {
+    const name = decodeTloEntities(m[1]).slice(0, 100);
+    if (!name || /conference committee on/i.test(name)) continue;
+    const roleRaw = decodeTloEntities(m[3] || '').slice(0, 40);
+    out.push({
+      id: '',
+      name: name || 'Committee',
+      chamber: String(chamber || '').slice(0, 20),
+      classification: '',
+      role: roleRaw || 'Member',
+      source: 'official',
+    });
+  }
+  const seen = new Set();
+  return out.filter((c) => {
+    const key = c.name.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function parseTloAuthoredReport(html) {
+  const rows = String(html || '').split(/<div class="row">/).slice(1);
+  const out = [];
+  for (const row of rows) {
+    if (out.length >= 8) break;
+    const link = /BillLookup\/History\.aspx\?LegSess=([^&"']+)(?:&amp;|&)Bill=([^"'<]+)["'][^>]*>([^<]+)<\/a/i.exec(row);
+    if (!link) continue;
+    const legSess = decodeTloEntities(link[1]).slice(0, 12);
+    const billParam = decodeTloEntities(link[2]).replace(/\s+/g, ' ').trim().slice(0, 20);
+    const identifier = decodeTloEntities(link[3]).replace(/\s+/g, ' ').trim().slice(0, 20)
+      || billParam.replace(/^([A-Za-z]+)\s*0*(\d+)$/, (_, letters, num) => `${letters.toUpperCase()} ${Number(num)}`).slice(0, 20)
+      || billParam;
+    if (!identifier) continue;
+    const action = /<b>Last Action:<\/b><\/div>\s*<div[^>]*>([^<]*)/i.exec(row);
+    const caption = /<b>Caption<\/b>:\s*<\/div>\s*<div[^>]*>([\s\S]*?)<\/div>/i.exec(row);
+    out.push({
+      id: '',
+      identifier,
+      title: truncateCaption(decodeTloEntities((caption ? caption[1].replace(/<[^>]*>/g, ' ') : ''))) || 'Untitled bill',
+      session: legSess,
+      classification: '',
+      sponsorshipRole: 'Author',
+      primary: true,
+      latestAction: decodeTloEntities(action ? action[1] : '').slice(0, 200),
+      latestActionDate: '',
+      sourceUrl: `${TLO_BASE}/BillLookup/History.aspx?LegSess=${encodeURIComponent(legSess)}&Bill=${encodeURIComponent(billParam)}`,
+      source: 'official',
+    });
+  }
+  return out;
+}
+
+function truncateCaption(value, max = 110) {
+  let text = String(value || '').replace(/^\s*relating to\s+/i, '').trim();
+  const cut = text.search(/;\s|\s+including\s+/i);
+  if (cut > 24 && cut < max) text = text.slice(0, cut).trim();
+  text = text.replace(/[\s,;:.]+$/, '');
+  if (text.length <= max) return text.charAt(0).toUpperCase() + text.slice(1);
+  const sliced = text.slice(0, max);
+  const lastSpace = sliced.lastIndexOf(' ');
+  const trimmed = (lastSpace > max * 0.6 ? sliced.slice(0, lastSpace) : sliced).replace(/[\s,;:.]+$/, '');
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1) + '…';
+}
+
+const tloTitleCache = new Map(); // normalized identifier -> { at, title }
+
+async function enrichTloBillTitles(bills) {
+  if (!OPEN_STATES_API_KEY || !Array.isArray(bills) || !bills.length) return bills;
+  await Promise.all(bills.map(async (bill) => {
+    if (bill?.source !== 'official') return;
+    const key = String(bill.identifier || '').replace(/\s+/g, '').toUpperCase();
+    if (!key) return;
+    const cached = tloTitleCache.get(key);
+    if (cached && Date.now() - Number(cached.at) < TLO_CACHE_TTL_MS) {
+      if (cached.title) bill.title = cached.title;
+      return;
+    }
+    try {
+      const url = new URL(OPEN_STATES_BILL_URL);
+      url.searchParams.set('jurisdiction', 'Texas');
+      url.searchParams.set('identifier', bill.identifier);
+      url.searchParams.set('per_page', '5');
+      const body = await fetchJson(url, { headers: { 'X-API-KEY': OPEN_STATES_API_KEY, Accept: 'application/json' } });
+      const results = Array.isArray(body?.results) ? body.results : [];
+      const norm = (s) => String(s || '').replace(/\s+/g, '').toUpperCase();
+      const match = results.find((b) => norm(b?.identifier) === key) || null;
+      const shortTitle = firstString(match?.title);
+      if (shortTitle && shortTitle.length < 100 && !/^relating to\s/i.test(shortTitle)) {
+        bill.title = shortTitle.slice(0, 200);
+        if (tloTitleCache.size > 500) tloTitleCache.clear();
+        tloTitleCache.set(key, { at: Date.now(), title: bill.title });
+        return;
+      }
+    } catch (error) { /* keep caption fallback */ }
+    if (tloTitleCache.size > 500) tloTitleCache.clear();
+    tloTitleCache.set(key, { at: Date.now(), title: '' });
+  }));
+  return bills;
+}
+
+async function fetchTloProfile(person) {
+  const chamberLetter = String(person?.chamber || '').toLowerCase() === 'senate' ? 'S'
+    : String(person?.chamber || '').toLowerCase() === 'house' ? 'H' : '';
+  if (!chamberLetter) return null;
+  const roster = await fetchTloRoster();
+  const code = resolveTloCode(roster[chamberLetter], person);
+  if (!code) return null;
+  const cached = tloMemberCache.get(code);
+  if (cached && Date.now() - Number(cached.at) < TLO_CACHE_TTL_MS) return cached;
+  if (tloMemberCache.size > 500) tloMemberCache.clear();
+  let memberHtml = '';
+  for (const leg of TLO_LEGS) {
+    try {
+      memberHtml = await fetchTloText(`/Members/MemberInfo.aspx?Chamber=${chamberLetter}&Code=${encodeURIComponent(code)}&Leg=${leg}`);
+      if (memberHtml.includes('Committee Assignments')) break;
+    } catch (error) { /* try next Leg */ }
+  }
+  if (!memberHtml.includes('Committee Assignments')) return null;
+  const committees = parseTloCommittees(memberHtml, person.chamber);
+  let sponsored = [];
+  try {
+    const reportHtml = await fetchTloText(`/reports/report.aspx?LegSess=${TLO_REPORT_SESS}&ID=author&Code=${encodeURIComponent(code)}`);
+    sponsored = parseTloAuthoredReport(reportHtml);
+  } catch (error) { sponsored = []; }
+  const result = { code, committees, sponsored, at: Date.now() };
+  tloMemberCache.set(code, result);
+  return result;
+}
+
+function buildLeadershipRoles(person, committees) {
+  const roles = [];
+  const title = String(person?.roleTitle || '');
+  const lower = title.toLowerCase();
+  const isGeneric = /^(senator|representative|state senator|state representative)\s*$/i.test(title.trim())
+    || !title.trim();
+  if (title.trim() && !isGeneric
+    && /(speaker|president|pro tempore|majority|minority|leader|whip|chair|vice-chair|vice chair|speaker pro)/i.test(title)) {
+    roles.push({ title, detail: `${person?.chamber || ''} leadership`.trim() });
+  }
+  for (const committee of committees || []) {
+    if (/chair|vice/i.test(committee.role || '')) {
+      roles.push({ title: `${committee.role} — ${committee.name}`, detail: 'Committee leadership' });
+    }
+    if (roles.length >= 8) break;
+  }
+  return roles.slice(0, 8).map((r) => ({
+    title: String(r.title || '').slice(0, 140),
+    detail: String(r.detail || '').slice(0, 80),
+  }));
+}
+
+function buildVotingPattern(votingHistory, checkedCount) {
+  const records = Array.isArray(votingHistory) ? votingHistory : [];
+  const recorded = records.filter((r) => r?.voteStatus === 'recorded');
+  const yes = recorded.filter((r) => String(r.vote || '').toLowerCase() === 'yes').length;
+  const no = recorded.filter((r) => String(r.vote || '').toLowerCase() === 'no').length;
+  const other = Math.max(0, recorded.length - yes - no);
+  const notRecorded = records.filter((r) => r?.voteStatus !== 'recorded').length;
+  const yesPct = recorded.length ? Math.round((yes / recorded.length) * 100) : null;
+  const noPct = recorded.length ? Math.round((no / recorded.length) * 100) : null;
+  let trend = 'No clear trend yet';
+  if (recorded.length >= 2) {
+    if (yesPct >= 75) trend = 'Votes Yes most of the time';
+    else if (noPct >= 75) trend = 'Votes No most of the time';
+    else if (yesPct >= 55) trend = 'Leans Yes';
+    else if (noPct >= 55) trend = 'Leans No';
+    else trend = 'Mixed Yes/No record';
+  } else if (recorded.length === 1) {
+    trend = yes === 1 ? 'Single recorded Yes vote' : no === 1 ? 'Single recorded No vote' : 'Single recorded vote';
+  }
+  return {
+    totalChecked: Number.isFinite(Number(checkedCount)) ? Number(checkedCount) : records.length,
+    recorded: recorded.length,
+    yes, no, other, notRecorded, yesPct, noPct, trend,
+  };
+}
+
+async function enrichLegislator(legislator, allCommittees) {
+  const [history, sponsored] = await Promise.all([
+    fetchVotingHistory(legislator),
+    fetchSponsoredBills(legislator),
+  ]);
+  legislator.votingHistoryStatus = history.status;
+  legislator.votingHistoryChecked = history.checkedBillCount;
+  legislator.votingHistory = history.records;
+  const committees = committeesForPerson(allCommittees, legislator);
+  let committeesSource = committees.length ? 'openstates' : '';
+  let sponsoredRecords = sponsored.records;
+  let sponsoredStatus = sponsored.status;
+  let sponsoredSource = sponsoredRecords.length ? 'openstates' : '';
+  if (!committees.length || !sponsoredRecords.length) {
+    try {
+      const tlo = await fetchTloProfile(legislator);
+      if (tlo) {
+        if (!committees.length && tlo.committees.length) {
+          committees.push(...tlo.committees.slice(0, 15));
+          committeesSource = 'official';
+        }
+        if (!sponsoredRecords.length && tlo.sponsored.length) {
+          sponsoredRecords = tlo.sponsored.slice(0, 8);
+          sponsoredStatus = 'available';
+          sponsoredSource = 'official';
+        }
+      }
+      if (sponsoredSource === 'official' && sponsoredRecords.length) {
+        await enrichTloBillTitles(sponsoredRecords);
+      }
+      console.log(`[legislator] TLO fallback for ${legislator.name}: ${tlo ? `${tlo.committees.length} committees, ${tlo.sponsored.length} sponsored (code ${tlo.code})` : 'no TLO profile resolved'}`);
+    } catch (error) {
+      console.log(`[legislator] TLO fallback failed for ${legislator.name}: ${error.message}`);
+    }
+  }
+  committees.sort((a, b) => {
+    const rank = (role) => (/chair/i.test(role || '') && !/vice/i.test(role || '') ? 0 : /vice/i.test(role || '') ? 1 : 2);
+    return rank(a.role) - rank(b.role) || String(a.name).localeCompare(String(b.name));
+  });
+  legislator.committees = committees.slice(0, 15);
+  legislator.committeesStatus = committees.length ? 'available' : 'unavailable';
+  legislator.committeesSource = committeesSource;
+  legislator.sponsoredBills = sponsoredRecords.slice(0, 8);
+  legislator.sponsoredBillsStatus = sponsoredStatus;
+  legislator.sponsoredBillsSource = sponsoredSource;
+  legislator.leadershipRoles = buildLeadershipRoles(legislator, committees);
+  legislator.votingPattern = buildVotingPattern(history.records, history.checkedBillCount);
+  return legislator;
 }
 
 function majorBillsForVoteHistory() {
@@ -1046,7 +1552,7 @@ function majorBillsForVoteHistory() {
       .filter((bill) => bill && typeof bill.id === 'string' && typeof bill.identifier === 'string'
         && ['moderate', 'high'].includes(String(bill.impact_level || '').toLowerCase()))
       .sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')))
-      .slice(0, 5)
+      .slice(0, 12)
       .map((bill) => ({
         id: bill.id,
         identifier: bill.identifier,
@@ -1073,13 +1579,15 @@ function voteOption(voter) {
 }
 
 function voterMatchesPerson(voter, person) {
-  const ids = [voter?.id, voter?.person_id, voter?.person?.id, voter?.voter?.id]
-    .filter((value) => typeof value === 'string');
-  if (person.personId && ids.includes(person.personId)) return true;
-  const names = [voter?.name, voter?.person?.name, voter?.voter?.name]
-    .filter((value) => typeof value === 'string')
-    .map((value) => value.trim().toLowerCase());
-  return Boolean(person.name && names.includes(person.name.trim().toLowerCase()));
+  const ids = [voter?.id, voter?.person_id, voter?.person?.id, voter?.voter?.id,
+    typeof voter?.voter === 'string' ? voter.voter : '',
+    typeof voter?.person === 'string' ? voter.person : '']
+    .filter((value) => typeof value === 'string' && value);
+  if (person?.personId && ids.some((id) => personIdsMatch(person.personId, id))) return true;
+  const names = [voter?.name, voter?.person?.name, voter?.voter?.name, voter?.voter_name,
+    typeof voter?.voter === 'string' ? voter.voter : '', typeof voter?.person === 'string' ? voter.person : '']
+    .filter((value) => typeof value === 'string' && value.trim());
+  return names.some((n) => personNamesMatch(person?.name, n));
 }
 
 function extractVoters(vote) {
@@ -1124,10 +1632,13 @@ async function fetchVotingHistory(person) {
   }));
 
   const cleanRecords = records.filter(Boolean);
+  const recordedFirst = [...cleanRecords].sort((a, b) => (
+    (b.voteStatus === 'recorded' ? 1 : 0) - (a.voteStatus === 'recorded' ? 1 : 0)
+  ));
   return {
     status: successfulResponses ? 'available' : 'unavailable',
     checkedBillCount: bills.length,
-    records: cleanRecords,
+    records: recordedFirst.slice(0, 6),
   };
 }
 
@@ -1159,12 +1670,8 @@ async function findLegislators(address) {
       throw lookupError(422, 'outside_texas', 'That location is outside Texas. Enter a Texas address or ZIP code.');
     }
     const legislators = await fetchLegislators(coordinates.latitude, coordinates.longitude);
-    await Promise.all(legislators.map(async (legislator) => {
-      const history = await fetchVotingHistory(legislator);
-      legislator.votingHistoryStatus = history.status;
-      legislator.votingHistoryChecked = history.checkedBillCount;
-      legislator.votingHistory = history.records;
-    }));
+    const allCommittees = await fetchTexasCommittees();
+    await Promise.all(legislators.map((legislator) => enrichLegislator(legislator, allCommittees)));
     legislatorCache[key] = { cachedAt: Date.now(), legislators };
     saveLegislatorCache();
     return { legislators, cached: false };

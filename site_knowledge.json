@@ -147,7 +147,7 @@
         "voting history",
         "how did my legislator vote"
       ],
-      "answer": "On the Find your legislator page, enter your full Texas street address (most precise, up to 240 characters) or a 5-digit ZIP (approximate). You get back exactly two people — your state senator and state representative — with chamber, district, name, party, and photo. Opening a profile shows recent major-bill voting history with verify links when available; unavailable votes are stated, never guessed. Use Make them your legislator to save them (max 2, one per chamber) and the feed will badge how they voted. Lookups outside Texas or that cannot be geocoded return an error."
+      "answer": "On the Find your legislator page, enter your full Texas street address (most precise, up to 240 characters) or a 5-digit ZIP (approximate). You get back exactly two people — your state senator and state representative — with chamber, district, name, party, and photo. Opening a profile shows district, party, committees, recent votes, sponsored bills, leadership roles, and voting patterns when available; unavailable sections are stated, never guessed. Use Make them your legislator to save them (max 2, one per chamber) and the feed will badge how they voted. Lookups outside Texas or that cannot be geocoded return an error."
     },
     {
       "id": "demo-limits",

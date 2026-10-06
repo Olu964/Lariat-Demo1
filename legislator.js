@@ -135,7 +135,7 @@
             ${photo}
             <span><span class="legislator-name">${escapeHtml(legislator.name)}</span><span class="legislator-party">${escapeHtml(legislator.party || 'Party not listed')}</span></span>
           </span>
-          <span class="legislator-card-action">Click to view profile and voting history <span aria-hidden="true">↗</span></span>
+          <span class="legislator-card-action">Click to view full profile <span aria-hidden="true">↗</span></span>
         </button>
         <div class="legislator-card-picker">
           <button class="make-my-legislator-button" type="button" data-make-my-legislator="${index}" aria-pressed="false" aria-label="Make ${escapeHtml(legislator.name)} your legislator">Make them your legislator</button>
@@ -144,19 +144,89 @@
     `;
   };
 
+  const asArray = (value) => (Array.isArray(value) ? value : []);
+
+  const renderDistrictParty = (legislator) => {
+    const district = legislator.district ? `District ${legislator.district}` : 'District not listed';
+    const role = legislator.roleTitle ? `<span class="legislator-modal-role">${escapeHtml(legislator.roleTitle)}</span>` : '';
+    return `
+      <div class="legislator-modal-profile">
+        <div class="legislator-modal-kicker">${escapeHtml(legislator.chamber || 'Legislator')} · ${escapeHtml(district)}</div>
+        ${role}
+        <dl class="legislator-facts">
+          <div><dt>District</dt><dd>${escapeHtml(legislator.district || 'Not listed')}</dd></div>
+          <div><dt>Party</dt><dd>${escapeHtml(legislator.party || 'Not listed')}</dd></div>
+          <div><dt>Chamber</dt><dd>${escapeHtml(legislator.chamber || 'Not listed')}</dd></div>
+        </dl>
+      </div>`;
+  };
+
+  const renderCommittees = (legislator) => {
+    const committees = asArray(legislator.committees);
+    if (legislator.committeesStatus !== 'available' || !committees.length) {
+      return `<section class="legislator-modal-section"><h3>Committees</h3><p class="legislator-missing">Committee assignments are not available from the current legislative data source. No assignment has been inferred.</p></section>`;
+    }
+    const sourceNote = legislator.committeesSource === 'official'
+      ? `<p class="legislator-source-note">Committee assignments from the official Texas Legislature Online.</p>` : '';
+    return `<section class="legislator-modal-section"><div class="legislator-modal-section-heading"><h3>Committees</h3><span>${committees.length} assignment${committees.length === 1 ? '' : 's'}</span></div><div class="vote-history-list">${committees.map((c) => `
+      <article class="vote-history-row"><div><strong>${escapeHtml(c.name || 'Committee')}</strong><h4>${escapeHtml(c.role || 'Member')}${c.chamber ? ` · ${escapeHtml(c.chamber)}` : ''}</h4>${c.classification ? `<p>${escapeHtml(c.classification)}</p>` : ''}</div></article>`).join('')}</div>${sourceNote}</section>`;
+  };
+
   const renderVotingHistory = (legislator) => {
     const records = Array.isArray(legislator.votingHistory) ? legislator.votingHistory : [];
     if (legislator.votingHistoryStatus !== 'available') {
-      return `<section class="legislator-modal-section"><h3>Recent major-bill voting history</h3><p class="legislator-missing">Voting history is not available from the current legislative data source. No vote has been inferred or filled in.</p></section>`;
+      return `<section class="legislator-modal-section"><h3>Recent votes</h3><p class="legislator-missing">Voting history is not available from the current legislative data source. No vote has been inferred or filled in.</p></section>`;
     }
     if (!records.length) {
-      return `<section class="legislator-modal-section"><h3>Recent major-bill voting history</h3><p class="legislator-missing">No individual votes were recorded for the recent major bills checked.</p></section>`;
+      return `<section class="legislator-modal-section"><h3>Recent votes</h3><p class="legislator-missing">No individual votes were recorded for the recent major bills checked.</p></section>`;
     }
-    return `<section class="legislator-modal-section"><div class="legislator-modal-section-heading"><h3>Recent major-bill voting history</h3><span>${records.length} bill${records.length === 1 ? '' : 's'}</span></div><div class="vote-history-list">${records.map((record) => {
+    return `<section class="legislator-modal-section"><div class="legislator-modal-section-heading"><h3>Recent votes</h3><span>${records.length} bill${records.length === 1 ? '' : 's'}</span></div><div class="vote-history-list">${records.map((record) => {
       const voteClass = String(record.vote || '').toLowerCase().replace(/[^a-z]+/g, '-');
       const source = record.sourceUrl ? linkMarkup(record.sourceUrl, 'Verify source') : '';
       return `<article class="vote-history-row"><div><strong>${escapeHtml(record.identifier || 'Bill')}</strong><h4>${escapeHtml(record.title || 'Untitled bill')}</h4><p>${escapeHtml(formatDate(record.date))}${record.result ? ` · Result: ${escapeHtml(record.result)}` : ''}</p></div><div class="vote-history-result"><span class="vote-pill ${escapeHtml(voteClass)}">${escapeHtml(record.vote || 'Recorded')}</span>${source}</div></article>`;
     }).join('')}</div><p class="legislator-source-note">History is limited to major bills in the current Lariat snapshot and only shows a vote when Open States returned an individual voter record.</p></section>`;
+  };
+
+  const renderSponsoredBills = (legislator) => {
+    const bills = asArray(legislator.sponsoredBills);
+    if (legislator.sponsoredBillsStatus !== 'available' || !bills.length) {
+      return `<section class="legislator-modal-section"><h3>Sponsored bills</h3><p class="legislator-missing">Sponsored bills are not available from the current legislative data source. No sponsorship has been inferred.</p></section>`;
+    }
+    return `<section class="legislator-modal-section"><div class="legislator-modal-section-heading"><h3>Sponsored bills</h3><span>${bills.length} bill${bills.length === 1 ? '' : 's'}</span></div><div class="vote-history-list">${bills.map((bill) => {
+      const source = bill.sourceUrl ? linkMarkup(bill.sourceUrl, bill.source === 'official' ? 'Official record' : 'Open States record') : '';
+      const meta = [bill.session ? `Session ${bill.session}` : '', bill.sponsorshipRole || (bill.primary === true ? 'Primary sponsor' : bill.primary === false ? 'Co-sponsor' : ''), bill.latestAction || ''].filter(Boolean).join(' · ');
+      return `<article class="vote-history-row"><div><strong>${escapeHtml(bill.identifier || 'Bill')}</strong><h4>${escapeHtml(bill.title || 'Untitled bill')}</h4>${meta ? `<p>${escapeHtml(meta)}</p>` : ''}</div><div class="vote-history-result">${source}</div></article>`;
+    }).join('')}</div><p class="legislator-source-note">${legislator.sponsoredBillsSource === 'official' ? 'Bills authored by this legislator according to the official Texas Legislature Online (89th Legislature regular session).' : 'Most recently updated Texas bills listing this legislator as a sponsor in Open States.'}</p></section>`;
+  };
+
+  const renderLeadership = (legislator) => {
+    const roles = asArray(legislator.leadershipRoles);
+    if (!roles.length) {
+      const committeesKnown = legislator.committeesStatus === 'available';
+      return `<section class="legislator-modal-section"><h3>Leadership roles</h3><p class="legislator-missing">${committeesKnown ? 'No leadership role is listed for this legislator — most members don’t hold a chamber or committee chair position.' : 'No chamber or committee leadership role is listed for this legislator in the current data.'}</p></section>`;
+    }
+    return `<section class="legislator-modal-section"><div class="legislator-modal-section-heading"><h3>Leadership roles</h3><span>${roles.length} role${roles.length === 1 ? '' : 's'}</span></div><div class="vote-history-list">${roles.map((role) => `
+      <article class="vote-history-row"><div><strong>${escapeHtml(role.detail || 'Leadership')}</strong><h4>${escapeHtml(role.title || 'Role')}</h4></div></article>`).join('')}</div></section>`;
+  };
+
+  const renderVotingPattern = (legislator) => {
+    const pattern = legislator.votingPattern && typeof legislator.votingPattern === 'object' ? legislator.votingPattern : null;
+    if (!pattern || !Number.isFinite(Number(pattern.recorded)) || Number(pattern.recorded) === 0) {
+      const checked = Number(pattern?.totalChecked || asArray(legislator.votingHistory).length);
+      return `<section class="legislator-modal-section"><h3>Voting patterns</h3><p class="legislator-missing">${checked ? `No individual Yes/No votes were recorded across the ${checked} major bill${checked === 1 ? '' : 's'} checked, so no pattern can be shown.` : 'Not enough recorded votes to describe a pattern. No pattern has been inferred.'}</p></section>`;
+    }
+    const yesPct = pattern.yesPct ?? 0;
+    const noPct = pattern.noPct ?? 0;
+    return `<section class="legislator-modal-section"><h3>Voting patterns</h3>
+      <p class="legislator-pattern-trend">${escapeHtml(pattern.trend || 'Voting trend')}</p>
+      <div class="legislator-pattern-grid">
+        <div><strong>${escapeHtml(String(pattern.yes ?? 0))}</strong><span>Yes${yesPct !== null ? ` · ${escapeHtml(String(yesPct))}%` : ''}</span></div>
+        <div><strong>${escapeHtml(String(pattern.no ?? 0))}</strong><span>No${noPct !== null ? ` · ${escapeHtml(String(noPct))}%` : ''}</span></div>
+        <div><strong>${escapeHtml(String(pattern.recorded ?? 0))}</strong><span>Recorded of ${escapeHtml(String(pattern.totalChecked ?? 0))} checked</span></div>
+      </div>
+      <div class="legislator-pattern-bar" aria-hidden="true"><span style="width:${Math.max(0, Math.min(100, Number(yesPct) || 0))}%"></span></div>
+      <p class="legislator-source-note">Computed only from the recorded Yes/No votes above. “Not recorded” bills are excluded, never counted as Yes or No.</p>
+    </section>`;
   };
 
   const openModal = (legislator, trigger) => {
@@ -164,12 +234,13 @@
     lastFocusedElement = trigger || document.activeElement;
     if (modalTitle) modalTitle.textContent = `${legislator.name} · ${legislator.chamber}`;
     modalBody.innerHTML = `
-      <div class="legislator-modal-profile">
-        <div class="legislator-modal-kicker">${escapeHtml(legislator.chamber)} · District ${escapeHtml(legislator.district || 'not listed')}</div>
-        <p class="legislator-modal-party">${escapeHtml(legislator.party || 'Party not listed')}</p>
-      </div>
+      ${renderDistrictParty(legislator)}
+      ${renderCommittees(legislator)}
       ${renderVotingHistory(legislator)}
-      <p class="legislator-source-note">Legislator and vote records are provided by Open States. Verify important details with the official Texas Legislature before relying on them.</p>
+      ${renderSponsoredBills(legislator)}
+      ${renderLeadership(legislator)}
+      ${renderVotingPattern(legislator)}
+      <p class="legislator-source-note">Legislator, committee, sponsorship, and vote records are provided by Open States. Verify important details with the official Texas Legislature before relying on them.</p>
     `;
     modal.classList.add('is-open');
     if (typeof modal.showModal === 'function') {
