@@ -32,7 +32,7 @@
         <input id="lariat-chat-input" autocomplete="off" maxlength="500" placeholder="Ask about bills or this site...">
         <button type="submit" aria-label="Send message">➤</button>
       </form>
-      <div class="chat-disclaimer">Answers start from official Texas records + OpenStates. Verify with official sources. Not legal advice.</div>
+      <div class="chat-disclaimer"><span>Answers start from official Texas records + OpenStates. Verify with official sources.</span><strong>Not legal advice.</strong></div>
     </div>
     <button class="chat-launcher" type="button" aria-label="Open chat" aria-expanded="false">
       <span class="launcher-ring"></span>

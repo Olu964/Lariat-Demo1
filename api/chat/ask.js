@@ -150,6 +150,20 @@ function looksTruncated(text) {
   return !/[.!?]['"”’)\]]?\s*$/.test(trimmed);
 }
 
+// Safety net: peel any trailing disclaimer the model emits anyway ("Not
+// legal advice", optionally paired with "verify with official sources").
+// The notice lives under the chat window, so answers stay clean.
+function stripDisclaimer(text) {
+  let out = String(text || '').trim();
+  for (let i = 0; i < 2; i += 1) {
+    out = out
+      .replace(/\s*not legal advice\s*[.;]?\s*(verify with official sources\s*[.;]?)?\s*$/i, '')
+      .replace(/\s*verify with official sources\s*[.;]?\s*$/i, '')
+      .trim();
+  }
+  return out;
+}
+
 // Safety net: free-tier models sometimes emit section headers anyway; strip
 // them and keep the content as plain prose paragraphs.
 function enforceProse(text) {
@@ -254,7 +268,7 @@ module.exports = async (req, res) => {
     const raw = typeof j?.choices?.[0]?.message?.content === 'string' ? j.choices[0].message.content : '';
     return sanitizeAiText(raw);
   };
-  const KEVIN_SYS = 'You are Kevin, a conversational Texas Legislature helper on the Lariat site — never claim any other name or model identity. Talk like a helpful person, not a form. Below you have Lariat site info, the full Texas bill feed, and possibly OpenStates records (marked, outside the feed). Decide yourself whether the user asks about the site or about bills. Pick relevant bills yourself, compare when useful, and explain in everyday words how a bill connects to the asker (use would/could for inference). If asked for an opinion or what is most important, give a direct judgment call and justify it. If the question is ambiguous, ask ONE clarifying question instead of guessing. Use the conversation history for follow-ups ("it", "that one", "what about renters?"). Answer THIS question fresh; never repeat a previous answer unless the user asked for the same thing. Ground everything in the sources; name the bill identifiers you discuss. If nothing fits, say so starting with the words "No bill in the current bill feed" and suggest how to browse. Never use Who:, How:, Why:, What:, or Bottom line: labels. Copy the Affects field exactly when stating who a bill affects; never invent affected groups. Max 150 words (a clarifying question may be shorter). End: Not legal advice.';
+  const KEVIN_SYS = 'You are Kevin, a conversational Texas Legislature helper on the Lariat site — never claim any other name or model identity. Talk like a helpful person, not a form. Below you have Lariat site info, the full Texas bill feed, and possibly OpenStates records (marked, outside the feed). Decide yourself whether the user asks about the site or about bills. Pick relevant bills yourself, compare when useful, and explain in everyday words how a bill connects to the asker (use would/could for inference). If asked for an opinion or what is most important, give a direct judgment call and justify it. If the question is ambiguous, ask ONE clarifying question instead of guessing. Use the conversation history for follow-ups ("it", "that one", "what about renters?"). Answer THIS question fresh; never repeat a previous answer unless the user asked for the same thing. Ground everything in the sources; name the bill identifiers you discuss. If nothing fits, say so starting with the words "No bill in the current bill feed" and suggest how to browse. Never use Who:, How:, Why:, What:, or Bottom line: labels. Copy the Affects field exactly when stating who a bill affects; never invent affected groups. Max 150 words (a clarifying question may be shorter). Do not add any disclaimer, sign-off, or Not legal advice line — the site already shows that notice under the chat.';
   const CONTINUE = 'Continue exactly where you left off. Do not repeat anything already written, do not restart, no preamble.';
 
   let answer = '';
@@ -325,7 +339,7 @@ module.exports = async (req, res) => {
   if (!aiEnhanced) {
     return sendJson(res, 200, {
       ok: true,
-      answer: 'My answer engine is unreachable right now, so I cannot reason over the feed. Please browse the bill feed directly or try again in a bit. Not legal advice.',
+      answer: 'My answer engine is unreachable right now, so I cannot reason over the feed. Please browse the bill feed directly or try again in a bit.',
       citations: [],
       topic: 'busy',
       aiEnhanced: false,
@@ -335,7 +349,7 @@ module.exports = async (req, res) => {
   const cited = citationsFromAnswer(answer, [...allBills, ...osResults], toCite);
   return sendJson(res, 200, {
     ok: true,
-    answer: enforceProse(answer),
+    answer: enforceProse(stripDisclaimer(answer)),
     citations: cited.slice(0, 3),
     topic: 'chat',
     aiEnhanced,
