@@ -7,9 +7,9 @@
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "County election officials, voter registrars, and agencies that process address change notices (such as the Department of Public Safety) should review the amended Sections 15.025 and 63.0011 to understand the new 30‑day effectiveness rule for registration changes and the statement requirements for voters whose address is not current. They must update voter registration systems and internal procedures to reflect that registration changes only take effect on the 30th day after receipt of a notice under Section 15.021, 15.053, 63.0011, or a Chapter 20 agency submission. Training should be provided to staff on accepting and processing the voter statement that includes residence verification, full registration information, submission date, and a request to update the registration address. Officials should monitor the final",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 295 is listed in Texas legislative metadata with the title Relating to election procedures. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 295 amends Texas Election Code to change when a voter's registration becomes effective after an address change and to allow voters with outdated residence addresses to vote under certain conditions, provided they submit a statement meeting specific requirements. The bill also repeals a subsection of Section 15.025 and makes the changes applicable only to change-of-address notices submitted on or after the act's effective date, which may be immediate if passed by a two-thirds vote or otherwise 91 days after the legislative session ends. It primarily affects election administrators and related agencies.",
     "id": "ocd-bill/acfcd8f1-c007-478e-bb11-bfcfc265c0b9",
     "identifier": "HB 295",
     "session": "892",
@@ -18,21 +18,19 @@
     "latest_action_date": "2025-08-28",
     "latest_action_description": "Reported favorably w/o amendment(s)",
     "latest_passage_date": "",
-    "updated_at": "2026-10-03",
+    "updated_at": "2026-10-06",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB295",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
+      "direct_compliance_requirement": 1,
       "financial_cost": 0,
       "operational_change": 0,
       "industry_breadth": 2,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
+      "effective_date_urgency": 2,
+      "business_model_impact": 1
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "Deterministic signals rate effective date urgency, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-25",
@@ -59,7 +57,11 @@
         "title": "Reported favorably w/o amendment(s)",
         "description": "Committee Passage - Reported favorably w/o amendment(s)"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00295I.htm",
+    "bill_text_hash": "f7d8c16cd0a8027cae18274813f7be732d70f65284867e33a8948f79c7b79825",
+    "summary_word_count": 93,
+    "summary_source": "official bill text"
   },
   {
     "title": "Texas Women's Privacy Act",
