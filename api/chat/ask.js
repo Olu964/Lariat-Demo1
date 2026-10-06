@@ -260,8 +260,12 @@ module.exports = async (req, res) => {
   let answer = '';
   let aiEnhanced = false;
   const firstUser = `${histLine}User asks: ${question}\n\n${bigCtx}`;
-  const orModels = [process.env.SUMMARIZER_MODEL || '', 'google/gemma-4-26b-a4b-it:free', 'qwen/qwen3.8-27b:free', 'liquid/lfm-2.5-2.6b:free'].filter(Boolean);
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  // Rotation of free models proven (Oct 2026) to answer with the full
+  // feed + site context at max_tokens 8192. qwen3.8-27b:free was retired
+  // from free (404) and gemma-4:free is chronically 429 upstream, so both
+  // are out. Fail over to the next model immediately on any error — with
+  // several healthy lanes, failover beats retrying a congested one.
+  const orModels = [process.env.SUMMARIZER_MODEL || '', 'nvidia/nemotron-3-super-120b-a12b:free', 'dots-studio/dots-3-note-preview:free', 'nvidia/nemotron-3-ultra-550b-a55b:free', 'liquid/lfm-2.5-2.6b:free'].filter(Boolean);
   let partial = '';
   let carry = ''; // truncated thread passed model-to-model until finished
   for (const model of orModels) {
@@ -278,13 +282,10 @@ module.exports = async (req, res) => {
           { role: 'user', content: CONTINUE },
         ];
       let chunk = '';
-      for (let attempt = 0; attempt < 2 && !chunk; attempt += 1) {
-        try {
-          chunk = await orChat(model, messages);
-        } catch (e) {
-          if (e && e.status === 429 && attempt === 0) { await sleep(2500); continue; }
-          break;
-        }
+      try {
+        chunk = await orChat(model, messages);
+      } catch (e) {
+        break; // model failed: fail over to the next model immediately
       }
       if (!chunk) break; // model failed: next model
       draft = fresh ? chunk : joinContinuation(draft, chunk);

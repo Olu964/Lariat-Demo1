@@ -1363,8 +1363,8 @@ async function openRouterChat(model, messages) {
       model,
       // Free-tier (:free) models cost $0 regardless of token count.
       // 8192 = the highest value all rotation models accept (bottleneck
-      // is liquid/lfm-2.5-2.6b:free at 8192 output tokens; qwen allows
-      // 235929, gemma 32768). Higher would 400 on liquid and knock it
+      // is liquid/lfm-2.5-2.6b:free at 8192 output tokens — it returns
+      // empty below that). Higher would 400 on liquid and knock it
       // out of rotation.
       max_tokens: 8192,
       temperature: 0.3,
@@ -1395,10 +1395,11 @@ async function rewriteWithOpenRouter(question, extra = {}) {
       ? `Conversation so far: ${extra.history.map((h) => `User: ${h.q} || Kevin: ${h.a}`).join(' ||| ').slice(0, 900)}\n`
       : '';
     const firstUser = `${histLine}User asks: ${question}\n\n${extra.bigCtx || '(no sources available)'}`;
-    // Free-tier lanes are often congested (HTTP 429): rotate models and retry
-    // once after a short pause before falling through to Gemini/extractive.
-    const models = [OPENROUTER_MODEL, 'google/gemma-4-26b-a4b-it:free', 'qwen/qwen3.8-27b:free', 'liquid/lfm-2.5-2.6b:free'].filter(Boolean);
-    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    // Free-tier lanes are often congested (HTTP 429): rotate over proven
+    // models and fail over immediately — qwen3.8-27b:free is retired from
+    // free (404) and gemma-4:free is chronically 429 upstream, so both
+    // are out (verified Oct 2026).
+    const models = [OPENROUTER_MODEL, 'nvidia/nemotron-3-super-120b-a12b:free', 'dots-studio/dots-3-note-preview:free', 'nvidia/nemotron-3-ultra-550b-a55b:free', 'liquid/lfm-2.5-2.6b:free'].filter(Boolean);
     for (const model of models) {
       // Fresh answer when no thread exists; otherwise THIS model continues
       // the same cut-off response (up to 2 continuation rounds each).
@@ -1414,16 +1415,10 @@ async function rewriteWithOpenRouter(question, extra = {}) {
             { role: 'user', content: CONTINUE_PROMPT },
           ];
         let chunk = '';
-        for (let attempt = 0; attempt < 2 && !chunk; attempt += 1) {
-          try {
-            chunk = await openRouterChat(model, messages);
-          } catch (error) {
-            if (error && error.status === 429 && attempt === 0) {
-              await sleep(2500);
-              continue;
-            }
-            break; // other errors: next model
-          }
+        try {
+          chunk = await openRouterChat(model, messages);
+        } catch (error) {
+          break; // other errors: next model
         }
         if (!chunk) break; // model failed: try the next model
         draft = fresh ? chunk : joinContinuation(draft, chunk);
