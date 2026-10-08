@@ -11,13 +11,10 @@
  *   1. Serves the active Lariat frontend from the repository root so the whole
  *      site runs from one command:  node server/server.js  →  http://127.0.0.1:3000
  *
- *   2. Provides the subscription API that the frontend calls instead of the
- *      old client-side EmailJS flow:
+ *   2. Provides the profile-email API that the frontend calls:
  *
- *        POST /api/subscriptions/request      { email, industry, accessCode }
- *        POST /api/subscriptions/verify       { email, industry, verificationCode }
- *        POST /api/subscriptions/unsubscribe  { email, industry, token }  (signed token from the welcome email)
- *        GET  /api/subscriptions/unsubscribe?token=<signed>   (link in emails)
+ *        POST /api/profile/email/request   { email }
+ *        POST /api/profile/email/verify    { email, code, oldEmails[] }
  *        GET  /api/health
  *
  * Email is sent through Brevo (https://www.brevo.com) when BREVO_API_KEY is
@@ -26,11 +23,6 @@
  * the server runs in "console mode": verification codes and unsubscribe links
  * are printed to the terminal instead of emailed, so the entire flow can be
  * tested for free before any account is created.
- *
- * Every confirmed subscription gets a signed unsubscribe link (HMAC-SHA256)
- * sent in a welcome email, so users can stop alerts with one click and no
- * login. Tokens are signed with SUBSCRIPTION_SIGNING_SECRET (or a random
- * per-boot secret) and expire after SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS.
  *
  * Safety properties (see EMAIL_SUBSCRIPTION_SETUP.md):
  *   - Binds to 127.0.0.1 only, so it is unreachable from the internet.
@@ -103,8 +95,6 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 const OPENROUTER_MODEL = process.env.SUMMARIZER_MODEL || '';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-flash-latest';
-const DEFAULT_ACCESS_CODE = 'LARIAT-TRIAL-2026';
-const ACCESS_CODE = process.env.SUBSCRIPTION_ACCESS_CODE || DEFAULT_ACCESS_CODE;
 const PUBLIC_BASE_URL = (process.env.PUBLIC_BASE_URL || '').trim().replace(/\/+$/, '');
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const ALLOWED_HOSTS = new Set((process.env.ALLOWED_HOSTS || '127.0.0.1,localhost,::1')
@@ -117,24 +107,100 @@ const CODE_EXPIRY_MINUTES = Math.min(24 * 60, Math.max(1, Number(process.env.SUB
 const CODE_EXPIRY_MS = CODE_EXPIRY_MINUTES * 60 * 1000;
 const REQUEST_COOLDOWN_MS = 60 * 1000;          // min time between codes for one address
 const VERIFY_MAX_ATTEMPTS = 5;                   // wrong-code tries before the code is voided
-const ACCESS_CODE_MAX_ATTEMPTS = 3;              // wrong private-code tries before lockout
-const ACCESS_CODE_LOCKOUT_MS = 24 * 60 * 60 * 1000;
+const PROFILE_EMAIL_PURPOSE = '__profile_email__'; // sentinel "industry" for profile-finalize codes
 const IP_RATE_LIMIT = { windowMs: 60 * 60 * 1000, max: 10 }; // /request calls per IP per hour
-const UNSUBSCRIBE_TOKEN_DAYS = Math.min(3650, Math.max(1, Number(process.env.SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS) || 90));
-const SIGNING_SECRET = process.env.SUBSCRIPTION_SIGNING_SECRET || crypto.randomBytes(32).toString('hex');
-// Keep local-development lockouts stable across restarts without reusing the
-// random unsubscribe-token secret; production uses the configured secret.
-const ACCESS_CODE_LOCKOUT_SECRET = process.env.SUBSCRIPTION_SIGNING_SECRET
-  || crypto.createHash('sha256').update(`lariat-access-lockouts:${ROOT}:${ACCESS_CODE}`).digest('hex');
+
+/* Email encryption at rest (AES-256-GCM, Node built-in, no dependency).
+ * SUBSCRIPTION_DATA_KEY is 64 hex characters (32 bytes). When set, every
+ * email persisted in subscriptions.json is stored encrypted; lookups use a
+ * separate HMAC index so records can be found without decrypting the file.
+ * When unset (local development), emails are stored in plaintext and the
+ * server says so on startup; production refuses to start without a key. */
+const DATA_KEY = (() => {
+  const hex = (process.env.SUBSCRIPTION_DATA_KEY || '').trim();
+  if (!/^[0-9a-fA-F]{64}$/.test(hex)) return null;
+  return Buffer.from(hex, 'hex');
+})();
+const EMAIL_HMAC_KEY = DATA_KEY
+  ? crypto.createHash('sha256').update(DATA_KEY).update(':email-lookup-v1').digest()
+  : null;
+
+function emailLookupId(email) {
+  const lowered = String(email || '').toLowerCase();
+  if (!EMAIL_HMAC_KEY) return lowered;
+  return `hmac:${crypto.createHmac('sha256', EMAIL_HMAC_KEY).update(lowered).digest('hex')}`;
+}
+
+function encryptEmail(email) {
+  if (!DATA_KEY) return null;
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', DATA_KEY, iv);
+  const data = Buffer.concat([cipher.update(String(email), 'utf8'), cipher.final()]);
+  return {
+    v: 1,
+    iv: iv.toString('base64url'),
+    data: data.toString('base64url'),
+    tag: cipher.getAuthTag().toString('base64url'),
+  };
+}
+
+function decryptEmail(enc) {
+  if (!enc || enc.v !== 1 || !DATA_KEY) return null;
+  try {
+    const decipher = crypto.createDecipheriv('aes-256-gcm', DATA_KEY, Buffer.from(enc.iv, 'base64url'));
+    decipher.setAuthTag(Buffer.from(enc.tag, 'base64url'));
+    return Buffer.concat([decipher.update(Buffer.from(enc.data, 'base64url')), decipher.final()]).toString('utf8');
+  } catch (error) {
+    return null;
+  }
+}
+
+// Plaintext address for a stored record: legacy `email` field, or the
+// decrypted `emailEnc` field. Null when the record is encrypted and no data
+// key is configured (or the ciphertext was tampered with).
+function storedEmail(record) {
+  if (!record || typeof record !== 'object') return null;
+  if (typeof record.email === 'string') return record.email;
+  return decryptEmail(record.emailEnc);
+}
+
+// True when `record` belongs to `email`. Prefers the HMAC index (works
+// without decrypting); falls back to a plaintext comparison for legacy
+// records when no data key is configured.
+function recordMatchesEmail(record, email) {
+  if (!record || typeof record !== 'object') return false;
+  const lowered = String(email || '').toLowerCase();
+  if (typeof record.emailHmac === 'string') return record.emailHmac === emailLookupId(email);
+  const stored = storedEmail(record);
+  return typeof stored === 'string' && stored.toLowerCase() === lowered;
+}
+
+// Storage-ready email fields for a new record: encrypted + indexed when a
+// data key is configured, plaintext legacy shape otherwise.
+function makeEmailFields(email) {
+  const clean = String(email);
+  if (!DATA_KEY) return { email: clean };
+  return { emailEnc: encryptEmail(clean), emailHmac: emailLookupId(clean) };
+}
+
+function isValidEmailEnc(value) {
+  return !!value && typeof value === 'object' && value.v === 1
+    && typeof value.iv === 'string' && /^[A-Za-z0-9_-]{16}$/.test(value.iv)
+    && typeof value.data === 'string' && /^[A-Za-z0-9_-]{1,400}$/.test(value.data)
+    && typeof value.tag === 'string' && /^[A-Za-z0-9_-]{22}$/.test(value.tag);
+}
+
+function isValidEmailHmac(value) {
+  return typeof value === 'string'
+    && (/^hmac:[0-9a-f]{64}$/.test(value) || (value.length <= MAX_EMAIL_LENGTH && EMAIL_PATTERN.test(value)));
+}
+
 const MAX_EMAIL_LENGTH = 254;
 const MAX_INDUSTRY_LENGTH = 200;
-const MAX_ACCESS_CODE_LENGTH = 256;
-const MAX_TOKEN_LENGTH = 4096;
 const MAX_REQUEST_URL_LENGTH = 8 * 1024;
 const IS_PRODUCTION = NODE_ENV === 'production';
 
-/* Security headers applied to every response. The small HTML pages the server
- * generates itself get an extra CSP in sendHtmlPage(). */
+/* Security headers applied to every response. */
 const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
@@ -218,13 +284,6 @@ function enforceHttps(req, res, url) {
   return true;
 }
 
-/* Constant-time comparison for secrets such as the private access code. */
-function constantTimeEqual(a, b) {
-  const hashA = crypto.createHash('sha256').update(String(a)).digest();
-  const hashB = crypto.createHash('sha256').update(String(b)).digest();
-  return crypto.timingSafeEqual(hashA, hashB);
-}
-
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CODE_PATTERN = /^[0-9]{6}$/;
 
@@ -240,19 +299,13 @@ function validateConfiguration() {
     if (!ALLOW_NETWORK_BIND) {
       throw new Error('HOST must bind to loopback by default. Set ALLOW_NETWORK_BIND=true only for an intentional protected network deployment.');
     }
-    if (ACCESS_CODE === DEFAULT_ACCESS_CODE || ACCESS_CODE.length < 12) {
-      throw new Error('Network binding requires a unique SUBSCRIPTION_ACCESS_CODE of at least 12 characters.');
-    }
   }
   if (IS_PRODUCTION) {
     if (!isLoopbackHost) {
       throw new Error('Production HOST must bind to loopback behind a trusted TLS reverse proxy.');
     }
-    if (ACCESS_CODE === DEFAULT_ACCESS_CODE || ACCESS_CODE.length < 12) {
-      throw new Error('Production requires a unique SUBSCRIPTION_ACCESS_CODE of at least 12 characters.');
-    }
-    if (!process.env.SUBSCRIPTION_SIGNING_SECRET || SIGNING_SECRET.length < 32) {
-      throw new Error('Production requires SUBSCRIPTION_SIGNING_SECRET with at least 32 characters.');
+    if (!DATA_KEY) {
+      throw new Error('Production requires SUBSCRIPTION_DATA_KEY (64 hex characters) so stored emails are encrypted at rest.');
     }
     if (!BREVO_API_KEY || !EMAIL_PATTERN.test(BREVO_FROM_EMAIL)) {
       throw new Error('Production requires BREVO_API_KEY and a valid verified BREVO_FROM_EMAIL.');
@@ -278,7 +331,7 @@ validateConfiguration();
  * ------------------------------------------------------------------------- */
 
 function defaultData() {
-  return { subscriptions: [], pendingCodes: [], accessCodeAttempts: [] };
+  return { subscriptions: [], pendingCodes: [] };
 }
 
 function loadData() {
@@ -296,21 +349,30 @@ function loadData() {
     // Ignore malformed records rather than allowing corrupted local data to
     // turn a normal subscription request into a server error. Stored values
     // are still bounded because this file contains user-controlled email data.
+    // Records are accepted in two shapes: legacy plaintext (`email`) and
+    // encrypted (`emailEnc` + `emailHmac`). Legacy records are upgraded to
+    // the encrypted shape on load when a data key is configured.
     subscriptions: Array.isArray(parsed.subscriptions)
       ? parsed.subscriptions.filter((subscription) => subscription
-        && typeof subscription.email === 'string'
-        && subscription.email.length <= MAX_EMAIL_LENGTH
-        && EMAIL_PATTERN.test(subscription.email)
         && typeof subscription.industry === 'string'
-        && subscription.industry.length <= MAX_INDUSTRY_LENGTH)
+        && subscription.industry.length <= MAX_INDUSTRY_LENGTH
+        && ((typeof subscription.email === 'string'
+          && subscription.email.length <= MAX_EMAIL_LENGTH
+          && EMAIL_PATTERN.test(subscription.email))
+          || (isValidEmailEnc(subscription.emailEnc) && isValidEmailHmac(subscription.emailHmac))))
         .map((subscription) => ({
-          email: subscription.email,
+          ...(typeof subscription.email === 'string' ? { email: subscription.email } : {}),
+          ...(isValidEmailEnc(subscription.emailEnc)
+            ? {
+              emailEnc: {
+                v: 1, iv: subscription.emailEnc.iv, data: subscription.emailEnc.data, tag: subscription.emailEnc.tag,
+              },
+            }
+            : {}),
+          ...(isValidEmailHmac(subscription.emailHmac) ? { emailHmac: subscription.emailHmac } : {}),
           industry: subscription.industry,
           ...(typeof subscription.verifiedAt === 'string' ? { verifiedAt: subscription.verifiedAt } : {}),
           ...(typeof subscription.source === 'string' ? { source: subscription.source } : {}),
-          ...(typeof subscription.unsubscribeTokenId === 'string' && /^[0-9a-f]{32}$/i.test(subscription.unsubscribeTokenId)
-            ? { unsubscribeTokenId: subscription.unsubscribeTokenId }
-            : {}),
         }))
       : [],
     // Discard records from the pre-scrypt format rather than retaining
@@ -319,23 +381,31 @@ function loadData() {
     pendingCodes: Array.isArray(parsed.pendingCodes)
       ? parsed.pendingCodes.filter((pending) => pending
         && typeof pending.key === 'string' && pending.key.length <= MAX_EMAIL_LENGTH + MAX_INDUSTRY_LENGTH + 2
-        && typeof pending.email === 'string' && pending.email.length <= MAX_EMAIL_LENGTH && EMAIL_PATTERN.test(pending.email)
+        && ((typeof pending.email === 'string' && pending.email.length <= MAX_EMAIL_LENGTH && EMAIL_PATTERN.test(pending.email))
+          || (isValidEmailEnc(pending.emailEnc) && isValidEmailHmac(pending.emailHmac)))
         && typeof pending.industry === 'string' && pending.industry.length <= MAX_INDUSTRY_LENGTH
         && typeof pending.salt === 'string' && /^[0-9a-f]{32}$/i.test(pending.salt)
         && typeof pending.codeHash === 'string' && /^scrypt\$[0-9a-f]{64}$/i.test(pending.codeHash)
         && Number.isFinite(Number(pending.expiresAt))
         && Number.isInteger(Number(pending.attempts)) && Number(pending.attempts) >= 0 && Number(pending.attempts) <= VERIFY_MAX_ATTEMPTS)
-      : [],
-    // Access-code lockouts are keyed by an HMAC of the client IP rather than
-    // storing the IP itself. They survive normal restarts when the signing
-    // secret is fixed, while keeping the raw network address out of storage.
-    accessCodeAttempts: Array.isArray(parsed.accessCodeAttempts)
-      ? parsed.accessCodeAttempts.filter((attempt) => typeof attempt?.key === 'string'
-        && /^[0-9a-f]{64}$/i.test(attempt.key)
-        && Number.isFinite(Number(attempt.firstFailureAt))
-        && Number.isInteger(Number(attempt.attempts))
-        && Number(attempt.attempts) >= 0 && Number(attempt.attempts) <= ACCESS_CODE_MAX_ATTEMPTS
-        && (!attempt.lockedUntil || Number.isFinite(Number(attempt.lockedUntil))))
+        .map((pending) => ({
+          key: pending.key,
+          ...(typeof pending.email === 'string' ? { email: pending.email } : {}),
+          ...(isValidEmailEnc(pending.emailEnc)
+            ? {
+              emailEnc: {
+                v: 1, iv: pending.emailEnc.iv, data: pending.emailEnc.data, tag: pending.emailEnc.tag,
+              },
+            }
+            : {}),
+          ...(isValidEmailHmac(pending.emailHmac) ? { emailHmac: pending.emailHmac } : {}),
+          industry: pending.industry,
+          salt: pending.salt,
+          codeHash: pending.codeHash,
+          expiresAt: pending.expiresAt,
+          attempts: pending.attempts,
+          ...(typeof pending.createdAt === 'string' ? { createdAt: pending.createdAt } : {}),
+        }))
       : [],
   };
 }
@@ -352,6 +422,21 @@ function saveData(store) {
 }
 
 const store = loadData();
+
+// One-time upgrade: records written before email encryption existed are
+// encrypted in place the first time a data key is configured, then saved.
+if (DATA_KEY) {
+  let upgraded = false;
+  for (const record of [...store.subscriptions, ...store.pendingCodes]) {
+    if (typeof record.email === 'string' && EMAIL_PATTERN.test(record.email)) {
+      const fields = makeEmailFields(record.email);
+      delete record.email;
+      Object.assign(record, fields);
+      upgraded = true;
+    }
+  }
+  if (upgraded) saveData(store);
+}
 
 function pruneExpiredPendingCodes() {
   const now = Date.now();
@@ -394,81 +479,16 @@ function generateCode() {
   return crypto.randomInt(0, 1_000_000).toString().padStart(6, '0');
 }
 
-/* Signed unsubscribe tokens (HMAC-SHA256, tamper-proof, expiring). */
-function signToken(payload) {
-  const encoded = Buffer.from(JSON.stringify(payload)).toString('base64url');
-  const signature = crypto.createHmac('sha256', SIGNING_SECRET).update(encoded).digest('base64url');
-  return `${encoded}.${signature}`;
-}
-
-function verifyToken(token) {
-  try {
-    const parts = String(token).split('.');
-    if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
-    const expected = crypto.createHmac('sha256', SIGNING_SECRET).update(parts[0]).digest('base64url');
-    const received = Buffer.from(parts[1]);
-    const expectedBuffer = Buffer.from(expected);
-    if (received.length !== expectedBuffer.length) return null;
-    if (!crypto.timingSafeEqual(received, expectedBuffer)) return null;
-    const payload = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
-    if (typeof payload.email !== 'string' || payload.email.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(payload.email)) return null;
-    if (typeof payload.industry !== 'string' || payload.industry.length > MAX_INDUSTRY_LENGTH || !payload.industry) return null;
-    if (typeof payload.tokenId !== 'string' || !/^[0-9a-f]{32}$/i.test(payload.tokenId)) return null;
-    if (typeof payload.exp !== 'number' || !Number.isFinite(payload.exp) || Date.now() >= payload.exp) return null;
-    return payload;
-  } catch (error) {
-    return null;
-  }
-}
-
-function makeUnsubscribeToken(email, industry) {
-  const tokenId = crypto.randomBytes(16).toString('hex');
-  return {
-    token: signToken({ email, industry, tokenId, exp: Date.now() + UNSUBSCRIBE_TOKEN_DAYS * 86_400_000 }),
-    tokenId,
-  };
-}
-
 function baseUrl() {
   if (PUBLIC_BASE_URL) return PUBLIC_BASE_URL;
   return `http://${HOST}:${PORT}`;
 }
 
-// The industry list only changes when the dataset is regenerated, so parse the
-// JSON at most once a minute instead of on every request.
-let industriesCache = { at: 0, list: null };
-const INDUSTRIES_TTL_MS = 60 * 1000;
-
-function validIndustries() {
-  const now = Date.now();
-  if (industriesCache.list && now - industriesCache.at < INDUSTRIES_TTL_MS) {
-    return industriesCache.list;
-  }
-  let list = [];
-  try {
-    const bills = JSON.parse(fs.readFileSync(BILL_DATA_FILE, 'utf8'));
-    if (Array.isArray(bills)) {
-      list = [...new Set(bills
-        .map((bill) => (bill && typeof bill.industry === 'string' ? bill.industry.trim() : ''))
-        .filter((industry) => industry && industry !== 'N/A'))];
-    }
-  } catch (error) { /* keep the empty list */ }
-  industriesCache = { at: now, list };
-  return list;
-}
-
-const pendingKey = (email, industry) => `${email.toLowerCase()}::${industry}`;
+const pendingKey = (email, industry) => `${emailLookupId(email)}::${industry}`;
 
 function findPending(email, industry) {
   const key = pendingKey(email, industry);
   return store.pendingCodes.find((pending) => pending.key === key) || null;
-}
-
-function findSubscription(email, industry) {
-  return store.subscriptions.find(
-    (subscription) => subscription.email.toLowerCase() === email.toLowerCase()
-      && subscription.industry === industry,
-  ) || null;
 }
 
 /* ---------------------------------------------------------------------------
@@ -476,51 +496,7 @@ function findSubscription(email, industry) {
  * ------------------------------------------------------------------------- */
 
 function safeEmailSubject(value) {
-  return String(value ?? '').replace(/[\\r\\n]/g, ' ').slice(0, 200);
-}
-
-function buildVerificationEmail({ industry, code, expiryMinutes }) {
-  const safeIndustry = escapeHtml(industry);
-  return {
-    subject: safeEmailSubject(`Confirm your Lariat email updates  -  ${industry}`),
-    html: `
-      <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1c3a52;">
-        <h1 style="font-size: 22px; margin: 0 0 14px;">Confirm your Lariat subscription</h1>
-        <p style="font-size: 14px; line-height: 1.6;">You requested email updates for the
-          <strong>${safeIndustry}</strong> industry.</p>
-        <p style="font-size: 14px; line-height: 1.6;">Your verification code is:</p>
-        <p style="font-size: 30px; font-weight: bold; letter-spacing: 4px; margin: 12px 0;">${code}</p>
-        <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
-          This code expires in ${expiryMinutes} minutes and can only be used once.</p>
-        <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
-          If you did not request this subscription, you can safely ignore this email.</p>
-      </div>
-    `,
-  };
-}
-
-function buildWelcomeEmail({ industry, unsubscribeUrl }) {
-  const safeIndustry = escapeHtml(industry);
-  const safeUnsubscribeUrl = escapeHtml(unsubscribeUrl);
-  return {
-    subject: safeEmailSubject(`You're subscribed to Lariat ${industry} email updates`),
-    html: `
-      <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1c3a52;">
-        <h1 style="font-size: 22px; margin: 0 0 14px;">You're subscribed</h1>
-        <p style="font-size: 14px; line-height: 1.6;">You'll receive Lariat email updates for the
-          <strong>${safeIndustry}</strong> industry.</p>
-        <p style="font-size: 14px; line-height: 1.6;">To stop these email updates at any time, click the link below
-          (no login needed):</p>
-        <p style="margin: 18px 0;">
-          <a href="${safeUnsubscribeUrl}" style="display: inline-block; padding: 11px 18px; border-radius: 6px; background: #16334f; color: #ffffff; font-size: 13px; font-weight: bold; text-decoration: none;">
-            Unsubscribe from ${safeIndustry} email updates
-          </a>
-        </p>
-        <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
-          If you did not request these email updates, you can unsubscribe with the link above.</p>
-      </div>
-    `,
-  };
+  return String(value ?? '').replace(/[\r\n]/g, ' ').slice(0, 200);
 }
 
 /**
@@ -558,14 +534,78 @@ async function deliverEmail(email, { subject, html, consoleText }) {
   return body;
 }
 
-async function sendVerificationEmail(email, { industry, code, expiryMinutes }) {
-  const { subject, html } = buildVerificationEmail({ industry, code, expiryMinutes });
-  return deliverEmail(email, { subject, html, consoleText: `verification code: ${code} (valid ${expiryMinutes} min)` });
+function buildProfileFinalizeEmail({ code, expiryMinutes }) {
+  return {
+    subject: safeEmailSubject('Your Lariat email confirmation code'),
+    html: `
+      <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1c3a52;">
+        <h1 style="font-size: 22px; margin: 0 0 14px;">Confirm your Lariat email</h1>
+        <p style="font-size: 14px; line-height: 1.6;">You asked to use this address for your Lariat profile.</p>
+        <p style="font-size: 14px; line-height: 1.6;">Your confirmation code is:</p>
+        <p style="font-size: 30px; font-weight: bold; letter-spacing: 4px; margin: 12px 0;">${code}</p>
+        <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
+          This code expires in ${expiryMinutes} minutes and can only be used once.</p>
+        <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
+          If you did not request this, you can safely ignore this email.</p>
+      </div>
+    `,
+  };
 }
 
-async function sendWelcomeEmail(email, { industry, unsubscribeUrl }) {
-  const { subject, html } = buildWelcomeEmail({ industry, unsubscribeUrl });
-  return deliverEmail(email, { subject, html, consoleText: `unsubscribe link: ${unsubscribeUrl}` });
+function buildProfileMovedEmail({ moved, oldEmails }) {
+  const rows = moved.map((entry) => `
+        <li style="font-size: 14px; line-height: 1.8;"><strong>${escapeHtml(entry.industry)}</strong>
+          (was ${escapeHtml(entry.oldEmail)})</li>`).join('');
+  return {
+    subject: safeEmailSubject('Your Lariat subscription email was updated'),
+    html: `
+      <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1c3a52;">
+        <h1 style="font-size: 22px; margin: 0 0 14px;">Your subscriptions moved</h1>
+        <p style="font-size: 14px; line-height: 1.6;">You confirmed a new profile email, so these industry
+          subscriptions (${oldEmails.map(escapeHtml).join(', ')}) now send to this address:</p>
+        <ul style="margin: 12px 0; padding-left: 20px;">${rows}</ul>
+        <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
+          You can change the address for these updates anytime from your Lariat profile page.</p>
+      </div>
+    `,
+  };
+}
+
+function buildProfileMovedNoticeEmail({ newEmail, moved }) {
+  const rows = moved.map((entry) => `
+        <li style="font-size: 14px; line-height: 1.8;"><strong>${escapeHtml(entry.industry)}</strong></li>`).join('');
+  return {
+    subject: safeEmailSubject('Your Lariat subscriptions were moved'),
+    html: `
+      <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1c3a52;">
+        <h1 style="font-size: 22px; margin: 0 0 14px;">Heads up: subscription email changed</h1>
+        <p style="font-size: 14px; line-height: 1.6;">Your Lariat industry subscriptions below now send to
+          <strong>${escapeHtml(newEmail)}</strong> instead of this address.</p>
+        <ul style="margin: 12px 0; padding-left: 20px;">${rows}</ul>
+        <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
+          If you did not make this change, reply to this email or contact Lariat right away.</p>
+      </div>
+    `,
+  };
+}
+
+async function sendProfileFinalizeEmail(email, { code, expiryMinutes }) {
+  const { subject, html } = buildProfileFinalizeEmail({ code, expiryMinutes });
+  return deliverEmail(email, { subject, html, consoleText: `profile finalize code: ${code} (valid ${expiryMinutes} min)` });
+}
+
+async function sendProfileMovedEmail(email, { moved, oldEmails }) {
+  const { subject, html } = buildProfileMovedEmail({ moved, oldEmails });
+  return deliverEmail(email, {
+    subject,
+    html,
+    consoleText: `profile email moved ${moved.length} subscription(s); unsubscribe: ${moved.map((entry) => entry.unsubscribeUrl).join(' ')}`,
+  });
+}
+
+async function sendProfileMovedNoticeEmail(email, { newEmail, moved }) {
+  const { subject, html } = buildProfileMovedNoticeEmail({ newEmail, moved });
+  return deliverEmail(email, { subject, html, consoleText: `subscriptions moved to ${newEmail}` });
 }
 
 /* ---------------------------------------------------------------------------
@@ -636,85 +676,6 @@ const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character
 }[character]));
 
 /* Small branded HTML page for email-link flows (e.g. unsubscribe). */
-function sendHtmlPage(res, status, title, message) {
-  const body = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lariat  -  ${escapeHtml(title)}</title>
-<style>
-  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f8fbfc; color: #1c3a52; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
-  .card { width: min(440px, calc(100% - 48px)); padding: 34px 30px; border: 1px solid #d6e3ea; border-radius: 14px; background: #ffffff; box-shadow: 0 18px 50px rgba(7,26,45,.10); text-align: center; }
-  .mark { display: inline-block; margin-bottom: 14px; color: #277fbb; font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
-  h1 { margin: 0 0 10px; font-size: 22px; line-height: 1.25; }
-  p { margin: 0; color: #5a7285; font-size: 14px; line-height: 1.65; }
-</style>
-</head>
-<body><main class="card"><span class="mark">Lariat</span><h1>${escapeHtml(title)}</h1><p>${escapeHtml(message)}</p></main></body>
-</html>`;
-  return sendText(res, status, 'text/html; charset=utf-8', body, {
-    'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
-    'Referrer-Policy': 'no-referrer',
-  });
-}
-
-function sendUnsubscribeConfirmation(res, token, payload) {
-  const safeToken = escapeHtml(token);
-  const safeIndustry = escapeHtml(payload.industry);
-  const body = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lariat  -  Confirm unsubscribe</title>
-<style>
-  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f8fbfc; color: #1c3a52; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
-  .card { width: min(440px, calc(100% - 48px)); padding: 34px 30px; border: 1px solid #d6e3ea; border-radius: 14px; background: #ffffff; box-shadow: 0 18px 50px rgba(7,26,45,.10); text-align: center; }
-  .mark { display: inline-block; margin-bottom: 14px; color: #277fbb; font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
-  h1 { margin: 0 0 10px; font-size: 22px; line-height: 1.25; }
-  p { margin: 0 0 20px; color: #5a7285; font-size: 14px; line-height: 1.65; }
-  button { border: 0; border-radius: 6px; padding: 11px 18px; background: #16334f; color: #ffffff; font: inherit; font-weight: 700; cursor: pointer; }
-</style>
-</head>
-<body><main class="card"><span class="mark">Lariat</span><h1>Stop ${safeIndustry} email updates?</h1><p>Confirm below to unsubscribe from this industry's Lariat email updates.</p><form method="post" action="/api/subscriptions/unsubscribe"><input type="hidden" name="token" value="${safeToken}"><button type="submit">Confirm unsubscribe</button></form></main></body>
-</html>`;
-  return sendText(res, 200, 'text/html; charset=utf-8', body, {
-    'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
-    'Referrer-Policy': 'no-referrer',
-  });
-}
-
-function readFormBody(req) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    let size = 0;
-    let finished = false;
-    req.on('data', (chunk) => {
-      if (finished) return;
-      size += chunk.length;
-      if (size > 8 * 1024) {
-        finished = true;
-        reject(Object.assign(new Error('Request body too large'), { status: 413 }));
-        req.resume();
-        return;
-      }
-      chunks.push(chunk);
-    });
-    req.on('end', () => {
-      if (finished) return;
-      finished = true;
-      try {
-        const parsed = Object.fromEntries(new URLSearchParams(Buffer.concat(chunks).toString('utf8')));
-        resolve(parsed);
-      } catch (error) {
-        reject(Object.assign(new Error('Request body must be valid form data'), { status: 400 }));
-      }
-    });
-    req.on('error', reject);
-  });
-}
-
 function readJsonBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
@@ -756,62 +717,6 @@ function clientIp(req) {
   return req.socket.remoteAddress || 'unknown';
 }
 
-function accessCodeAttemptKey(req) {
-  return crypto.createHmac('sha256', ACCESS_CODE_LOCKOUT_SECRET).update(clientIp(req)).digest('hex');
-}
-
-function pruneAccessCodeAttempts() {
-  const now = Date.now();
-  const remaining = store.accessCodeAttempts.filter((attempt) => {
-    const firstFailureAt = Number(attempt.firstFailureAt);
-    const lockedUntil = Number(attempt.lockedUntil || 0);
-    return (lockedUntil > now && lockedUntil <= now + ACCESS_CODE_LOCKOUT_MS)
-      || (!lockedUntil && now - firstFailureAt <= ACCESS_CODE_LOCKOUT_MS);
-  });
-  if (remaining.length !== store.accessCodeAttempts.length) {
-    store.accessCodeAttempts = remaining;
-    saveData(store);
-  }
-}
-
-function activeAccessCodeLockout(req) {
-  const key = accessCodeAttemptKey(req);
-  const attempt = store.accessCodeAttempts.find((entry) => entry.key === key);
-  if (!attempt) return null;
-  if (Number(attempt.lockedUntil) > Date.now()) return attempt;
-  if (Number(attempt.lockedUntil) || Date.now() - Number(attempt.firstFailureAt) > ACCESS_CODE_LOCKOUT_MS) {
-    store.accessCodeAttempts = store.accessCodeAttempts.filter((entry) => entry !== attempt);
-    saveData(store);
-    return null;
-  }
-  return null;
-}
-
-function recordFailedAccessCode(req) {
-  const key = accessCodeAttemptKey(req);
-  const now = Date.now();
-  let attempt = store.accessCodeAttempts.find((entry) => entry.key === key);
-  if (!attempt || now - Number(attempt.firstFailureAt) > ACCESS_CODE_LOCKOUT_MS) {
-    attempt = { key, attempts: 0, firstFailureAt: now };
-    store.accessCodeAttempts.push(attempt);
-  }
-  attempt.attempts += 1;
-  if (attempt.attempts >= ACCESS_CODE_MAX_ATTEMPTS) {
-    attempt.lockedUntil = now + ACCESS_CODE_LOCKOUT_MS;
-  }
-  saveData(store);
-  return attempt;
-}
-
-function clearAccessCodeAttempts(req) {
-  const key = accessCodeAttemptKey(req);
-  const remaining = store.accessCodeAttempts.filter((entry) => entry.key !== key);
-  if (remaining.length !== store.accessCodeAttempts.length) {
-    store.accessCodeAttempts = remaining;
-    saveData(store);
-  }
-}
-
 /* Sliding-window per-key rate limiter. Entries are pruned on a timer so the
  * maps cannot grow without bound on a long-running server. */
 function makeRateLimiter(windowMs, max) {
@@ -836,7 +741,6 @@ function makeRateLimiter(windowMs, max) {
 
 const requestRateLimiter = makeRateLimiter(IP_RATE_LIMIT.windowMs, IP_RATE_LIMIT.max);  // /request calls per IP per hour
 const verifyRateLimiter = makeRateLimiter(60 * 60 * 1000, 25);                           // /verify calls per IP per hour
-const unsubscribeRateLimiter = makeRateLimiter(60 * 60 * 1000, 25);                      // POST /unsubscribe per IP per hour
 const legislatorRateLimiter = makeRateLimiter(60 * 60 * 1000, 30);                         // legislator lookups per IP per hour
 const chatRateLimiter = makeRateLimiter(60 * 60 * 1000, 40);                                // chatbot questions per IP per hour
 // Bump this whenever chatbot behavior changes; surfaced via /api/health so a
@@ -859,14 +763,12 @@ function cooldownActive(email, industry) {
 setInterval(() => {
   requestRateLimiter.prune();
   verifyRateLimiter.prune();
-  unsubscribeRateLimiter.prune();
   legislatorRateLimiter.prune();
   chatRateLimiter.prune();
   const now = Date.now();
   for (const [key, last] of requestCooldowns) {
     if (now - last >= REQUEST_COOLDOWN_MS * 2) requestCooldowns.delete(key);
   }
-  pruneAccessCodeAttempts();
 }, 60 * 60 * 1000).unref();
 
 /* ---------------------------------------------------------------------------
@@ -2043,78 +1945,41 @@ async function handleLegislatorLookup(req, res, body) {
 }
 
 
-async function handleRequestCode(req, res, body) {
-  pruneExpiredPendingCodes();
-  pruneAccessCodeAttempts();
-  const lockout = activeAccessCodeLockout(req);
-  if (lockout) {
-    const retryAfterSeconds = Math.max(1, Math.ceil((Number(lockout.lockedUntil) - Date.now()) / 1000));
-    return sendJsonError(
-      res,
-      429,
-      'Too many incorrect access-code attempts. Subscription requests are locked for 24 hours.',
-      'access_code_locked',
-      { lockoutUntil: new Date(Number(lockout.lockedUntil)).toISOString(), retryAfterSeconds },
-    );
-  }
-  const email = typeof body.email === 'string' ? body.email.trim() : '';
-  const industry = typeof body.industry === 'string' ? body.industry.trim() : '';
-  const accessCode = typeof body.accessCode === 'string' ? body.accessCode : '';
+function sendJsonError(res, status, message, code, extra = {}) {
+  return sendJson(res, status, { ok: false, error: message, code, ...extra });
+}
 
+/* ---------------------------------------------------------------------------
+ * Profile email finalization (Finalize Email button on the profile page)
+ * ------------------------------------------------------------------------- */
+
+async function handleProfileEmailRequest(req, res, body) {
+  pruneExpiredPendingCodes();
+  const email = typeof body.email === 'string' ? body.email.trim() : '';
+
+  // No access code on this endpoint by design. Abuse protection is the
+  // per-IP rate limit plus the per-address send cooldown below.
   if (requestRateLimiter(clientIp(req))) {
     return sendJsonError(res, 429, 'Too many requests. Please wait a while and try again.', 'rate_limited');
   }
   if (email.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(email)) {
     return sendJsonError(res, 400, 'Please enter a valid email address.', 'invalid_email');
   }
-  if (industry.length > MAX_INDUSTRY_LENGTH || !validIndustries().includes(industry)) {
-    return sendJsonError(res, 400, 'That industry is not part of the current dataset.', 'invalid_industry');
-  }
-  if (accessCode.length > MAX_ACCESS_CODE_LENGTH || !accessCode) {
-    return sendJsonError(res, 400, 'Please enter the private access code.', 'missing_access_code');
-  }
-  if (!constantTimeEqual(accessCode, ACCESS_CODE)) {
-    const failedAttempt = recordFailedAccessCode(req);
-    if (failedAttempt.lockedUntil) {
-      const retryAfterSeconds = Math.max(1, Math.ceil((Number(failedAttempt.lockedUntil) - Date.now()) / 1000));
-      return sendJsonError(
-        res,
-        429,
-        'Too many incorrect access-code attempts. Subscription requests are locked for 24 hours.',
-        'access_code_locked',
-        { lockoutUntil: new Date(Number(failedAttempt.lockedUntil)).toISOString(), retryAfterSeconds },
-      );
-    }
-    const attemptsRemaining = ACCESS_CODE_MAX_ATTEMPTS - Number(failedAttempt.attempts);
-    return sendJsonError(
-      res,
-      403,
-      `That private access code is not correct. ${attemptsRemaining} attempt${attemptsRemaining === 1 ? '' : 's'} remaining before a 24-hour lockout.`,
-      'bad_access_code',
-      { attemptsRemaining },
-    );
-  }
-  clearAccessCodeAttempts(req);
-  if (cooldownActive(email, industry)) {
+  if (cooldownActive(email, PROFILE_EMAIL_PURPOSE)) {
     return sendJsonError(res, 429, 'Please wait a minute before requesting another code.', 'cooldown');
   }
 
-  // Reply the same way whether or not this address is already subscribed, so
-  // the API does not leak subscription status. Already-subscribed addresses
-  // get no email (saves quota) but the response looks identical.
-  if (findSubscription(email, industry)) {
-    return genericCodeResponse(res);
-  }
-
+  // Fresh random code every send; any previous pending code for this address
+  // is replaced so only the newest one works.
   const code = generateCode();
   const salt = crypto.randomBytes(16).toString('hex');
   store.pendingCodes = store.pendingCodes.filter(
-    (pending) => pending.key !== pendingKey(email, industry),
+    (pending) => pending.key !== pendingKey(email, PROFILE_EMAIL_PURPOSE),
   );
   store.pendingCodes.push({
-    key: pendingKey(email, industry),
-    email,
-    industry,
+    key: pendingKey(email, PROFILE_EMAIL_PURPOSE),
+    ...makeEmailFields(email),
+    industry: PROFILE_EMAIL_PURPOSE,
     salt,
     codeHash: await hashCode(code, salt),
     expiresAt: Date.now() + CODE_EXPIRY_MS,
@@ -2125,45 +1990,55 @@ async function handleRequestCode(req, res, body) {
 
   const expiryMinutes = CODE_EXPIRY_MINUTES;
   try {
-    await sendVerificationEmail(email, { industry, code, expiryMinutes });
+    await sendProfileFinalizeEmail(email, { code, expiryMinutes });
   } catch (error) {
     // Roll back the pending code so a failed send can be retried.
     store.pendingCodes = store.pendingCodes.filter(
-      (pending) => pending.key !== pendingKey(email, industry),
+      (pending) => pending.key !== pendingKey(email, PROFILE_EMAIL_PURPOSE),
     );
     saveData(store);
+    // The mail provider rejected the address (bad mailbox, blocked domain,
+    // ...): say so plainly instead of a generic server error.
+    const providerStatus = error && Number.isFinite(Number(error.status)) ? Number(error.status) : 0;
+    if (providerStatus >= 400 && providerStatus < 500) {
+      return sendJsonError(res, 400, 'Email Invalid', 'email_invalid');
+    }
     throw error;
   }
-  return genericCodeResponse(res);
-}
-
-function genericCodeResponse(res) {
   return sendJson(res, 200, {
     ok: true,
-    message: 'If this address is not already subscribed, a verification code is on its way.',
+    message: 'A confirmation code is on its way to that address.',
   });
 }
 
-function sendJsonError(res, status, message, code, extra = {}) {
-  return sendJson(res, status, { ok: false, error: message, code, ...extra });
-}
-
-async function handleVerifyCode(req, res, body) {
+async function handleProfileEmailVerify(req, res, body) {
   pruneExpiredPendingCodes();
   const email = typeof body.email === 'string' ? body.email.trim() : '';
-  const industry = typeof body.industry === 'string' ? body.industry.trim() : '';
-  const verificationCode = typeof body.verificationCode === 'string' ? body.verificationCode.trim() : '';
+  const verificationCode = typeof body.code === 'string' ? body.code.trim() : '';
+  const rawOldEmails = Array.isArray(body.oldEmails) ? body.oldEmails : [];
+  const oldEmails = [...new Set(
+    rawOldEmails
+      .filter((value) => typeof value === 'string')
+      .map((value) => value.trim())
+      .filter((value) => value
+        && value.length <= MAX_EMAIL_LENGTH
+        && EMAIL_PATTERN.test(value)
+        && value.toLowerCase() !== email.toLowerCase()),
+  )].slice(0, 10);
 
-  if (email.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(email)) return sendJsonError(res, 400, 'Please enter a valid email address.', 'invalid_email');
-  if (industry.length > MAX_INDUSTRY_LENGTH) return sendJsonError(res, 400, 'Industry is invalid.', 'invalid_industry');
-  if (!CODE_PATTERN.test(verificationCode))    return sendJsonError(res, 400, 'The verification code must be 6 digits.', 'invalid_code');
+  if (email.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(email)) {
+    return sendJsonError(res, 400, 'Please enter a valid email address.', 'invalid_email');
+  }
+  if (!CODE_PATTERN.test(verificationCode)) {
+    return sendJsonError(res, 400, 'The confirmation code must be 6 digits.', 'invalid_code');
+  }
   if (verifyRateLimiter(clientIp(req))) {
     return sendJsonError(res, 429, 'Too many verification attempts. Please wait a while and try again.', 'rate_limited');
   }
 
-  const pending = findPending(email, industry);
+  const pending = findPending(email, PROFILE_EMAIL_PURPOSE);
   if (!pending) {
-    return sendJsonError(res, 400, 'No pending verification was found for this address. Request a new code.', 'no_pending');
+    return sendJsonError(res, 400, 'No pending confirmation was found for this address. Request a new code.', 'no_pending');
   }
   if (Date.now() > pending.expiresAt) {
     store.pendingCodes = store.pendingCodes.filter((p) => p !== pending);
@@ -2178,10 +2053,9 @@ async function handleVerifyCode(req, res, body) {
 
   const matches = await codeMatches(verificationCode, pending);
   // Another concurrent request may have consumed this one-time code while
-  // scrypt was running. Re-check the live store before changing state so the
-  // same verification cannot create duplicate subscriptions or welcome emails.
-  if (findPending(email, industry) !== pending) {
-    return sendJsonError(res, 400, 'No pending verification was found for this address. Request a new code.', 'no_pending');
+  // scrypt was running. Re-check the live store before changing state.
+  if (findPending(email, PROFILE_EMAIL_PURPOSE) !== pending) {
+    return sendJsonError(res, 400, 'No pending confirmation was found for this address. Request a new code.', 'no_pending');
   }
   if (!matches) {
     pending.attempts += 1;
@@ -2189,139 +2063,53 @@ async function handleVerifyCode(req, res, body) {
     return sendJsonError(res, 400, 'That code is not correct. Please try again.', 'wrong_code');
   }
 
-  // Code verified: remove the pending record and upsert the subscription.
+  // Code verified: consume it, then move any server subscriptions recorded
+  // under the user's old address(es) to the new profile email.
   store.pendingCodes = store.pendingCodes.filter((p) => p !== pending);
-  let subscription = findSubscription(email, industry);
-  const createdSubscription = !subscription;
-  const previousSubscription = subscription ? { ...subscription } : null;
-  if (subscription) {
-    subscription.verifiedAt = new Date().toISOString();
-    subscription.source = 'backend';
-  } else {
-    subscription = {
-      email,
-      industry,
-      verifiedAt: new Date().toISOString(),
-      source: 'backend',
-    };
-    store.subscriptions.push(subscription);
+  const moved = [];
+  for (const oldEmail of oldEmails) {
+    const records = store.subscriptions.filter(
+      (subscription) => subscription && recordMatchesEmail(subscription, oldEmail),
+    );
+    for (const subscription of records) {
+      delete subscription.email;
+      Object.assign(subscription, makeEmailFields(email));
+      delete subscription.unsubscribeTokenId;
+      subscription.verifiedAt = new Date().toISOString();
+      subscription.source = 'backend';
+      moved.push({ industry: subscription.industry, oldEmail });
+    }
   }
   saveData(store);
 
-  // Welcome email carries a signed unsubscribe link (no login); the link opens
-  // a confirmation page so automated scanners cannot mutate subscription state.
-  // Keep the bearer token out of the API response and browser storage; users
-  // can unsubscribe with the link delivered to their mailbox.
-  const { token, tokenId } = makeUnsubscribeToken(email, industry);
-  subscription.unsubscribeTokenId = tokenId;
-  saveData(store);
-  const unsubscribeUrl = `${baseUrl()}/api/subscriptions/unsubscribe?token=${encodeURIComponent(token)}`;
-  try {
-    await sendWelcomeEmail(email, { industry, unsubscribeUrl });
-  } catch (error) {
-    // Do not report a successful subscription when the required welcome email
-    // could not be delivered. Remove only the subscription created by this
-    // verification so the user can retry after the request cooldown.
-    if (createdSubscription && subscription && subscription.source === 'backend' && subscription.unsubscribeTokenId === tokenId) {
-      store.subscriptions = store.subscriptions.filter((entry) => entry !== subscription);
-      saveData(store);
-    } else if (previousSubscription && subscription) {
-      Object.assign(subscription, previousSubscription);
-      saveData(store);
+  if (moved.length) {
+    const distinctOld = [...new Set(moved.map((entry) => entry.oldEmail))];
+    try {
+      await sendProfileMovedEmail(email, { moved, oldEmails: distinctOld });
+    } catch (error) {
+      // The move already succeeded; the confirmation is a courtesy, so a
+      // delivery failure is logged but does not fail the request.
+      console.error('Profile move confirmation email failed:', error.message);
     }
-    return sendJsonError(res, 502, 'We could not send the welcome email. Please try again later.', 'email_delivery_failed');
+    for (const oldEmail of distinctOld) {
+      try {
+        await sendProfileMovedNoticeEmail(oldEmail, {
+          newEmail: email,
+          moved: moved.filter((entry) => entry.oldEmail === oldEmail),
+        });
+      } catch (error) {
+        console.error('Profile move notice email failed:', error.message);
+      }
+    }
   }
 
   return sendJson(res, 200, {
     ok: true,
-    message: `You're subscribed to ${industry} email updates.`,
-    subscription: { email, industry, verifiedAt: subscription.verifiedAt },
+    message: moved.length
+      ? `Email confirmed. Moved ${moved.length} subscription${moved.length === 1 ? '' : 's'} to ${email}.`
+      : 'Email confirmed.',
+    moved: moved.length,
   });
-}
-
-/**
- * Handles a signed unsubscribe link clicked from an email. The token encodes
- * the email + industry and is HMAC-signed, so it cannot be forged or edited;
- * it also expires. Renders a small HTML page since it is opened in a browser.
- */
-function removeSubscription(payload) {
-  const before = store.subscriptions.length;
-  store.subscriptions = store.subscriptions.filter((subscription) => {
-    if (subscription.email.toLowerCase() !== payload.email.toLowerCase() || subscription.industry !== payload.industry) return true;
-    // Tokens are bound to the current subscription generation. This revokes
-    // an older welcome-email link after a resubscription. Records created by
-    // the pre-audit implementation have no generation identifier and must be
-    // re-verified before they can be unsubscribed.
-    return subscription.unsubscribeTokenId !== payload.tokenId;
-  });
-  const removed = store.subscriptions.length !== before;
-  if (removed) saveData(store);
-  return removed;
-}
-
-function handleUnsubscribeLink(res, url) {
-  const token = url.searchParams.get('token') || '';
-  if (token.length > MAX_TOKEN_LENGTH) {
-    return sendHtmlPage(res, 400, 'Unsubscribe link invalid', 'This unsubscribe link is invalid or has expired.');
-  }
-  const payload = verifyToken(token);
-  if (!payload) {
-    return sendHtmlPage(
-      res,
-      400,
-      'Unsubscribe link invalid',
-      'This unsubscribe link is invalid or has expired. You can manage alerts from the Unsubscribe button on the Lariat bill feed.',
-    );
-  }
-
-  // Do not mutate state on GET: mail scanners and browser prefetchers commonly
-  // follow links automatically. The user must explicitly confirm the POST.
-  return sendUnsubscribeConfirmation(res, token, payload);
-}
-
-function handleUnsubscribeToken(req, res, token) {
-  if (token.length > MAX_TOKEN_LENGTH || unsubscribeRateLimiter(clientIp(req))) {
-    return sendHtmlPage(res, 429, 'Please try again later', 'This unsubscribe request could not be completed right now.');
-  }
-  const payload = verifyToken(token);
-  if (!payload) {
-    return sendHtmlPage(res, 400, 'Unsubscribe link invalid', 'This unsubscribe link is invalid or has expired.');
-  }
-  const removed = removeSubscription(payload);
-  return sendHtmlPage(
-    res,
-    200,
-    removed ? 'Unsubscribed from Lariat email updates' : 'Nothing to change',
-    removed
-      ? `${payload.email} is no longer subscribed to ${payload.industry} email updates. You can resubscribe anytime from the Lariat bill feed.`
-      : `${payload.email} was not subscribed to ${payload.industry}email updates; nothing to change.`,
-  );
-}
-
-function handleUnsubscribe(req, res, body) {
-  const email = typeof body.email === 'string' ? body.email.trim() : '';
-  const industry = typeof body.industry === 'string' ? body.industry.trim() : '';
-  const token = typeof body.token === 'string' ? body.token : '';
-
-  if (email.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(email)) return sendJsonError(res, 400, 'Please enter a valid email address.', 'invalid_email');
-  if (industry.length > MAX_INDUSTRY_LENGTH) return sendJsonError(res, 400, 'Industry is invalid.', 'invalid_industry');
-  if (token.length > MAX_TOKEN_LENGTH) return sendJsonError(res, 400, 'Unsubscribe token is invalid.', 'bad_token');
-  if (!industry)    return sendJsonError(res, 400, 'Industry is required.', 'invalid_industry');
-  if (unsubscribeRateLimiter(clientIp(req))) {
-    return sendJsonError(res, 429, 'Too many requests. Please wait a while and try again.', 'rate_limited');
-  }
-
-  // Unsubscribing requires proof of ownership of the address: the signed token
-  // issued when the address verified. Without it, any website the user visits
-  // could drop them from alerts by guessing their address + industry.
-  const payload = verifyToken(token);
-  if (!payload || payload.email.toLowerCase() !== email.toLowerCase() || payload.industry !== industry) {
-    return sendJsonError(res, 403, 'Please use the unsubscribe link from your welcome email, or resubscribe to get a fresh one.', 'bad_token');
-  }
-
-  removeSubscription(payload);
-
-  return sendJson(res, 200, { ok: true, message: `Unsubscribed from ${industry} email updates.` });
 }
 
 /* ---------------------------------------------------------------------------
@@ -2340,6 +2128,13 @@ function serveStatic(req, res, url) {
     return sendText(res, 400, 'text/plain; charset=utf-8', 'Bad request');
   }
   if (pathname === '/') pathname = '/index.html';
+
+  // Never serve hidden files or folders (.env, .git, ...). Secrets and
+  // source history live in dotfiles next to the public site, so any path
+  // segment starting with a dot is rejected outright.
+  if (pathname.split('/').some((segment) => segment.startsWith('.'))) {
+    return sendText(res, 403, 'text/plain; charset=utf-8', 'Forbidden');
+  }
 
   const publicRoot = path.resolve(PUBLIC_DIR);
   const filePath = path.normalize(path.join(publicRoot, pathname));
@@ -2468,29 +2263,15 @@ async function handleApi(req, res, url) {
       });
     }
 
-    // Signed unsubscribe link clicked from an email (opens a confirmation page).
-    if (pathname === '/api/subscriptions/unsubscribe' && req.method === 'GET') {
-      return handleUnsubscribeLink(res, url);
-    }
-
     if (req.method !== 'POST') {
       return sendJsonError(res, 405, 'Method not allowed', 'method');
     }
 
     const contentType = String(req.headers['content-type'] || '').toLowerCase();
     const declaredLength = Number(req.headers['content-length']);
-    const maxBodyLength = pathname === '/api/subscriptions/unsubscribe' && /^application\/x-www-form-urlencoded(?:\s*;|$)/.test(contentType)
-      ? 8 * 1024
-      : 100_000;
+    const maxBodyLength = 100_000;
     if (Number.isFinite(declaredLength) && declaredLength > maxBodyLength) {
       return sendJsonError(res, 413, 'Request body too large.', 'body_too_large');
-    }
-    // The browser confirmation form carries only the signed token. Keep the
-    // token out of the POST URL and bound the form body separately from JSON.
-    if (pathname === '/api/subscriptions/unsubscribe'
-      && /^application\/x-www-form-urlencoded(?:\s*;|$)/.test(contentType)) {
-      const body = await readFormBody(req);
-      return handleUnsubscribeToken(req, res, typeof body.token === 'string' ? body.token : '');
     }
     if (!/^application\/json(?:\s*;|$)/.test(contentType)) {
       return sendJsonError(res, 415, 'Content-Type must be application/json.', 'unsupported_media_type');
@@ -2503,12 +2284,10 @@ async function handleApi(req, res, url) {
         return await handleLegislatorLookup(req, res, body);
       case '/api/chat/ask':
         return await handleChatAsk(req, res, body);
-      case '/api/subscriptions/request':
-        return await handleRequestCode(req, res, body);
-      case '/api/subscriptions/verify':
-        return await handleVerifyCode(req, res, body);
-      case '/api/subscriptions/unsubscribe':
-        return handleUnsubscribe(req, res, body);
+      case '/api/profile/email/request':
+        return await handleProfileEmailRequest(req, res, body);
+      case '/api/profile/email/verify':
+        return await handleProfileEmailVerify(req, res, body);
       default:
         return sendJsonError(res, 404, 'Unknown API endpoint', 'not_found');
     }
@@ -2529,8 +2308,8 @@ server.listen(PORT, HOST, () => {
   console.log(`  Chatbot engine: v${CHATBOT_ENGINE_VERSION}`);
   console.log(`  Site + API:  http://${HOST}:${PORT}`);
   console.log(`  Email:       ${emailMode}`);
-  console.log(`  Access code: ${process.env.SUBSCRIPTION_ACCESS_CODE ? 'configured' : 'default development code'}`);
   console.log(`  Data file:   ${DATA_FILE}`);
+  console.log(`  Email store: ${DATA_KEY ? 'encrypted at rest (AES-256-GCM)' : 'plaintext — set SUBSCRIPTION_DATA_KEY to encrypt stored emails'}`);
   if (!['127.0.0.1', 'localhost', '[::1]', '::1'].includes(normalizeHostname(HOST))) {
     console.log('  Warning: bound to a non-loopback address  -  the API is reachable from your network.');
   }
@@ -2541,8 +2320,5 @@ server.listen(PORT, HOST, () => {
     console.log('  Tip: add BREVO_API_KEY and BREVO_FROM_EMAIL to .env to send real verification emails.');
   } else if (!BREVO_FROM_EMAIL) {
     console.log('  Tip: BREVO_FROM_EMAIL is empty  -  set it to a sender address you verified in Brevo.');
-  }
-  if (!process.env.SUBSCRIPTION_SIGNING_SECRET) {
-    console.log('  Note: SUBSCRIPTION_SIGNING_SECRET not set  -  unsubscribe links reset on restart.');
   }
 });

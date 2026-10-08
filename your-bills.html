@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+  <meta name="description" content="Bills you save from the Lariat bill feed, kept in this browser.">
+  <title>Your Bills — Lariat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=profile-1">
+  <script src="theme-init.js?v=theme-2"></script>
+</head>
+<body class="dashboard-page your-bills-page">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Lariat home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">Lariat</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="feed.html">Bill feed</a>
+      <a class="nav-link" href="legislator.html">Find your legislator</a>
+      <a class="nav-link active" href="your-bills.html" aria-current="page">Your Bills</a>
+      <a class="nav-link" href="key-events.html">Calendar</a>
+      <a class="nav-link" href="pricing.html">Pricing</a>
+      <a class="nav-link" href="vision.html">Vision</a>
+      <a class="nav-link" href="privacy.html">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <span class="demo-pill"><span class="status-dot"></span> Real data snapshot</span>
+      <a class="profile-cta" href="profile.html">Create Profile</a>
+      <button class="avatar-button" type="button" data-profile-wired="true" hidden aria-label="Your profile" title="Your profile">TX</button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Switch to dark mode"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
+    </div>
+  </header>
+
+  <main class="page-shell profile-shell">
+    <section class="profile-hero page-reveal">
+      <div class="eyebrow"><span class="eyebrow-line"></span> Your Bills</div>
+      <h1>Bills you save live here, <span data-user-name>there</span>.</h1>
+      <p class="hero-copy">Anything you save from the bill feed shows up on this page. Everything is kept <strong>only in this browser</strong> — no account, no cost.</p>
+    </section>
+
+    <section class="profile-card page-reveal" aria-labelledby="your-bills-title">
+      <h2 id="your-bills-title">Saved bills <span class="count-chip" id="your-bills-count">0</span></h2>
+      <p class="profile-hint" id="your-bills-hint">No saved bills yet. Browse the feed and save the ones that matter to you.</p>
+      <ul id="your-bills-list" class="profile-saved-list"></ul>
+      <p class="profile-actions">
+        <a class="profile-button primary" href="feed.html">Browse the bill feed →</a>
+        <a class="profile-button" href="profile.html">Edit profile</a>
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span>Lariat</span><span>Device-local saved bills · Nothing leaves this browser</span><a href="feed.html">Bill feed</a><a href="privacy.html">Privacy</a></footer>
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script src="theme.js?v=header-scroll-1"></script>
+  <script src="profile.js?v=profile-1"></script>
+  <script src="user-name.js"></script>
+  <script src="your-bills.js?v=1"></script>
+</body>
+</html>

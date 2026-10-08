@@ -32,7 +32,8 @@
   };
 
   document.querySelectorAll('.avatar-button').forEach((button) => {
-    button.addEventListener('click', () => showToast('Account controls are intentionally disabled in this prototype.'));
+    button.dataset.profileWired = 'true';
+    button.addEventListener('click', () => { window.location.href = 'profile.html'; });
   });
 
   const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (character) => ({

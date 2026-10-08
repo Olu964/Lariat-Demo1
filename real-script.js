@@ -30,16 +30,9 @@
     button.addEventListener('click', () => document.querySelector('#bill-list')?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' }));
   });
 
-  document.querySelectorAll('[data-action="reset-subscriptions"]').forEach((button) => {
-    button.addEventListener('click', () => {
-      if (typeof window.LariatSubscriptions !== 'undefined' && typeof window.LariatSubscriptions.reset === 'function') {
-        window.LariatSubscriptions.reset();
-      }
-    });
-  });
-
   document.querySelectorAll('.avatar-button').forEach((button) => {
-    button.addEventListener('click', () => showToast('Account controls are intentionally disabled in this prototype.'));
+    button.dataset.profileWired = 'true';
+    button.addEventListener('click', () => { window.location.href = 'profile.html'; });
   });
 
   const safe = (value) => String(value ?? 'Not provided');
@@ -615,14 +608,6 @@
   });
   modal?.addEventListener('close', () => lastFocusedElement?.focus());
 
-  const subscribeRowMarkup = (industry) => {
-    const subscribed = typeof window.LariatSubscriptions !== 'undefined' && window.LariatSubscriptions.isSubscribed(industry);
-    if (subscribed) {
-      return `<div class="subscribe-row subscribed"><span class="subscribe-check" aria-hidden="true">✓</span> Subscribed to ${escapeHtml(industry)} email updates<button class="subscribe-button link subscribe-unsubscribe" type="button" data-unsubscribe-industry="${escapeHtml(industry)}" title="Stop ${escapeHtml(industry)} email updates">Unsubscribe</button></div>`;
-    }
-    return `<div class="subscribe-row"><button class="subscribe-button" type="button" data-subscribe-industry="${escapeHtml(industry)}" title="Get email updates when ${escapeHtml(industry)} bills move"><span class="subscribe-bell" aria-hidden="true"></span>Subscribe to ${escapeHtml(industry)} email updates</button></div>`;
-  };
-
   const renderBills = (bills, viewTitle = 'All industries', showSpecificIndustry = false) => {
     const list = document.querySelector('#bill-list');
     if (!list) return;
@@ -636,7 +621,6 @@
     }
 
     const industryBills = bills;
-    const industryName = showSpecificIndustry ? viewTitle : '';
     list.innerHTML = `
       <section class="industry-group" aria-labelledby="selected-industry-title">
         <div class="industry-group-heading">
@@ -646,7 +630,6 @@
           </div>
           <span class="industry-count">${industryBills.length} ${industryBills.length === 1 ? 'bill' : 'bills'}</span>
         </div>
-        ${industryName ? subscribeRowMarkup(industryName) : ''}
         <div class="industry-bills">
           ${industryBills.map((bill) => {
             const levelClass = impactClass(bill.impact_level);
@@ -658,12 +641,16 @@
             const cardSession = formatSessionShort(bill);
             const cardOrigin = formatOriginShort(bill);
             const cardMeta = [cardSession, cardOrigin].filter(Boolean).join(' · ');
+            const rawIdentifier = String(bill.identifier || 'Unknown ID');
+            const isSaved = window.LariatProfile
+              ? window.LariatProfile.get().bookmarkedBills.includes(rawIdentifier)
+              : false;
             return `
               <button class="bill-card bill-card-button ${levelClass === 'high' ? 'high-impact' : ''}" type="button" data-bill-index="${bill.__index}" aria-label="Open full summary for ${identifier}" title="Open the full summary for ${identifier}">
                 <div class="bill-topline"><span class="bill-number">${identifier}</span><span class="bill-date">${escapeHtml(cardIndustry)}</span></div>
                 <div class="bill-heading"><h3>${title}</h3><div class="bill-badges">${statusBadge(bill)}<span class="impact-badge ${levelClass}"><span class="badge-dot"></span>${escapeHtml(safe(bill.impact_level))} impact</span>${myVoteBadges(bill)}</div></div>
                 ${cardMeta ? `<div class="bill-meta"><span>${escapeHtml(cardMeta)}</span></div>` : ''}
-                <span class="bill-card-action">Click to view full summary <span aria-hidden="true">↗</span></span>
+                <span class="bill-card-footer"><span class="bill-card-action">Click to view full summary <span aria-hidden="true">↗</span></span><span class="bill-save-button" role="button" tabindex="0" data-save-bill="${escapeHtml(rawIdentifier)}" aria-pressed="${isSaved}" title="${isSaved ? `${identifier} is in Your Bills — activate to remove` : `Save ${identifier} to Your Bills`}">${isSaved ? 'Saved to Your Bills <span aria-hidden="true">✓</span>' : 'Save to Your Bills'}</span></span>
               </button>
             `;
           }).join('')}
@@ -674,20 +661,59 @@
     list.querySelectorAll('[data-bill-index]').forEach((row) => {
       row.addEventListener('click', () => openBillModal(allBills[Number(row.dataset.billIndex)], row));
     });
-    list.querySelectorAll('[data-subscribe-industry]').forEach((button) => {
-      button.addEventListener('click', () => {
-        if (typeof window.LariatSubscriptions !== 'undefined') {
-          window.LariatSubscriptions.open(button.dataset.subscribeIndustry);
+    // Save-to-Your-Bills controls live inside the card button as spans (a real
+    // <button> cannot nest), so every activation stops propagation and never
+    // opens the bill modal.
+    const refreshSaveButtons = () => {
+      const saved = new Set(window.LariatProfile ? window.LariatProfile.get().bookmarkedBills : []);
+      document.querySelectorAll('[data-save-bill]').forEach((el) => {
+        const isSaved = saved.has(el.dataset.saveBill);
+        el.setAttribute('aria-pressed', String(isSaved));
+        el.innerHTML = isSaved
+          ? 'Saved to Your Bills <span aria-hidden="true">✓</span>'
+          : 'Save to Your Bills';
+        el.setAttribute('title', isSaved
+          ? `${el.dataset.saveBill} is in Your Bills — activate to remove`
+          : `Save ${el.dataset.saveBill} to Your Bills`);
+      });
+    };
+    list.querySelectorAll('[data-save-bill]').forEach((el) => {
+      const activate = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!window.LariatProfile || typeof window.LariatProfile.toggleBookmark !== 'function') {
+          showToast('Profiles are unavailable in this browser.');
+          return;
+        }
+        const id = el.dataset.saveBill;
+        const after = window.LariatProfile.toggleBookmark(id);
+        const isSaved = after.includes(id);
+        showToast(isSaved ? `Saved ${id} to Your Bills.` : `Removed ${id} from Your Bills.`);
+        refreshSaveButtons();
+      };
+      el.addEventListener('click', activate);
+      el.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          event.stopPropagation();
+          activate(event);
         }
       });
     });
-    list.querySelectorAll('[data-unsubscribe-industry]').forEach((button) => {
-      button.addEventListener('click', () => {
-        if (typeof window.LariatSubscriptions !== 'undefined' && typeof window.LariatSubscriptions.unsubscribe === 'function') {
-          window.LariatSubscriptions.unsubscribe(button.dataset.unsubscribeIndustry);
-        }
+    if (!window.__lariatSaveSyncWired) {
+      window.__lariatSaveSyncWired = true;
+      document.addEventListener('lariat:profile-changed', () => {
+        const saved = new Set(window.LariatProfile ? window.LariatProfile.get().bookmarkedBills : []);
+        document.querySelectorAll('[data-save-bill]').forEach((el) => {
+          const isSaved = saved.has(el.dataset.saveBill);
+          el.setAttribute('aria-pressed', String(isSaved));
+          el.innerHTML = isSaved
+            ? 'Saved to Your Bills <span aria-hidden="true">✓</span>'
+            : 'Save to Your Bills';
+        });
       });
-    });
+    }
+    refreshSaveButtons();
   };
 
   const loadBills = async () => {

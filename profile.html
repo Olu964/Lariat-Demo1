@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Your profile — Lariat</title>
+  <meta name="description" content="Your device-local Lariat profile: display name and industries you follow.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=profile-4">
+  <script src="theme-init.js?v=theme-2"></script>
+</head>
+<body class="dashboard-page profile-page">
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-one" aria-hidden="true"></div>
+  <div class="ambient-orb ambient-orb-two" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Lariat home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-name">Lariat</span>
+    </a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="feed.html">Bill feed</a><a class="nav-link" href="legislator.html">Find your legislator</a><a class="nav-link" href="your-bills.html">Your Bills</a><a class="nav-link" href="key-events.html">Calendar</a><a class="nav-link" href="pricing.html">Pricing</a><a class="nav-link" href="vision.html">Vision</a><a class="nav-link" href="privacy.html">Privacy</a>
+    </nav>
+    <div class="header-actions">
+      <span class="demo-pill"><span class="status-dot"></span> Real data snapshot</span>
+      <a class="profile-cta" href="profile.html">Create Profile</a>
+      <button class="avatar-button" type="button" data-profile-wired="true" hidden aria-label="Your profile" title="Your profile">TX</button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Switch to dark mode"><span class="theme-toggle-icon" aria-hidden="true">☾</span><span class="theme-toggle-label">Dark mode</span></button>
+    </div>
+  </header>
+
+  <main class="page-shell profile-shell">
+    <section class="profile-hero page-reveal">
+      <div class="eyebrow"><span class="eyebrow-line"></span> Your profile</div>
+      <h1>Hi, <span data-user-name>there</span>.</h1>
+      <p class="hero-copy">This profile lives <strong>only in this browser</strong> — no account, no cost, nothing sent online. Give yourself a name and pick industries to follow.</p>
+    </section>
+
+    <section class="profile-card page-reveal" aria-labelledby="profile-edit-title">
+      <h2 id="profile-edit-title">Edit profile</h2>
+      <form id="profile-form" novalidate>
+        <label class="profile-label" for="profile-name">Display name</label>
+        <input class="profile-input" id="profile-name" type="text" maxlength="80" autocomplete="nickname" placeholder="e.g. Alex">
+        <p class="profile-hint">Shown in greetings and on your avatar. Max 80 characters.</p>
+
+        <label class="profile-label" for="profile-email">Email (optional)</label>
+        <input class="profile-input" id="profile-email" type="email" maxlength="254" autocomplete="email" placeholder="e.g. alex@example.com">
+        <div class="finalize-locked-row" id="finalize-locked-row" hidden>
+          <p class="finalize-email-display" id="finalize-email-display"></p>
+          <button class="profile-button" type="button" id="email-edit">Edit</button>
+        </div>
+        <p class="profile-hint" id="email-hint">Finalize your email with a code we send you. It's used by default for industry subscriptions and future bill-update emails — changing it moves your existing subscriptions.</p>
+        <div class="finalize-row">
+          <button class="profile-button" type="button" id="finalize-email">Get code</button>
+          <span class="finalize-verified" id="finalize-verified" hidden>Verified ✓</span>
+        </div>
+        <div class="finalize-panel" id="finalize-panel" hidden>
+          <p class="profile-hint" id="finalize-intro"></p>
+          <div id="finalize-code-step" hidden>
+            <label class="profile-label" for="finalize-code">Confirmation code</label>
+            <input class="profile-input finalize-code-input" id="finalize-code" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" placeholder="123456">
+            <div class="profile-actions">
+              <button class="profile-button primary" type="button" id="finalize-confirm">Finalize</button>
+              <button class="profile-button" type="button" id="finalize-resend">Resend code</button>
+            </div>
+          </div>
+          <p class="profile-status" id="finalize-status" role="status" aria-live="polite"></p>
+        </div>
+
+        <fieldset class="profile-fieldset">
+          <legend>Industries you follow</legend>
+          <div id="profile-industries" class="profile-checks"></div>
+        </fieldset>
+
+        <label class="profile-label" for="profile-address">Home address or ZIP (optional)</label>
+        <input class="profile-input" id="profile-address" type="text" maxlength="240" autocomplete="street-address" placeholder="e.g. 78701">
+        <p class="profile-hint">Prefills the legislator lookup. Stored only here.</p>
+
+        <div class="profile-actions">
+          <button class="profile-button primary" type="submit">Save profile</button>
+          <button class="profile-button" type="button" id="profile-clear">Clear profile</button>
+        </div>
+        <p class="profile-status" id="profile-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span>Lariat</span><span>Device-local demo profile · Nothing leaves this browser</span><a href="feed.html">Bill feed</a><a href="privacy.html">Privacy</a></footer>
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script src="theme.js?v=header-scroll-1"></script>
+  <script src="api-config.js?v=1"></script>
+  <script src="profile.js?v=profile-1"></script>
+  <script src="user-name.js"></script>
+  <script src="subscriptions.js?v=plan-store-1"></script>
+  <script src="profile-page.js?v=profile-5"></script>
+</body>
+</html>

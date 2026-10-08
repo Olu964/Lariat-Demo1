@@ -1,40 +1,38 @@
+/* Compatibility shim — kept so pages that still include user-name.js keep working.
+ * Real logic lives in profile.js (device-local, no prompt).
+ * This file never prompts anymore; it just renders whatever profile.js stored.
+ */
 (() => {
-  const storageKey = 'lariat-user-name';
-  const skippedValue = '__skipped__';
+  if (window.LariatProfile) return; // profile.js already rendered
   let storedName = null;
   try {
-    storedName = localStorage.getItem(storageKey);
-  } catch (error) {
-    /* Storage may be blocked; the generic greeting is kept. */
-  }
-
-  // First visit in this browser: ask for a name, then remember it so we
-  // never ask again. Declining is also remembered so the prompt does not
-  // reappear on every page load.
-  if (!storedName) {
-    const entered = (window.prompt('Welcome to Lariat! What should we call you?') || '').trim();
-    storedName = entered || skippedValue;
-    try {
-      localStorage.setItem(storageKey, storedName);
-    } catch (error) {
-      /* Storage may be blocked; the name still applies to this visit. */
+    const raw = localStorage.getItem('lariat-profile-v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.displayName === 'string' && parsed.displayName.trim()) {
+        storedName = parsed.displayName.trim().slice(0, 80);
+      }
     }
-  }
-
-  if (storedName === skippedValue) return; // visitor declined; keep generic defaults
-
-  const displayName = storedName.trim();
-  const parts = displayName.split(/\s+/);
-  const firstInitial = (parts[0] || '').charAt(0).toUpperCase();
-  const lastInitial = parts.length > 1
-    ? (parts[parts.length - 1] || '').charAt(0).toUpperCase()
-    : (parts[0] || '').charAt(1).toUpperCase();
-  const initials = `${firstInitial}${lastInitial}` || '?';
-
-  document.querySelectorAll('[data-user-name]').forEach((element) => {
-    element.textContent = displayName;
-  });
-  document.querySelectorAll('.avatar-button').forEach((button) => {
-    button.textContent = initials;
+    if (!storedName) {
+      const legacy = localStorage.getItem('lariat-user-name');
+      if (legacy && legacy !== '__skipped__' && legacy.trim()) {
+        storedName = legacy.trim().slice(0, 80);
+      }
+    }
+  } catch (error) { /* storage blocked */ }
+  if (!storedName) return;
+  const firstName = storedName.split(/\s+/)[0].slice(0, 12);
+  document.querySelectorAll('[data-user-name]').forEach((el) => { el.textContent = storedName; });
+  document.querySelectorAll('.header-actions').forEach((actions) => {
+    const cta = actions.querySelector('.profile-cta');
+    const btn = actions.querySelector('.avatar-button');
+    if (cta) cta.hidden = true;
+    if (btn) {
+      btn.hidden = false;
+      btn.textContent = firstName;
+      btn.classList.add('has-name');
+      btn.setAttribute('aria-label', `Open profile for ${storedName}`);
+      btn.setAttribute('title', `Profile — ${storedName}`);
+    }
   });
 })();

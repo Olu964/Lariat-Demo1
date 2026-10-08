@@ -171,12 +171,9 @@
   });
 
   document.querySelectorAll('.avatar-button').forEach((button) => {
+    button.dataset.profileWired = 'true';
     button.addEventListener('click', () => {
-      if (!toast) return;
-      toast.textContent = 'Account controls are intentionally disabled in this prototype.';
-      toast.classList.add('visible');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('visible'), 3200);
+      window.location.href = 'profile.html';
     });
   });
 
