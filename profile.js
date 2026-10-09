@@ -198,6 +198,28 @@
     return next;
   }
 
+  // Save/subscribe gate: a profile email must pass Finalize Email (the code
+  // emailed to it) before bills can be saved or plans/subscriptions chosen.
+  // Blocks everyone who is not finalized, including visitors with no email.
+  const GATE_TOAST_MESSAGE = 'Please finalize your email with the code before attempting to save a bill or subscribe to an industry';
+
+  function isEmailFinalized() {
+    const profile = readProfile();
+    return Boolean(profile.email && profile.emailVerifiedAt);
+  }
+
+  function requireVerifiedEmail() {
+    if (isEmailFinalized()) return true;
+    const toast = document.querySelector('.toast');
+    if (toast) {
+      toast.textContent = GATE_TOAST_MESSAGE;
+      toast.classList.add('visible');
+      clearTimeout(window.__lariatToastTimer);
+      window.__lariatToastTimer = setTimeout(() => toast.classList.remove('visible'), 3200);
+    }
+    return false;
+  }
+
   function clearProfile() {
     try { localStorage.removeItem(PROFILE_KEY); } catch (error) { /* ignore */ }
     const fresh = defaultProfile();
@@ -226,6 +248,8 @@
     clear: clearProfile,
     toggleBookmark,
     initialsFor,
+    isEmailFinalized,
+    requireVerifiedEmail,
     ALL_INDUSTRIES: Object.freeze([...ALL_INDUSTRIES]),
   };
 })();

@@ -753,6 +753,16 @@ html.theme-transitioning *, html.theme-transitioning *::before, html.theme-trans
 .profile-add-row { display: flex; gap: 8px; margin-top: 10px; }
 .profile-add-row .profile-input { flex: 1; min-width: 0; }
 .profile-empty { color: var(--muted); }
+/* Industry subscription rows (Your Saves). Scoped + double-classed so these
+ * beat the generic .profile-saved-list button styles above. */
+.industries-list li span { min-width: 0; overflow-wrap: anywhere; }
+.industries-list .subscribe-button { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid #17466d; border-radius: 8px; background: linear-gradient(180deg, #1e4b77, #0d2e4f); color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 4px 12px rgba(16,51,85,.18); transition: background .2s ease, border-color .2s ease, opacity .2s ease, transform .2s ease; }
+.industries-list .subscribe-button:hover { border-color: #103a5e; background: linear-gradient(180deg, #275881, #103a5e); transform: translateY(-1px); }
+.industries-list .subscribe-button.unsubscribe { border-color: #7d1f14; background: linear-gradient(180deg, #c5372b, #8e2418); box-shadow: inset 0 1px 0 rgba(255,255,255,.24), 0 4px 12px rgba(142,36,24,.2); }
+.industries-list .subscribe-button.unsubscribe:hover { border-color: #6a1a11; background: linear-gradient(180deg, #d0463a, #7a1e13); }
+.industries-list .industry-actions { display: inline-flex; align-items: center; gap: 8px; }
+.industries-list .subscribed-note { color: var(--muted); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.industries-list .subscribe-button:disabled { cursor: default; opacity: .65; transform: none; }
 /* Author display rules below override the browser's built-in [hidden] rule,
  * so hidden form controls must be forced off explicitly. */
 .profile-input[hidden], .profile-button[hidden], .finalize-panel[hidden], .finalize-locked-row[hidden] { display: none; }
@@ -779,6 +789,10 @@ html.theme-transitioning *, html.theme-transitioning *::before, html.theme-trans
 [data-theme="dark"] .profile-button:not(.primary) { border-color: rgba(255,255,255,.16); background: rgba(17,35,46,.85); color: #e7f1f6; box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
 [data-theme="dark"] .profile-saved-list li { border-color: rgba(255,255,255,.12); background: rgba(13,29,39,.9); color: #e7f1f6; }
 [data-theme="dark"] .profile-saved-list button { border-color: rgba(255,255,255,.16); background: rgba(17,35,46,.85); color: #e7f1f6; }
+[data-theme="dark"] .industries-list .subscribe-button { border-color: rgba(255,255,255,.24); box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 4px 12px rgba(0,0,0,.32); }
+[data-theme="dark"] .industries-list .subscribe-button:hover { border-color: rgba(255,255,255,.34); }
+[data-theme="dark"] .industries-list .subscribe-button.unsubscribe { border-color: rgba(255,130,120,.5); }
+[data-theme="dark"] .industries-list .subscribed-note { color: #9aafbc; }
 @media (max-width: 640px) { .profile-card { padding: 22px 18px 19px; } .profile-add-row { flex-direction: column; } }
 
 /* Header profile entry: Create Profile link <-> first-name pill */

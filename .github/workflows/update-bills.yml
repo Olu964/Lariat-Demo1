@@ -96,3 +96,29 @@ jobs:
           else
             echo "No changes  -  nothing to commit"
           fi
+
+      - name: Trigger notification digest
+        if: success()
+        env:
+          NOTIFICATIONS_SECRET: ${{ secrets.NOTIFICATIONS_SECRET }}
+          LARIAT_API_BASE: ${{ vars.LARIAT_API_BASE }}
+        run: |
+          # Non-fatal: a notification hiccup must never fail the bill refresh.
+          # Skips silently until the secret + API-base variable are configured.
+          if [ -z "$NOTIFICATIONS_SECRET" ] || [ -z "$LARIAT_API_BASE" ]; then
+            echo "Notifications not configured (need secret NOTIFICATIONS_SECRET + variable LARIAT_API_BASE); skipping digest trigger."
+            exit 0
+          fi
+          # raw.githubusercontent.com can lag a push by a few seconds; wait it
+          # out so the digest sees the summaries that were just committed.
+          sleep 20
+          STATUS=$(curl -sS -o /tmp/dispatch-response.json -w '%{http_code}' \
+            -X POST "${LARIAT_API_BASE%/}/api/notifications/dispatch" \
+            -H "Authorization: Bearer ${NOTIFICATIONS_SECRET}" \
+            -H "Content-Type: application/json" || echo "000")
+          echo "Dispatch HTTP ${STATUS}"
+          cat /tmp/dispatch-response.json || true
+          case "$STATUS" in
+            200) echo "Digest dispatch ok." ;;
+            *) echo "Digest dispatch failed; it will retry on the next scheduled run." >&2 ;;
+          esac

@@ -45,7 +45,7 @@
       <a class="nav-link" href="index.html">Home</a>
       <a class="nav-link" href="feed.html">Bill feed</a>
       <a class="nav-link" href="legislator.html">Find your legislator</a>
-      <a class="nav-link" href="your-bills.html">Your Bills</a>
+      <a class="nav-link" href="your-bills.html">Your Saves</a>
       <a class="nav-link" href="key-events.html">Calendar</a>
       <a class="nav-link" href="pricing.html">Pricing</a><a class="nav-link" href="vision.html">Vision</a>
       <a class="nav-link" href="privacy.html">Privacy</a>
@@ -63,7 +63,7 @@
       <div class="eyebrow"><span class="eyebrow-line"></span> Legal &amp; transparency</div>
       <h1>Accessibility Statement</h1>
       <p>Lariat is a real-data demo for reviewing Texas legislative records. This statement describes the accessibility support currently implemented, known limitations, and how to report a barrier.</p>
-      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Reviewed October 6, 2026</div>
+      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Reviewed October 9, 2026</div>
     </section>
 
     <article class="legal-card">
@@ -94,7 +94,7 @@
           <li>The homepage's first-visit notice uses a native dialog and can be closed with its close button, but focus behavior, announcements, and dialog presentation still need testing across browsers and assistive technologies.</li>
           <li>The legislator lookup depends on external Census and Open States responses. A successful result provides a labeled native dialog and returns focus to the clicked card when it closes; if a provider does not return individual vote records, the interface says so rather than presenting a guessed vote.</li>
           <li>Responsive layout, text resizing, browser zoom, color contrast, focus order, and screen-reader announcements have not been comprehensively tested in every light and dark visual state.</li>
-          <li>The subscription and legislator lookup flows require a reachable, correctly configured backend. In local development that is <code>node server/server.js</code>; a Vercel static deployment cannot complete those flows unless a protected production API is deployed, the browser API base is configured, CORS and CSP allow the exact API origin, and the required secrets and persistent storage are available.</li>
+          <li>The subscription, saved-bill sync, notification digest, and legislator lookup flows require a reachable, correctly configured backend. In local development that is <code>node server/server.js</code>; a Vercel static deployment cannot complete those flows unless a protected production API is deployed, the browser API base is configured, CORS and CSP allow the exact API origin, and the required secrets and persistent storage are available.</li>
           <li>Opening the pages with <code>file://</code> is unsupported. Use the local backend or another HTTP server.</li>
           <li>The Pricing page is currently covered by a demo overlay. Its Free, Professional, and Business plan links are intentionally inert in the visible experience; the underlying demo selection is browser-only state, not an account, payment control, or server-side authorization feature.</li>
           <li>Bill-detail hover explanations depend on pointer hover or keyboard focus; they may be harder to discover for touch-only users who do not tap the section titles. The View History timeline can be toggled by tapping its title, but it may still be harder to discover for users who do not interact with that title.</li>
@@ -110,7 +110,7 @@
 
       <section class="legal-section">
         <h2>Statement status</h2>
-        <p>This statement was reviewed October 6, 2026 and covers the current landing page, bill feed, bill detail and notes dialogs, bill-detail field explanations, bill-history hover timelines, and origin dates, industry filtering, Find your legislator address/ZIP lookup, legislator cards and profile dialog, explicitly saved legislators, available individual vote records, subscription verification and welcome-email flow, access-code lockout messaging, pricing overlay, theme control, calendar event dialogs, policy dialogs, homepage demo notice, the Kevin chat assistant, the offline fallback page, and visual effects. It also reflects that Vercel may host the static frontend and run the Kevin chat assistant as a serverless function, while subscription and legislator features require separate production configuration. It is a transparency statement, not a legal opinion, accessibility certification, or WCAG conformance claim.</p>
+        <p>This statement was reviewed October 9, 2026 and covers the current landing page, bill feed, bill detail and notes dialogs, bill-detail field explanations, bill-history hover timelines, and origin dates, industry filtering, Find your legislator address/ZIP lookup, legislator cards and profile dialog, explicitly saved legislators, available individual vote records, subscription verification and welcome-email flow, industry subscribe and unsubscribe controls on Your Saves, saved-bill sync for update alerts, the daily notification digest email, access-code lockout messaging, pricing overlay, theme control, calendar event dialogs, policy dialogs, homepage demo notice, the Kevin chat assistant, the offline fallback page, and visual effects. It also reflects that Vercel may host the static frontend and run the Kevin chat assistant as a serverless function, while subscription, notification, and legislator features require separate production configuration. It is a transparency statement, not a legal opinion, accessibility certification, or WCAG conformance claim.</p>
       </section>
     </article>
 
@@ -120,7 +120,7 @@
   <footer class="site-footer"><span>Lariat</span><span>Real local bill summaries · Verify with official sources</span><a href="privacy.html">Privacy</a><a href="accessibility.html" aria-current="page">Accessibility</a></footer>
   <div class="toast" role="status" aria-live="polite"></div>
   <script src="theme.js?v=header-scroll-1"></script>
-  <script src="profile.js?v=profile-1"></script>
+  <script src="profile.js?v=profile-2"></script>
   <script src="script.js"></script>
   <script src="api-config.js?v=1"></script>
   <script src="offline-redirect.js?v=1"></script>

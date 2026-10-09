@@ -67,8 +67,9 @@ module.exports = async (req, res) => {
       return lib.sendErr(res, 400, 'That code is not correct. Please try again.', 'wrong_code');
     }
 
-    // Code verified: consume it, then move subscriptions recorded under the
-    // user's old address(es) to the new profile email.
+    // Code verified: consume it, then move subscriptions and notification
+    // state (saved bills + notification ledgers) recorded under the user's
+    // old address(es) to the new profile email.
     await lib.deletePending(email, lib.PROFILE_EMAIL_PURPOSE);
     const newFields = lib.makeEmailFields(email);
     const moved = [];
@@ -93,6 +94,25 @@ module.exports = async (req, res) => {
           industry: subscription.industry,
           oldEmail,
         });
+      }
+
+      // Saved-bill sync records and the per-user notification ledger follow
+      // the address; overwriting an existing ledger on the new address is
+      // safe because lost "seen" marks only re-baseline silently.
+      const oldHmac = lib.emailLookupId(oldEmail);
+      const oldSaves = await lib.findSavesByHmac(oldHmac);
+      if (oldSaves) {
+        await lib.saveSavesRecord({
+          ...newFields,
+          billIds: Array.isArray(oldSaves.billIds) ? oldSaves.billIds : [],
+          updatedAt: new Date().toISOString(),
+        });
+        await lib.deleteSavesByHmac(oldHmac);
+      }
+      const oldLedger = await lib.findNotifLedger(oldHmac);
+      if (oldLedger) {
+        await lib.saveNotifLedger(newFields.emailHmac, oldLedger);
+        await lib.deleteNotifLedger(oldHmac);
       }
     }
 

@@ -1,7 +1,8 @@
-/* Your Bills page — renders bills saved in the device-local profile.
- * Saving itself happens in the bill feed (not implemented yet), so this page
- * is empty until then. Reads window.LariatProfile.bookmarkedBills and enriches
- * each ID with title/status from texas_bill_summaries.json when available.
+/* Your Saves page — renders bills saved in the device-local profile plus the
+ * industry subscription list. Reads window.LariatProfile.bookmarkedBills and
+ * enriches each ID with title/status from texas_bill_summaries.json when
+ * available. Industry rows call window.LariatSubscriptions.subscribe /
+ * unsubscribe, which POST to the backend and mirror state locally.
  * External file so CSP script-src 'self' allows it.
  */
 (() => {
@@ -10,6 +11,9 @@
   const list = document.querySelector('#your-bills-list');
   const count = document.querySelector('#your-bills-count');
   const hint = document.querySelector('#your-bills-hint');
+  const industriesList = document.querySelector('#industries-list');
+  const industriesCount = document.querySelector('#industries-count');
+  const industriesHint = document.querySelector('#industries-hint');
   const toast = document.querySelector('.toast');
 
   if (!list) return;
@@ -22,8 +26,10 @@
     if (!toast) return;
     toast.textContent = msg;
     toast.classList.add('visible');
-    clearTimeout(window.__yourBillsToast);
-    window.__yourBillsToast = setTimeout(() => toast.classList.remove('visible'), 3200);
+    // Shares the site-wide timer key so the profile.js email gate toast and
+    // this page's toasts never hide each other early.
+    clearTimeout(window.__lariatToastTimer);
+    window.__lariatToastTimer = setTimeout(() => toast.classList.remove('visible'), 3200);
   };
 
   const normId = (v) => String(v || '').replace(/\s+/g, '').toLowerCase();
@@ -73,10 +79,91 @@
     window.LariatProfile.toggleBookmark(btn.dataset.unsave);
     showToast(`Removed ${btn.dataset.unsave}.`);
     paint();
+    if (window.LariatSubscriptions && typeof window.LariatSubscriptions.syncSaves === 'function') {
+      window.LariatSubscriptions.syncSaves();
+    }
   });
 
-  document.addEventListener('lariat:profile-changed', paint);
+  function finalizedEmail() {
+    if (!window.LariatProfile || typeof window.LariatProfile.isEmailFinalized !== 'function') return '';
+    return window.LariatProfile.isEmailFinalized() ? window.LariatProfile.get().email : '';
+  }
+
+  function paintIndustries() {
+    if (!industriesList) return;
+    const industries = window.LariatProfile && window.LariatProfile.ALL_INDUSTRIES
+      ? window.LariatProfile.ALL_INDUSTRIES
+      : [];
+    const subs = window.LariatSubscriptions;
+    const canCheck = subs && typeof subs.isSubscribed === 'function';
+    let subscribedTotal = 0;
+    industriesList.innerHTML = industries.map((industry) => {
+      const subscribed = Boolean(canCheck && subs.isSubscribed(industry));
+      if (subscribed) subscribedTotal += 1;
+      const label = subscribed ? `Unsubscribe from ${industry}` : `Subscribe to ${industry}`;
+      const button = `<button type="button" class="subscribe-button${subscribed ? ' unsubscribe' : ''}" data-subscribe-industry="${escapeHtml(industry)}" aria-label="${escapeHtml(label)}">${subscribed ? 'Unsubscribe' : 'Subscribe'}</button>`;
+      const actions = subscribed
+        ? `<span class="industry-actions"><span class="subscribed-note">Currently Subscribed</span>${button}</span>`
+        : `<span class="industry-actions">${button}</span>`;
+      return `<li><span>${escapeHtml(industry)}</span>${actions}</li>`;
+    }).join('');
+    if (industriesCount) industriesCount.textContent = String(subscribedTotal);
+    if (industriesHint) {
+      const email = finalizedEmail();
+      industriesHint.textContent = email
+        ? `A confirmation email goes to ${email} each time you subscribe, and a notice when you unsubscribe.`
+        : 'Finalize your email from your profile before subscribing — confirmations are sent there.';
+    }
+  }
+
+  if (industriesList) {
+    industriesList.addEventListener('click', async (event) => {
+      const btn = event.target.closest('[data-subscribe-industry]');
+      if (!btn) return;
+      if (!window.LariatProfile || !window.LariatSubscriptions
+        || typeof window.LariatSubscriptions.subscribe !== 'function') {
+        showToast('Industry subscriptions are unavailable in this browser.');
+        return;
+      }
+      // Email gate: exact toast from profile.js when the code was never entered.
+      if (typeof window.LariatProfile.requireVerifiedEmail === 'function' && !window.LariatProfile.requireVerifiedEmail()) return;
+      const industry = btn.dataset.subscribeIndustry;
+      const wasSubscribed = typeof window.LariatSubscriptions.isSubscribed === 'function'
+        && window.LariatSubscriptions.isSubscribed(industry);
+      btn.disabled = true;
+      try {
+        if (wasSubscribed) {
+          await window.LariatSubscriptions.unsubscribe(industry);
+          showToast(`Unsubscribed from ${industry}. Notice sent to ${window.LariatProfile.get().email}.`);
+        } else {
+          await window.LariatSubscriptions.subscribe(industry);
+          showToast(`Subscribed to ${industry}. Confirmation sent to ${window.LariatProfile.get().email}.`);
+        }
+      } catch (error) {
+        showToast(error && error.message ? error.message : 'Something went wrong. Please try again.');
+      } finally {
+        btn.disabled = false;
+        paintIndustries();
+      }
+    });
+  }
+
+  document.addEventListener('lariat:profile-changed', () => {
+    paint();
+    paintIndustries();
+    // The email may have just been finalized — mirror saved bills to the
+    // notification digest backend as soon as it qualifies.
+    if (window.LariatSubscriptions && typeof window.LariatSubscriptions.syncSaves === 'function') {
+      window.LariatSubscriptions.syncSaves();
+    }
+  });
+  document.addEventListener('lariat:subscriptions-changed', paintIndustries);
 
   loadBillIndex().finally(paint);
   paint();
+  paintIndustries();
+  // Mirror saves on load too (no-op until the profile email is finalized).
+  if (window.LariatSubscriptions && typeof window.LariatSubscriptions.syncSaves === 'function') {
+    window.LariatSubscriptions.syncSaves();
+  }
 })();

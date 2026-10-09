@@ -109,6 +109,29 @@ const REQUEST_COOLDOWN_MS = 60 * 1000;          // min time between codes for on
 const VERIFY_MAX_ATTEMPTS = 5;                   // wrong-code tries before the code is voided
 const PROFILE_EMAIL_PURPOSE = '__profile_email__'; // sentinel "industry" for profile-finalize codes
 const IP_RATE_LIMIT = { windowMs: 60 * 60 * 1000, max: 10 }; // /request calls per IP per hour
+const UNSUBSCRIBE_TOKEN_DAYS = Math.min(365, Math.max(1, Number(process.env.SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS) || 90));
+
+// Canonical industry list — mirrors ALL_INDUSTRIES in profile.js. Subscribe
+// requests must name one of these exactly.
+const INDUSTRY_LIST = Object.freeze([
+  'Energy & Utilities',
+  'Government & Municipal Operations',
+  'Emergency & Public Safety',
+  'Real Estate & Land Use',
+  'Insurance & Financial Services',
+]);
+
+// HMAC secret for signed unsubscribe links. Falls back to a random per-boot
+// value so links work without configuration (they stop verifying after a
+// restart); set a fixed SUBSCRIPTION_SIGNING_SECRET to keep links valid.
+const SIGNING_SECRET = process.env.SUBSCRIPTION_SIGNING_SECRET || crypto.randomBytes(32).toString('hex');
+
+// Notification digest configuration (parity with api/notifications/*). The
+// dispatch endpoint is disabled when the shared secret is not configured;
+// the feed is read from the local summaries file rather than raw GitHub.
+const NOTIFICATIONS_SECRET = (process.env.NOTIFICATIONS_SECRET || '').trim();
+const MAX_SAVED_BILLS = 200;
+const BILL_ID_PATTERN = /^[A-Za-z]{2,4}\s?\d{1,4}$/;
 
 /* Email encryption at rest (AES-256-GCM, Node built-in, no dependency).
  * SUBSCRIPTION_DATA_KEY is 64 hex characters (32 bytes). When set, every
@@ -193,6 +216,86 @@ function isValidEmailEnc(value) {
 function isValidEmailHmac(value) {
   return typeof value === 'string'
     && (/^hmac:[0-9a-f]{64}$/.test(value) || (value.length <= MAX_EMAIL_LENGTH && EMAIL_PATTERN.test(value)));
+}
+
+/* ---------------------------------------------------------------------------
+ * Notification state — saved-bill records, per-user ledgers, feed snapshot.
+ * All persisted inside server/data/subscriptions.json (same file as the
+ * subscriptions) so a single saveData keeps everything consistent.
+ * ------------------------------------------------------------------------- */
+
+// Normalized bill identifier ("HB 295" style — same shape profile.js
+// toggleBookmark accepts). Returns '' when the value is not a bill ID.
+function normalizeBillId(value) {
+  const clean = String(value || '').replace(/\s+/g, '').toUpperCase();
+  if (!BILL_ID_PATTERN.test(clean)) return '';
+  return clean.replace(/^([A-Za-z]{2,4})(\d{1,4})$/, '$1 $2');
+}
+
+// Stable content version for update detection: only meaningful legislative
+// fields. The AI summary changes iff the official text hash changes
+// (summarize_bills.py skips re-summarizing otherwise), so the text hash
+// covers summary churn.
+function billVersion(bill) {
+  const stable = [
+    bill.status || '',
+    bill.latest_action_description || '',
+    bill.latest_action_date || '',
+    bill.bill_text_hash || '',
+  ].join('\n');
+  return crypto.createHash('sha256').update(stable).digest('hex');
+}
+
+function findSavesRecord(email) {
+  return store.saves.find((record) => recordMatchesEmail(record, email)) || null;
+}
+
+// Replaces (or creates) the saved-bill record for an address.
+function saveSavesRecord(email, billIds) {
+  const existing = findSavesRecord(email);
+  const cleanIds = billIds.filter((id) => typeof id === 'string' && id.length <= 24);
+  if (existing) {
+    delete existing.email;
+    Object.assign(existing, makeEmailFields(email));
+    existing.billIds = cleanIds;
+    existing.updatedAt = new Date().toISOString();
+    return existing;
+  }
+  const record = {
+    ...makeEmailFields(email),
+    billIds: cleanIds,
+    updatedAt: new Date().toISOString(),
+  };
+  store.saves.push(record);
+  return record;
+}
+
+function findNotifLedger(email) {
+  return store.notifs[emailLookupId(email)] || null;
+}
+
+function saveNotifLedger(email, ledger) {
+  store.notifs[emailLookupId(email)] = {
+    industrySeen: ledger.industrySeen || {},
+    savesVersions: ledger.savesVersions || {},
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function getFeedSnapshot() {
+  return store.feedSnapshot && typeof store.feedSnapshot === 'object' ? store.feedSnapshot : null;
+}
+
+// Dispatch auth: the workflow sends `Authorization: Bearer $NOTIFICATIONS_SECRET`.
+function dispatchAuthorized(req) {
+  if (!NOTIFICATIONS_SECRET) return false;
+  const header = req.headers && req.headers.authorization;
+  if (typeof header !== 'string') return false;
+  const match = /^Bearer\s+(.+)$/.exec(header.trim());
+  if (!match) return false;
+  const received = Buffer.from(match[1].trim());
+  const expected = Buffer.from(NOTIFICATIONS_SECRET);
+  return received.length === expected.length && crypto.timingSafeEqual(received, expected);
 }
 
 const MAX_EMAIL_LENGTH = 254;
@@ -331,7 +434,7 @@ validateConfiguration();
  * ------------------------------------------------------------------------- */
 
 function defaultData() {
-  return { subscriptions: [], pendingCodes: [] };
+  return { subscriptions: [], pendingCodes: [], saves: [], notifs: {}, feedSnapshot: null };
 }
 
 function loadData() {
@@ -373,6 +476,9 @@ function loadData() {
           industry: subscription.industry,
           ...(typeof subscription.verifiedAt === 'string' ? { verifiedAt: subscription.verifiedAt } : {}),
           ...(typeof subscription.source === 'string' ? { source: subscription.source } : {}),
+          ...(typeof subscription.unsubscribeTokenId === 'string' && /^[0-9a-f]{32}$/i.test(subscription.unsubscribeTokenId)
+            ? { unsubscribeTokenId: subscription.unsubscribeTokenId }
+            : {}),
         }))
       : [],
     // Discard records from the pre-scrypt format rather than retaining
@@ -407,6 +513,48 @@ function loadData() {
           ...(typeof pending.createdAt === 'string' ? { createdAt: pending.createdAt } : {}),
         }))
       : [],
+    // Saved-bill sync records (one per address) for the notification digest.
+    saves: Array.isArray(parsed.saves)
+      ? parsed.saves.filter((record) => record
+        && ((typeof record.email === 'string'
+          && record.email.length <= MAX_EMAIL_LENGTH
+          && EMAIL_PATTERN.test(record.email))
+          || (isValidEmailEnc(record.emailEnc) && isValidEmailHmac(record.emailHmac)))
+        && Array.isArray(record.billIds)
+        && record.billIds.length <= MAX_SAVED_BILLS
+        && record.billIds.every((id) => typeof id === 'string' && id.length <= 24))
+        .map((record) => ({
+          ...(typeof record.email === 'string' ? { email: record.email } : {}),
+          ...(isValidEmailEnc(record.emailEnc)
+            ? {
+              emailEnc: {
+                v: 1, iv: record.emailEnc.iv, data: record.emailEnc.data, tag: record.emailEnc.tag,
+              },
+            }
+            : {}),
+          ...(isValidEmailHmac(record.emailHmac) ? { emailHmac: record.emailHmac } : {}),
+          billIds: record.billIds,
+          ...(typeof record.updatedAt === 'string' ? { updatedAt: record.updatedAt } : {}),
+        }))
+      : [],
+    // Per-address notification ledgers keyed by the HMAC email index, plus
+    // the global feed first-seen snapshot (identifier -> ISO timestamp).
+    notifs: parsed.notifs && typeof parsed.notifs === 'object' && !Array.isArray(parsed.notifs)
+      ? Object.fromEntries(Object.entries(parsed.notifs)
+        .filter(([key, ledger]) => typeof key === 'string' && key.length <= MAX_EMAIL_LENGTH + 8
+          && ledger && typeof ledger === 'object'
+          && ledger.industrySeen && typeof ledger.industrySeen === 'object'
+          && ledger.savesVersions && typeof ledger.savesVersions === 'object')
+        .map(([key, ledger]) => [key, {
+          industrySeen: ledger.industrySeen,
+          savesVersions: ledger.savesVersions,
+          ...(typeof ledger.updatedAt === 'string' ? { updatedAt: ledger.updatedAt } : {}),
+        }]))
+      : {},
+    feedSnapshot: parsed.feedSnapshot && typeof parsed.feedSnapshot === 'object' && !Array.isArray(parsed.feedSnapshot)
+      ? Object.fromEntries(Object.entries(parsed.feedSnapshot)
+        .filter(([id, stamp]) => typeof id === 'string' && id.length <= 40 && typeof stamp === 'string'))
+      : null,
   };
 }
 
@@ -489,6 +637,49 @@ const pendingKey = (email, industry) => `${emailLookupId(email)}::${industry}`;
 function findPending(email, industry) {
   const key = pendingKey(email, industry);
   return store.pendingCodes.find((pending) => pending.key === key) || null;
+}
+
+/* Signed unsubscribe tokens (HMAC-SHA256, tamper-proof, expiring). The token
+ * carries the email + industry + a per-subscription tokenId; a link only
+ * works while the stored record still carries the same tokenId. */
+function signToken(payload) {
+  const encoded = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signature = crypto.createHmac('sha256', SIGNING_SECRET).update(encoded).digest('base64url');
+  return `${encoded}.${signature}`;
+}
+
+function verifyToken(token) {
+  try {
+    const parts = String(token || '').split('.');
+    if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
+    const expected = crypto.createHmac('sha256', SIGNING_SECRET).update(parts[0]).digest('base64url');
+    const received = Buffer.from(parts[1]);
+    const expectedBuffer = Buffer.from(expected);
+    if (received.length !== expectedBuffer.length) return null;
+    if (!crypto.timingSafeEqual(received, expectedBuffer)) return null;
+    const payload = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
+    if (typeof payload.email !== 'string' || payload.email.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(payload.email)) return null;
+    if (typeof payload.industry !== 'string' || !INDUSTRY_LIST.includes(payload.industry)) return null;
+    if (typeof payload.tokenId !== 'string' || !/^[0-9a-f]{32}$/i.test(payload.tokenId)) return null;
+    if (typeof payload.exp !== 'number' || !Number.isFinite(payload.exp) || Date.now() >= payload.exp) return null;
+    return payload;
+  } catch (error) {
+    return null;
+  }
+}
+
+function makeUnsubscribeToken(email, industry) {
+  const tokenId = crypto.randomBytes(16).toString('hex');
+  return {
+    token: signToken({ email, industry, tokenId, exp: Date.now() + UNSUBSCRIBE_TOKEN_DAYS * 86_400_000 }),
+    tokenId,
+  };
+}
+
+function findSubscription(email, industry) {
+  return store.subscriptions.find((subscription) => subscription
+    && subscription.industry === industry
+    && recordMatchesEmail(subscription, email)) || null;
 }
 
 /* ---------------------------------------------------------------------------
@@ -606,6 +797,156 @@ async function sendProfileMovedEmail(email, { moved, oldEmails }) {
 async function sendProfileMovedNoticeEmail(email, { newEmail, moved }) {
   const { subject, html } = buildProfileMovedNoticeEmail({ newEmail, moved });
   return deliverEmail(email, { subject, html, consoleText: `subscriptions moved to ${newEmail}` });
+}
+
+// Sent once per successful industry subscribe from the Your Saves page.
+function buildSubscriptionConfirmationEmail({ industry, unsubscribeUrl }) {
+  return {
+    subject: safeEmailSubject(`You're subscribed to ${industry} updates on Lariat`),
+    html: `
+      <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1c3a52;">
+        <h1 style="font-size: 22px; margin: 0 0 14px;">You're subscribed</h1>
+        <p style="font-size: 14px; line-height: 1.6;">This address is now subscribed to
+          <strong>${escapeHtml(industry)}</strong> updates on Lariat.</p>
+        <p style="font-size: 14px; line-height: 1.6;">You'll get emails as Texas bills in this
+          industry move through the legislature — saved to your Lariat profile feed.</p>
+        <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
+          Don't want these anymore? <a href="${escapeHtml(unsubscribeUrl)}" style="color: #1c6ea4;">Unsubscribe from ${escapeHtml(industry)}</a>
+          (valid ${UNSUBSCRIBE_TOKEN_DAYS} days), or use the toggle on your Your Saves page.</p>
+        <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
+          If you did not subscribe to this industry, you can safely ignore this email.</p>
+      </div>
+    `,
+  };
+}
+
+async function sendSubscriptionConfirmationEmail(email, { industry, unsubscribeUrl }) {
+  const { subject, html } = buildSubscriptionConfirmationEmail({ industry, unsubscribeUrl });
+  return deliverEmail(email, {
+    subject,
+    html,
+    consoleText: `subscribed to ${industry}; unsubscribe: ${unsubscribeUrl}`,
+  });
+}
+
+// Sent once after the on-site Unsubscribe button actually removes a record.
+// Best-effort: the unsubscribe is never rolled back when this fails, and the
+// email-link path (handleUnsubscribeLink) deliberately sends nothing so link
+// scanners cannot trigger mail.
+function buildUnsubscribeNoticeEmail({ industry }) {
+  return {
+    subject: safeEmailSubject(`You've unsubscribed from ${industry} updates on Lariat`),
+    html: `
+      <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1c3a52;">
+        <h1 style="font-size: 22px; margin: 0 0 14px;">You're unsubscribed</h1>
+        <p style="font-size: 14px; line-height: 1.6;">This address is no longer subscribed to
+          <strong>${escapeHtml(industry)}</strong> updates on Lariat.</p>
+        <p style="font-size: 14px; line-height: 1.6;">You won't receive industry emails for
+          ${escapeHtml(industry)} anymore.</p>
+        <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
+          Changed your mind? Resubscribe anytime from your
+          <a href="${escapeHtml(`${baseUrl()}/your-bills.html`)}" style="color: #1c6ea4;">Your Saves page</a>.</p>
+        <p style="font-size: 13px; color: #5a7285; line-height: 1.6;">
+          If you did not unsubscribe, resubscribe from Your Saves or safely ignore this email.</p>
+      </div>
+    `,
+  };
+}
+
+async function sendUnsubscribeNoticeEmail(email, { industry }) {
+  const { subject, html } = buildUnsubscribeNoticeEmail({ industry });
+  return deliverEmail(email, { subject, html, consoleText: `unsubscribed from ${industry}` });
+}
+
+/* ---------------------------------------------------------------------------
+ * Notification digest (one email per user per dispatch run) — same template
+ * as api/_lib/lariat.js buildNotificationDigestEmail.
+ * ------------------------------------------------------------------------- */
+
+function oneLine(value, max) {
+  const clean = String(value ?? '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+  return `${clean.slice(0, max - 1).trimEnd()}…`;
+}
+
+// newBills: [{ bill, industry, unsubscribeUrl }]; savedUpdates:
+// [{ bill, changes: [string, ...] }].
+function buildNotificationDigestEmail({ siteUrl, newBills, savedUpdates }) {
+  const feedUrl = `${siteUrl}/feed.html`;
+  const yourSavesUrl = `${siteUrl}/your-bills.html`;
+  const profileUrl = `${siteUrl}/profile.html`;
+
+  const industrySections = [];
+  const byIndustry = new Map();
+  for (const entry of newBills) {
+    if (!byIndustry.has(entry.industry)) byIndustry.set(entry.industry, []);
+    byIndustry.get(entry.industry).push(entry);
+  }
+  for (const [industry, entries] of byIndustry) {
+    const billsHtml = entries.map(({ bill }) => `
+          <li style="font-size: 14px; line-height: 1.7; margin: 0 0 14px;">
+            <strong>${escapeHtml(bill.identifier)} — ${escapeHtml(oneLine(bill.title, 120))}</strong><br>
+            <span style="font-size: 13px; color: #5a7285;">${escapeHtml(oneLine(bill.summary, 220))}</span><br>
+            <a href="${escapeHtml(feedUrl)}" style="color: #1c6ea4;">View in your feed</a>
+            · <a href="${escapeHtml(bill.source_url || feedUrl)}" style="color: #1c6ea4;">Official bill page</a>
+          </li>`).join('');
+    const unsubscribeUrl = entries.find((entry) => entry.unsubscribeUrl)?.unsubscribeUrl || '';
+    const footer = unsubscribeUrl
+      ? `<p style="font-size: 12px; color: #5a7285; line-height: 1.6;">No longer interested?
+          <a href="${escapeHtml(unsubscribeUrl)}" style="color: #1c6ea4;">Unsubscribe from ${escapeHtml(industry)} updates</a>.</p>`
+      : '';
+    industrySections.push(`
+        <h2 style="font-size: 16px; margin: 22px 0 8px;">New in ${escapeHtml(industry)}</h2>
+        <ul style="margin: 0; padding-left: 18px;">${billsHtml}</ul>
+        ${footer}`);
+  }
+
+  const savedHtml = (savedUpdates || []).map(({ bill, changes }) => `
+          <li style="font-size: 14px; line-height: 1.7; margin: 0 0 14px;">
+            <strong>${escapeHtml(bill.identifier)} — ${escapeHtml(oneLine(bill.title, 120))}</strong><br>
+            ${changes.map((change) => `<span style="font-size: 13px; color: #5a7285;">${escapeHtml(change)}</span><br>`).join('')}
+            <a href="${escapeHtml(feedUrl)}" style="color: #1c6ea4;">View in your feed</a>
+            · <a href="${escapeHtml(bill.source_url || feedUrl)}" style="color: #1c6ea4;">Official bill page</a>
+          </li>`).join('');
+  const savedSection = savedHtml
+    ? `
+        <h2 style="font-size: 16px; margin: 22px 0 8px;">Updates to your saved bills</h2>
+        <ul style="margin: 0; padding-left: 18px;">${savedHtml}</ul>
+        <p style="font-size: 12px; color: #5a7285; line-height: 1.6;">Remove a bill from
+          <a href="${escapeHtml(yourSavesUrl)}" style="color: #1c6ea4;">Your Saves</a> to stop its update alerts.</p>`
+    : '';
+
+  const newCount = newBills.length;
+  const updateCount = (savedUpdates || []).length;
+  const subject = newCount && updateCount
+    ? `Lariat bill alerts: ${newCount} new · ${updateCount} update${updateCount === 1 ? '' : 's'}`
+    : newCount
+      ? `${newCount} new bill${newCount === 1 ? '' : 's'} in your subscribed industr${newCount === 1 ? 'y' : 'ies'}`
+      : `Update${updateCount === 1 ? '' : 's'} to your saved bills on Lariat`;
+
+  return {
+    subject: safeEmailSubject(subject),
+    html: `
+      <div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; color: #1c3a52;">
+        <h1 style="font-size: 22px; margin: 0 0 14px;">Your Lariat bill alerts</h1>
+        <p style="font-size: 14px; line-height: 1.6;">Here's what moved since your last alert.</p>
+        ${industrySections.join('')}
+        ${savedSection}
+        <p style="font-size: 12px; color: #5a7285; line-height: 1.7; margin-top: 24px;">
+          Manage <a href="${escapeHtml(yourSavesUrl)}" style="color: #1c6ea4;">subscriptions and saved bills</a>
+          or update your <a href="${escapeHtml(profileUrl)}" style="color: #1c6ea4;">profile email</a>.</p>
+      </div>
+    `,
+  };
+}
+
+async function sendNotificationDigest(email, { siteUrl, newBills, savedUpdates }) {
+  const { subject, html } = buildNotificationDigestEmail({ siteUrl, newBills, savedUpdates });
+  return deliverEmail(email, {
+    subject,
+    html,
+    consoleText: `digest: ${newBills.length} new, ${savedUpdates.length} saved update(s)`,
+  });
 }
 
 /* ---------------------------------------------------------------------------
@@ -743,6 +1084,9 @@ const requestRateLimiter = makeRateLimiter(IP_RATE_LIMIT.windowMs, IP_RATE_LIMIT
 const verifyRateLimiter = makeRateLimiter(60 * 60 * 1000, 25);                           // /verify calls per IP per hour
 const legislatorRateLimiter = makeRateLimiter(60 * 60 * 1000, 30);                         // legislator lookups per IP per hour
 const chatRateLimiter = makeRateLimiter(60 * 60 * 1000, 40);                                // chatbot questions per IP per hour
+const subscribeRateLimiter = makeRateLimiter(60 * 60 * 1000, 20);                           // industry subscribes per IP per hour
+const unsubscribeRateLimiter = makeRateLimiter(60 * 60 * 1000, 60);                         // unsubscribes (POST + email link) per IP per hour
+const savesRateLimiter = makeRateLimiter(60 * 60 * 1000, 60);                              // saved-bill syncs per IP per hour
 // Bump this whenever chatbot behavior changes; surfaced via /api/health so a
 // stale local server is trivially detectable.
 const CHATBOT_ENGINE_VERSION = 13;
@@ -765,6 +1109,9 @@ setInterval(() => {
   verifyRateLimiter.prune();
   legislatorRateLimiter.prune();
   chatRateLimiter.prune();
+  subscribeRateLimiter.prune();
+  unsubscribeRateLimiter.prune();
+  savesRateLimiter.prune();
   const now = Date.now();
   for (const [key, last] of requestCooldowns) {
     if (now - last >= REQUEST_COOLDOWN_MS * 2) requestCooldowns.delete(key);
@@ -2063,8 +2410,9 @@ async function handleProfileEmailVerify(req, res, body) {
     return sendJsonError(res, 400, 'That code is not correct. Please try again.', 'wrong_code');
   }
 
-  // Code verified: consume it, then move any server subscriptions recorded
-  // under the user's old address(es) to the new profile email.
+  // Code verified: consume it, then move any server subscriptions and
+  // notification state (saved bills + ledgers) recorded under the user's old
+  // address(es) to the new profile email.
   store.pendingCodes = store.pendingCodes.filter((p) => p !== pending);
   const moved = [];
   for (const oldEmail of oldEmails) {
@@ -2078,6 +2426,21 @@ async function handleProfileEmailVerify(req, res, body) {
       subscription.verifiedAt = new Date().toISOString();
       subscription.source = 'backend';
       moved.push({ industry: subscription.industry, oldEmail });
+    }
+
+    // Saved-bill sync records and the per-user notification ledger follow the
+    // address; overwriting an existing ledger on the new address is safe
+    // because lost "seen" marks only re-baseline silently.
+    const oldSaves = findSavesRecord(oldEmail);
+    if (oldSaves) {
+      const billIds = oldSaves.billIds;
+      store.saves = store.saves.filter((record) => record !== oldSaves);
+      saveSavesRecord(email, billIds);
+    }
+    const oldLedger = findNotifLedger(oldEmail);
+    if (oldLedger) {
+      delete store.notifs[emailLookupId(oldEmail)];
+      store.notifs[emailLookupId(email)] = oldLedger;
     }
   }
   saveData(store);
@@ -2109,6 +2472,369 @@ async function handleProfileEmailVerify(req, res, body) {
       ? `Email confirmed. Moved ${moved.length} subscription${moved.length === 1 ? '' : 's'} to ${email}.`
       : 'Email confirmed.',
     moved: moved.length,
+  });
+}
+
+/* ---------------------------------------------------------------------------
+ * Industry subscriptions (Subscribe toggle on the Your Saves page)
+ * ------------------------------------------------------------------------- */
+
+// Small confirmation page for the signed unsubscribe link in the email.
+// Rendered without a <style> element so it needs no inline CSS allowance;
+// the CSP is narrowed to 'unsafe-inline' styles only via extraHeaders.
+function unsubscribePage(messageHtml) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unsubscribe — Lariat</title>
+</head>
+<body>
+  <main style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 64px auto; padding: 0 24px; color: #1c3a52;">
+    <h1 style="font-size: 22px;">Lariat subscriptions</h1>
+    <p style="font-size: 15px; line-height: 1.6;">${messageHtml}</p>
+    <p style="font-size: 13px; color: #5a7285;"><a href="/your-bills.html" style="color: #1c6ea4;">Back to Your Saves</a> · <a href="/feed.html" style="color: #1c6ea4;">Bill feed</a></p>
+  </main>
+</body>
+</html>`;
+}
+
+const UNSUBSCRIBE_PAGE_HEADERS = {
+  'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+};
+
+// GET /api/subscriptions/unsubscribe?token=… — opened from the confirmation
+// email. The token is HMAC-signed and expiring, so it cannot be forged; the
+// page renders plain HTML (scanners that follow the link see a confirmation
+// but a POST-less GET cannot be turned into a subscribe).
+function handleUnsubscribeLink(req, res, url) {
+  if (unsubscribeRateLimiter(clientIp(req))) {
+    return sendText(res, 429, 'text/plain; charset=utf-8', 'Too many requests. Please try again later.');
+  }
+  const token = String(url.searchParams.get('token') || '');
+  const payload = verifyToken(token);
+  if (!payload) {
+    return sendText(res, 400, 'text/html; charset=utf-8',
+      unsubscribePage('This unsubscribe link is invalid or has expired.'), UNSUBSCRIBE_PAGE_HEADERS);
+  }
+  const subscription = findSubscription(payload.email, payload.industry);
+  // Already removed, or the token was rotated by an email change: report the
+  // same success either way so re-clicks stay idempotent. The HMAC already
+  // proves the email + industry; the stored tokenId only adds replay
+  // protection after a rotation, so records without one still remove.
+  if (subscription && (!subscription.unsubscribeTokenId || subscription.unsubscribeTokenId === payload.tokenId)) {
+    store.subscriptions = store.subscriptions.filter((entry) => entry !== subscription);
+    saveData(store);
+  }
+  return sendText(res, 200, 'text/html; charset=utf-8',
+    unsubscribePage(`You are unsubscribed from <strong>${escapeHtml(payload.industry)}</strong> updates.`),
+    UNSUBSCRIBE_PAGE_HEADERS);
+}
+
+// POST /api/subscriptions/subscribe — the Subscribe button on Your Saves.
+// The client gate (requireVerifiedEmail) enforces the finalized profile
+// email; the server validates shape, rate-limits, and sends one confirmation
+// email per successful subscribe.
+async function handleIndustrySubscribe(req, res, body) {
+  const email = typeof body.email === 'string' ? body.email.trim() : '';
+  const industry = typeof body.industry === 'string' ? body.industry.trim() : '';
+
+  if (email.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(email)) {
+    return sendJsonError(res, 400, 'Please enter a valid email address.', 'invalid_email');
+  }
+  if (!INDUSTRY_LIST.includes(industry)) {
+    return sendJsonError(res, 400, 'That industry is not valid.', 'invalid_industry');
+  }
+  if (subscribeRateLimiter(clientIp(req))) {
+    return sendJsonError(res, 429, 'Too many subscription requests. Please wait a while and try again.', 'rate_limited');
+  }
+
+  const existing = findSubscription(email, industry);
+  if (existing) {
+    return sendJson(res, 200, {
+      ok: true,
+      alreadySubscribed: true,
+      message: `Already subscribed to ${industry}.`,
+      subscription: { email, industry, verifiedAt: existing.verifiedAt || '' },
+    });
+  }
+
+  const subscription = {
+    ...makeEmailFields(email),
+    industry,
+    verifiedAt: new Date().toISOString(),
+    source: 'backend',
+  };
+  store.subscriptions.push(subscription);
+  const { token, tokenId } = makeUnsubscribeToken(email, industry);
+  subscription.unsubscribeTokenId = tokenId;
+  saveData(store);
+
+  const unsubscribeUrl = `${baseUrl()}/api/subscriptions/unsubscribe?token=${encodeURIComponent(token)}`;
+  try {
+    await sendSubscriptionConfirmationEmail(email, { industry, unsubscribeUrl });
+  } catch (error) {
+    // Never report a successful subscribe when the confirmation email could
+    // not be delivered; remove only the record created above so the user can
+    // retry.
+    store.subscriptions = store.subscriptions.filter((entry) => entry !== subscription);
+    saveData(store);
+    const providerStatus = error && Number.isFinite(Number(error.status)) ? Number(error.status) : 0;
+    if (providerStatus >= 400 && providerStatus < 500) {
+      return sendJsonError(res, 400, 'Email Invalid', 'email_invalid');
+    }
+    console.error('Subscription confirmation email failed:', error.message);
+    return sendJsonError(res, 502, 'We could not send the confirmation email. Please try again later.', 'email_delivery_failed');
+  }
+
+  return sendJson(res, 200, {
+    ok: true,
+    message: `Subscribed to ${industry}. A confirmation email is on its way to ${email}.`,
+    subscription: { email, industry, verifiedAt: subscription.verifiedAt },
+  });
+}
+
+// POST /api/subscriptions/unsubscribe — the on-site Unsubscribe button.
+// Idempotent: removing a record that is not there still reports success.
+async function handleIndustryUnsubscribe(req, res, body) {
+  const email = typeof body.email === 'string' ? body.email.trim() : '';
+  const industry = typeof body.industry === 'string' ? body.industry.trim() : '';
+
+  if (industry.length > MAX_INDUSTRY_LENGTH || !industry) {
+    return sendJsonError(res, 400, 'That industry is not valid.', 'invalid_industry');
+  }
+  if (email && (email.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(email))) {
+    return sendJsonError(res, 400, 'Please enter a valid email address.', 'invalid_email');
+  }
+  if (unsubscribeRateLimiter(clientIp(req))) {
+    return sendJsonError(res, 429, 'Too many requests. Please wait a while and try again.', 'rate_limited');
+  }
+
+  const before = store.subscriptions.length;
+  store.subscriptions = store.subscriptions.filter((subscription) => {
+    if (!subscription || subscription.industry !== industry) return true;
+    // Without an address nothing can be matched safely — leave records alone.
+    if (!email) return true;
+    return !recordMatchesEmail(subscription, email);
+  });
+  const removed = before - store.subscriptions.length;
+  if (removed) {
+    saveData(store);
+    // Courtesy notice: delivery failure is logged only — the unsubscribe
+    // already happened and is never undone for a courtesy email.
+    try {
+      await sendUnsubscribeNoticeEmail(email, { industry });
+    } catch (error) {
+      console.error('Unsubscribe notice email failed:', error.message);
+    }
+  }
+  return sendJson(res, 200, {
+    ok: true,
+    removed,
+    message: removed ? `Unsubscribed from ${industry}.` : `No subscription for ${industry}.`,
+  });
+}
+
+// POST /api/notifications/saves — the browser mirrors its localStorage
+// bookmarked-bills list here (finalized email only) so dispatch can watch
+// those bills for updates. Full replace.
+function handleSavesSync(req, res, body) {
+  const email = typeof body.email === 'string' ? body.email.trim() : '';
+  const rawIds = Array.isArray(body.billIds) ? body.billIds : [];
+
+  if (email.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.test(email)) {
+    return sendJsonError(res, 400, 'Please enter a valid email address.', 'invalid_email');
+  }
+  if (rawIds.length > MAX_SAVED_BILLS) {
+    return sendJsonError(res, 400, `At most ${MAX_SAVED_BILLS} saved bills are supported.`, 'too_many_bills');
+  }
+  if (savesRateLimiter(clientIp(req))) {
+    return sendJsonError(res, 429, 'Too many requests. Please wait a while and try again.', 'rate_limited');
+  }
+
+  // Normalize + dedupe; any malformed entry is dropped rather than failing
+  // the whole sync (mirrors profile.js toggleBookmark validation).
+  const billIds = [...new Set(
+    rawIds
+      .filter((value) => typeof value === 'string')
+      .map((value) => normalizeBillId(value))
+      .filter(Boolean),
+  )].slice(0, MAX_SAVED_BILLS);
+
+  saveSavesRecord(email, billIds);
+  saveData(store);
+  return sendJson(res, 200, {
+    ok: true,
+    saved: billIds.length,
+    message: `Synced ${billIds.length} saved bill${billIds.length === 1 ? '' : 's'}.`,
+  });
+}
+
+// Human-readable change lines for a saved bill whose stored fields moved.
+function savedBillChangeLines(previous, bill) {
+  const changes = [];
+  if ((previous.status || '') !== (bill.status || '')) {
+    changes.push(`Status: ${previous.status || 'unknown'} → ${bill.status || 'unknown'}`);
+  }
+  if ((previous.action || '') !== (bill.latest_action_description || '')) {
+    const when = bill.latest_action_date ? ` (${bill.latest_action_date})` : '';
+    changes.push(`Latest action${when}: ${bill.latest_action_description || 'updated'}`);
+  }
+  if ((previous.textHash || '') !== (bill.bill_text_hash || '')) {
+    changes.push('Official bill text updated — the summary was refreshed.');
+  }
+  if (!changes.length) changes.push('This bill record was updated.');
+  return changes;
+}
+
+// POST /api/notifications/dispatch — called by the GitHub workflow after it
+// pushes fresh bill summaries (parity with api/notifications/dispatch.js).
+// The feed is read from the local summaries file instead of raw GitHub.
+async function handleNotificationsDispatch(req, res) {
+  if (!dispatchAuthorized(req)) {
+    return sendJsonError(res, 401, 'Not authorized.', 'unauthorized');
+  }
+
+  let bills;
+  try {
+    bills = JSON.parse(fs.readFileSync(BILL_DATA_FILE, 'utf8'));
+  } catch (error) {
+    return sendJsonError(res, 503, `Could not read the bill feed: ${error.message}`, 'feed_unavailable');
+  }
+  if (!Array.isArray(bills)) {
+    return sendJsonError(res, 503, 'The bill feed is not an array.', 'feed_unavailable');
+  }
+  const byIdentifier = new Map();
+  const byIndustry = new Map();
+  for (const bill of bills) {
+    if (!bill || typeof bill.identifier !== 'string' || !bill.identifier) continue;
+    byIdentifier.set(bill.identifier, bill);
+    if (INDUSTRY_LIST.includes(bill.industry)) {
+      if (!byIndustry.has(bill.industry)) byIndustry.set(bill.industry, []);
+      byIndustry.get(bill.industry).push(bill);
+    }
+  }
+
+  const snapshot = getFeedSnapshot();
+  const firstRun = snapshot === null;
+  const known = snapshot || {};
+  const newIdentifiers = [...byIdentifier.keys()].filter((id) => !known[id]);
+  const newSet = new Set(newIdentifiers);
+  const nextSnapshot = { ...known };
+  const nowIso = new Date().toISOString();
+  for (const id of newIdentifiers) nextSnapshot[id] = nowIso;
+
+  // Merge per-address state: industry subscriptions + saved-bill records.
+  const users = new Map();
+  const userFor = (record) => {
+    const email = storedEmail(record);
+    if (!email) return null;
+    const key = emailLookupId(email);
+    if (!users.has(key)) users.set(key, { email, industries: new Map(), billIds: [] });
+    const user = users.get(key);
+    if (!user.email) user.email = email;
+    return user;
+  };
+  for (const subscription of store.subscriptions) {
+    if (!subscription || !INDUSTRY_LIST.includes(subscription.industry)) continue;
+    const user = userFor(subscription);
+    if (!user) continue;
+    if (!user.industries.has(subscription.industry)) user.industries.set(subscription.industry, subscription);
+  }
+  for (const record of store.saves) {
+    if (!record || !Array.isArray(record.billIds)) continue;
+    const user = userFor(record);
+    if (!user) continue;
+    user.billIds = record.billIds.filter((id) => typeof id === 'string');
+  }
+
+  const siteUrl = PUBLIC_BASE_URL || `http://127.0.0.1:${PORT}`;
+  let emailsSent = 0;
+  let usersProcessed = 0;
+  let industryEmails = 0;
+  let savesEmails = 0;
+  let sendFailures = 0;
+  let ledgerDirty = false;
+
+  for (const [key, user] of users) {
+    if (!user.email || (!user.industries.size && !user.billIds.length)) continue;
+    usersProcessed += 1;
+    const ledger = store.notifs[key] || { industrySeen: {}, savesVersions: {} };
+
+    const newBills = [];
+    for (const [industry] of user.industries) {
+      for (const bill of byIndustry.get(industry) || []) {
+        if (!newSet.has(bill.identifier)) continue;
+        if (ledger.industrySeen[bill.identifier]) continue;
+        const { token } = makeUnsubscribeToken(user.email, industry);
+        newBills.push({
+          bill,
+          industry,
+          unsubscribeUrl: `${siteUrl}/api/subscriptions/unsubscribe?token=${encodeURIComponent(token)}`,
+        });
+      }
+    }
+
+    const savedUpdates = [];
+    for (const billId of user.billIds) {
+      const bill = byIdentifier.get(billId);
+      if (!bill) continue;
+      const version = billVersion(bill);
+      const previous = ledger.savesVersions[billId];
+      if (!previous || typeof previous !== 'object') {
+        ledger.savesVersions[billId] = {
+          v: version,
+          status: bill.status || '',
+          action: bill.latest_action_description || '',
+          actionDate: bill.latest_action_date || '',
+          textHash: bill.bill_text_hash || '',
+        };
+        ledgerDirty = true;
+        continue;
+      }
+      if (previous.v === version) continue;
+      savedUpdates.push({ bill, changes: savedBillChangeLines(previous, bill) });
+      ledger.savesVersions[billId] = {
+        v: version,
+        status: bill.status || '',
+        action: bill.latest_action_description || '',
+        actionDate: bill.latest_action_date || '',
+        textHash: bill.bill_text_hash || '',
+      };
+      ledgerDirty = true;
+    }
+
+    if (!newBills.length && !savedUpdates.length) continue;
+
+    try {
+      await sendNotificationDigest(user.email, { siteUrl, newBills, savedUpdates });
+      for (const entry of newBills) ledger.industrySeen[entry.bill.identifier] = true;
+      store.notifs[key] = ledger;
+      ledgerDirty = true;
+      emailsSent += 1;
+      if (newBills.length) industryEmails += newBills.length;
+      if (savedUpdates.length) savesEmails += savedUpdates.length;
+    } catch (error) {
+      sendFailures += 1;
+      console.error(`Digest send failed for one subscriber: ${error.message}`);
+    }
+  }
+
+  // Persist the first-seen snapshot only when nothing is left to retry.
+  if (!sendFailures) store.feedSnapshot = nextSnapshot;
+  if (ledgerDirty || !sendFailures) saveData(store);
+
+  return sendJson(res, 200, {
+    ok: true,
+    firstRun,
+    usersProcessed,
+    emailsSent,
+    industryEmails,
+    savesEmails,
+    sendFailures,
+    newBills: newIdentifiers.length,
+    feedSize: byIdentifier.size,
   });
 }
 
@@ -2263,6 +2989,12 @@ async function handleApi(req, res, url) {
       });
     }
 
+    // Signed unsubscribe links arrive as GETs with a token query parameter;
+    // they must run before the POST-only guard below.
+    if (pathname === '/api/subscriptions/unsubscribe' && req.method === 'GET') {
+      return handleUnsubscribeLink(req, res, url);
+    }
+
     if (req.method !== 'POST') {
       return sendJsonError(res, 405, 'Method not allowed', 'method');
     }
@@ -2288,6 +3020,14 @@ async function handleApi(req, res, url) {
         return await handleProfileEmailRequest(req, res, body);
       case '/api/profile/email/verify':
         return await handleProfileEmailVerify(req, res, body);
+      case '/api/subscriptions/subscribe':
+        return await handleIndustrySubscribe(req, res, body);
+      case '/api/subscriptions/unsubscribe':
+        return await handleIndustryUnsubscribe(req, res, body);
+      case '/api/notifications/saves':
+        return handleSavesSync(req, res, body);
+      case '/api/notifications/dispatch':
+        return handleNotificationsDispatch(req, res);
       default:
         return sendJsonError(res, 404, 'Unknown API endpoint', 'not_found');
     }

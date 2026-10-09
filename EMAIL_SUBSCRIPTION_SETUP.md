@@ -9,9 +9,29 @@
 
 This document describes how to add an email-only subscription system that can be tested privately with one email address. It is documentation only and is not loaded by the website.
 
-> **Implementation status:** the current backend is implemented in `server/server.js`, and the frontend in `Lariat-real/subscriptions.js` now talks to it. Run it with `node server/server.js` and open <http://127.0.0.1:3000>. Without a `BREVO_API_KEY` it runs in console mode and prints verification codes and unsubscribe links to the terminal. See `server/README.md` for current setup and testing instructions.
+> **Implementation status:** the current backend is `server/server.js` (local)
+> plus `api/` (Vercel) with Brevo; the frontend is `subscriptions.js` with the
+> **Industry subscriptions** section on the Your Saves page (`your-bills.js`).
+> The flow is single-step: the user finalizes their profile email once (6-digit
+> code via `/api/profile/email/request` + `/api/profile/email/verify`), then
+> **Subscribe** POSTs to `/api/subscriptions/subscribe`, which stores the record
+> and sends a confirmation email with a signed unsubscribe link — there is no
+> per-subscribe access code and no per-subscribe verification code. The
+> on-site **Unsubscribe** button POSTs to `/api/subscriptions/unsubscribe` and,
+> when a record is removed, sends a best-effort "you're unsubscribed" notice
+> (the signed email-link path stays silent so scanners cannot trigger mail).
+> The daily bill-refresh workflow also triggers
+> `POST /api/notifications/dispatch`, which emails one digest per user:
+> new feed bills matching subscribed industries, plus meaningful updates
+> (status / latest action / official text) to bills synced from Your Saves
+> via `POST /api/notifications/saves`. See `server/README.md` for the flow.
+> Run it with
+> `node server/server.js` and open <http://127.0.0.1:3000>. Without a
+> `BREVO_API_KEY` it runs in console mode and prints confirmation emails and
+> unsubscribe links to the terminal. See `server/README.md` for current setup
+> and testing instructions.
 
-The remainder of this file is retained as historical planning material only; its Resend, EmailJS, and browser-localStorage examples are not the current implementation.
+The remainder of this file is retained as historical planning material only; its Resend, EmailJS, access-code, per-subscribe verification-code, and browser-localStorage examples are not the current implementation.
 ---
 
 ## Recommended setup

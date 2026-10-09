@@ -2,12 +2,12 @@
   'use strict';
 
   /* ==========================================================================
-   * Lariat browser store  -  demo plan selection, subscription badge state,
-   * and the backend POST helper used by the profile-email flows.
+   * Lariat browser store  -  industry subscriptions, demo plan selection,
+   * subscription badge state, and the backend POST helper.
    *
-   * Email subscriptions themselves were removed for a rebuild: this module no
-   * longer opens a subscribe modal, sends verification codes, or manages
-   * industry subscriptions. It keeps:
+   * Industry subscribe/unsubscribe posts to /api/subscriptions/* and mirrors
+   * the result into the local badge store (lariat-subscriptions-v2) so the
+   * Your Saves page can render instantly. It keeps:
    *   - the demo plan system (Free / Professional / Business) that powers
    *     the pricing tab and the feed plan display,
    *   - the local subscription badge store (read + adopt into a finalized
@@ -109,6 +109,11 @@
 
   const selectPlan = (planId) => {
     if (!PLAN_DEFINITIONS[planId]) return false;
+    // Choosing a plan is a subscribe attempt: the profile email must be
+    // finalized with its code first (see profile.js requireVerifiedEmail).
+    if (window.LariatProfile && typeof window.LariatProfile.requireVerifiedEmail === 'function' && !window.LariatProfile.requireVerifiedEmail()) {
+      return false;
+    }
     try {
       localStorage.setItem(PLAN_STORAGE_KEY, planId);
     } catch (error) {
@@ -122,7 +127,7 @@
   document.querySelectorAll('[data-select-plan]').forEach((control) => {
     control.addEventListener('click', (event) => {
       event.preventDefault();
-      selectPlan(control.dataset.selectPlan);
+      if (!selectPlan(control.dataset.selectPlan)) return;
       window.location.href = control.getAttribute('href') || 'feed.html';
     });
   });
@@ -193,11 +198,96 @@
     return replaced;
   };
 
+  const profileEmail = () => (window.LariatProfile ? window.LariatProfile.get().email : '');
+
+  const profileIndustries = () => (window.LariatProfile && Array.isArray(window.LariatProfile.ALL_INDUSTRIES)
+    ? window.LariatProfile.ALL_INDUSTRIES
+    : []);
+
+  const matchesBadge = (subscription, industry, email) => subscription.industry === industry
+    && (subscription.email || '').toLowerCase() === email.toLowerCase();
+
+  // True when the finalized profile email is subscribed to this industry.
+  const isSubscribed = (industry) => {
+    const clean = String(industry || '').trim();
+    const email = profileEmail();
+    if (!clean || !email) return false;
+    return getSubscriptions().some((subscription) => matchesBadge(subscription, clean, email));
+  };
+
+  const writeBadges = (subscriptions) => {
+    try {
+      localStorage.setItem(SUBSCRIPTIONS_STORAGE_KEY, JSON.stringify(subscriptions));
+    } catch (error) { /* badge state only; the backend keeps its own records */ }
+    document.dispatchEvent(new CustomEvent('lariat:subscriptions-changed', { detail: {} }));
+  };
+
+  // Subscribes the finalized profile email to one industry.
+  //
+  // Plan limits (Free 1 / Professional 5 / Business unlimited) are NOT
+  // enforced yet — this is still a demo. When plans ship, the maxIndustries
+  // check goes right here, before the POST below.
+  const subscribe = async (industry) => {
+    const clean = String(industry || '').trim();
+    if (!profileIndustries().includes(clean)) throw new Error('Unknown industry.');
+    const email = profileEmail();
+    if (!window.LariatProfile || typeof window.LariatProfile.isEmailFinalized !== 'function' || !window.LariatProfile.isEmailFinalized()) {
+      const error = new Error('Please finalize your email with the code before attempting to save a bill or subscribe to an industry');
+      error.code = 'email_not_finalized';
+      throw error;
+    }
+    if (isSubscribed(clean)) return { ok: true, alreadySubscribed: true, industry: clean };
+    const data = await api('/api/subscriptions/subscribe', { email, industry: clean });
+    const subscriptions = getSubscriptions().filter((subscription) => !matchesBadge(subscription, clean, email));
+    subscriptions.push({ email, industry: clean, verifiedAt: new Date().toISOString() });
+    writeBadges(subscriptions);
+    return data;
+  };
+
+  // Unsubscribes the profile email from one industry. Always allowed —
+  // opting out never requires a finalized email.
+  const unsubscribe = async (industry) => {
+    const clean = String(industry || '').trim();
+    if (!clean) throw new Error('Unknown industry.');
+    const email = profileEmail();
+    const data = await api('/api/subscriptions/unsubscribe', { email, industry: clean });
+    const subscriptions = getSubscriptions().filter((subscription) => {
+      if (subscription.industry !== clean) return true;
+      return email ? (subscription.email || '').toLowerCase() !== email.toLowerCase() : false;
+    });
+    writeBadges(subscriptions);
+    return data;
+  };
+
+  // Mirrors the profile's saved bills to the backend so the daily notification
+  // digest can watch them for updates. Fire-and-forget (never throws, never
+  // toasts) and debounced so a burst of save toggles becomes one POST.
+  // Requires a finalized profile email — same gate as subscribing.
+  let savesSyncTimer = null;
+  const syncSaves = () => {
+    if (API_BASE === null) return;
+    if (!window.LariatProfile || typeof window.LariatProfile.isEmailFinalized !== 'function'
+      || !window.LariatProfile.isEmailFinalized()) return;
+    const email = profileEmail();
+    const billIds = (window.LariatProfile.get().bookmarkedBills || []).slice(0, 200);
+    clearTimeout(savesSyncTimer);
+    savesSyncTimer = setTimeout(() => {
+      api('/api/notifications/saves', { email, billIds }).catch(() => {
+        // Best-effort: a failed sync only delays update alerts; saves keep
+        // working locally either way.
+      });
+    }, 1500);
+  };
+
   window.LariatSubscriptions = {
     selectPlan,
     getSelectedPlan,
     getSubscriptions,
     adoptEmail,
+    isSubscribed,
+    subscribe,
+    unsubscribe,
+    syncSaves,
     post: api,
   };
 })();

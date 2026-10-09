@@ -650,7 +650,7 @@
                 <div class="bill-topline"><span class="bill-number">${identifier}</span><span class="bill-date">${escapeHtml(cardIndustry)}</span></div>
                 <div class="bill-heading"><h3>${title}</h3><div class="bill-badges">${statusBadge(bill)}<span class="impact-badge ${levelClass}"><span class="badge-dot"></span>${escapeHtml(safe(bill.impact_level))} impact</span>${myVoteBadges(bill)}</div></div>
                 ${cardMeta ? `<div class="bill-meta"><span>${escapeHtml(cardMeta)}</span></div>` : ''}
-                <span class="bill-card-footer"><span class="bill-card-action">Click to view full summary <span aria-hidden="true">↗</span></span><span class="bill-save-button" role="button" tabindex="0" data-save-bill="${escapeHtml(rawIdentifier)}" aria-pressed="${isSaved}" title="${isSaved ? `${identifier} is in Your Bills — activate to remove` : `Save ${identifier} to Your Bills`}">${isSaved ? 'Saved to Your Bills <span aria-hidden="true">✓</span>' : 'Save to Your Bills'}</span></span>
+                <span class="bill-card-footer"><span class="bill-card-action">Click to view full summary <span aria-hidden="true">↗</span></span><span class="bill-save-button" role="button" tabindex="0" data-save-bill="${escapeHtml(rawIdentifier)}" aria-pressed="${isSaved}" title="${isSaved ? `${identifier} is in Your Saves — activate to remove` : `Save ${identifier} to Your Saves`}">${isSaved ? 'Saved to Your Saves <span aria-hidden="true">✓</span>' : 'Save to Your Saves'}</span></span>
               </button>
             `;
           }).join('')}
@@ -661,7 +661,7 @@
     list.querySelectorAll('[data-bill-index]').forEach((row) => {
       row.addEventListener('click', () => openBillModal(allBills[Number(row.dataset.billIndex)], row));
     });
-    // Save-to-Your-Bills controls live inside the card button as spans (a real
+    // Save-to-Your-Saves controls live inside the card button as spans (a real
     // <button> cannot nest), so every activation stops propagation and never
     // opens the bill modal.
     const refreshSaveButtons = () => {
@@ -670,11 +670,11 @@
         const isSaved = saved.has(el.dataset.saveBill);
         el.setAttribute('aria-pressed', String(isSaved));
         el.innerHTML = isSaved
-          ? 'Saved to Your Bills <span aria-hidden="true">✓</span>'
-          : 'Save to Your Bills';
+          ? 'Saved to Your Saves <span aria-hidden="true">✓</span>'
+          : 'Save to Your Saves';
         el.setAttribute('title', isSaved
-          ? `${el.dataset.saveBill} is in Your Bills — activate to remove`
-          : `Save ${el.dataset.saveBill} to Your Bills`);
+          ? `${el.dataset.saveBill} is in Your Saves — activate to remove`
+          : `Save ${el.dataset.saveBill} to Your Saves`);
       });
     };
     list.querySelectorAll('[data-save-bill]').forEach((el) => {
@@ -686,10 +686,17 @@
           return;
         }
         const id = el.dataset.saveBill;
+        const alreadySaved = window.LariatProfile.get().bookmarkedBills.includes(id);
+        if (!alreadySaved && typeof window.LariatProfile.requireVerifiedEmail === 'function' && !window.LariatProfile.requireVerifiedEmail()) {
+          return;
+        }
         const after = window.LariatProfile.toggleBookmark(id);
         const isSaved = after.includes(id);
-        showToast(isSaved ? `Saved ${id} to Your Bills.` : `Removed ${id} from Your Bills.`);
+        showToast(isSaved ? `Saved ${id} to Your Saves.` : `Removed ${id} from Your Saves.`);
         refreshSaveButtons();
+        if (window.LariatSubscriptions && typeof window.LariatSubscriptions.syncSaves === 'function') {
+          window.LariatSubscriptions.syncSaves();
+        }
       };
       el.addEventListener('click', activate);
       el.addEventListener('keydown', (event) => {
@@ -708,12 +715,21 @@
           const isSaved = saved.has(el.dataset.saveBill);
           el.setAttribute('aria-pressed', String(isSaved));
           el.innerHTML = isSaved
-            ? 'Saved to Your Bills <span aria-hidden="true">✓</span>'
-            : 'Save to Your Bills';
+            ? 'Saved to Your Saves <span aria-hidden="true">✓</span>'
+            : 'Save to Your Saves';
         });
+        // The email may have just been finalized — mirror saved bills to the
+        // notification digest backend as soon as it qualifies.
+        if (window.LariatSubscriptions && typeof window.LariatSubscriptions.syncSaves === 'function') {
+          window.LariatSubscriptions.syncSaves();
+        }
       });
     }
     refreshSaveButtons();
+    // Mirror saves on load too (no-op until the profile email is finalized).
+    if (window.LariatSubscriptions && typeof window.LariatSubscriptions.syncSaves === 'function') {
+      window.LariatSubscriptions.syncSaves();
+    }
   };
 
   const loadBills = async () => {
