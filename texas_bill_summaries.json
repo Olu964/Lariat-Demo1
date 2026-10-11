@@ -842,12 +842,12 @@
     "affects": "Education--Higher--Admission & Attendance (I0257), Education--Higher--Faculty (I0236), Education--Higher--General (I0231)",
     "changes": "See the official text for changes proposed by HB 291.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
-    "impact_level": "Moderate",
+    "impact_level": "High",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Medical schools should first audit their current curricula to verify that at least 50% of required coursework uses an A‑F grading scale or a tiered system with four or more designations, and identify any gaps that need correction before the effective date. They must establish a process for submitting any proposed changes to academic standards-both for coursework and admissions-to the legislature and the Texas Higher Education Coordinating Board, including a copy of the standards, a concise rationale, and the effective date. Admissions offices need to ensure that standardized test scores are considered but not used as the sole criterion, and they must review policies to eliminate any consideration of race, sex, color, ethnicity, or national origin in selection or hiring, while preserving permissible bona fide sex‑based qualifications. Institutions should monitor the legislative vote to determine whether the act will take effect immediately or default to September 1, 2025, and prepare compliance documentation accordingly. Finally, schools should coordinate with their legal counsel and the THECB to confirm that all submissions and procedural steps meet the bill’s requirements and maintain records for potential oversight.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 291 is listed in Texas legislative metadata with the title Relating to medical school. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 291 would impose new requirements on Texas medical schools regarding coursework grading, academic standards revisions, admissions criteria, and employment decisions. The bill mandates that at least half of required coursework be graded on an A‑F scale or equivalent tiered system, requires schools to submit proposed standards revisions to the legislature and the Texas Higher Education Coordinating Board, obliges admissions committees to consider a standardized test (but not as the sole factor), and prohibits consideration of race, sex, color, ethnicity, or national origin in admissions and employment decisions, with an exception for bona fide sex‑based qualifications. The act would take effect immediately if approved by a two‑thirds vote, otherwise on September 1, 2025.",
     "id": "ocd-bill/7010db7c-966f-4aa4-819f-1a6382e10309",
     "identifier": "HB 291",
     "session": "892",
@@ -856,28 +856,30 @@
     "latest_action_date": "2025-08-22",
     "latest_action_description": "Filed",
     "latest_passage_date": "",
-    "updated_at": "2026-10-03",
+    "updated_at": "2026-10-11",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB291",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 0,
-      "operational_change": 0,
-      "industry_breadth": 2,
+      "direct_compliance_requirement": 2,
+      "financial_cost": 1,
+      "operational_change": 1,
+      "industry_breadth": 1,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
+      "effective_date_urgency": 2,
+      "business_model_impact": 2
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill creates direct compliance requirements for medical schools, has an imminent effective date (within months), and significantly alters business models by restricting admissions and employment considerations. These three factors drive the overall impact.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-22",
         "title": "Filed",
         "description": "Filing - Filed"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00291I.htm",
+    "bill_text_hash": "f9700b1a5d9ccd4998e3275460bbee7da0e2191ce13e7d5f96a0b9af00c6354d",
+    "summary_word_count": 116,
+    "summary_source": "official bill text"
   },
   {
     "title": "Emergency Management Coordinator Qualifications",
