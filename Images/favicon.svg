@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="favicon-title">
+  <title id="favicon-title">Lariat assistant Kevin</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#2273b8"/>
+      <stop offset="1" stop-color="#16334f"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="32" fill="url(#bg)"/>
+  <g transform="translate(32 32) scale(0.78) translate(-24 -24)" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 8V4m0 0h4"/>
+    <rect x="9" y="10" width="30" height="24" rx="9" fill="rgba(255,255,255,0.18)"/>
+    <path d="M16 21h.01M32 21h.01M18 27c3 2.5 9 2.5 12 0"/>
+    <path d="M14 34h20l4 8H10l4-8Z" fill="rgba(255,255,255,0.28)"/>
+    <path d="M20 38h8M8 37H5m38 0h-3"/>
+  </g>
+</svg>

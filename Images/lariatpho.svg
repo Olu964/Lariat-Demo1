@@ -27,7 +27,7 @@
       </g>
       <line x1="-442" y1="170" x2="442" y2="170" stroke="#e0cea0" stroke-opacity=".13"/>
       <text x="-442" y="211" fill="#888f8a" font-size="16">89th · 2nd Called (2025)</text>
-      <g transform="translate(265 184)"><rect width="177" height="50" rx="9" fill="#d6b875" fill-opacity=".1" stroke="#d8b875" stroke-opacity=".5"/><text x="19" y="32" fill="#e7c983" font-size="16" font-weight="600">View full summary</text><text x="151" y="33" fill="#e7c983" font-size="23">↗</text></g>
+      <g transform="translate(265 184)"><rect width="177" height="50" rx="9" fill="#d6b875" fill-opacity=".1" stroke="#d8b875" stroke-opacity=".5"/><text x="88" y="32" fill="#e7c983" font-size="16" font-weight="600" text-anchor="middle">View full summary</text></g>
     </g>
     <rect x="520" y="-5" width="12" height="58" rx="6" fill="url(#rim)" stroke="#6b5c49" stroke-width="2"/>
   </g>
