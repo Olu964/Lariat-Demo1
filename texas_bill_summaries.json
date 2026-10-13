@@ -995,9 +995,9 @@
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "To implement HB 236 effectively, the legislature should track its progress toward enactment and prepare for prospective application starting 91 days after the 892nd session concludes. Prosecutors require guidance on evaluating the new affirmative defense criteria, particularly the four subsections defining the conditions for claiming protection. Legal aid organizations should be informed so they can counsel clients on their rights under the new statute. Ongoing monitoring of court filings and case outcomes will help assess consistent application of the defense and identify any procedural gaps. No additional funding or systemic restructuring is mandated, but routine legal reviews should verify that defense counsel is trained on the new subsection requirements.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 236 is listed in Texas legislative metadata with the title Relating to an affirmative. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 236 amends the Texas Penal Code by adding Section 8.09 to establish an affirmative defense for individuals who are victims of human trafficking or compelling prostitution. The provision permits a defendant to avoid prosecution if they were a victim of offenses under Sections 20A.02 or 43.05 and engaged in the charged conduct solely as a direct result of being subjected to force, fraud, or coercion. Four statutory conditions must be satisfied, including that the coercion would have compelled a reasonable person and that the conduct does not fall under other criminal provisions. The law applies prospectively to offenses committed on or after its effective date, which is set at the 91st day following the conclusion of the 892nd Texas Legislative Session. This amendment expands legal protections for trafficking and prostitution victims while providing clear evidentiary standards for their defense.",
     "id": "ocd-bill/2f470c84-ebc3-4053-b718-592fe2779004",
     "identifier": "HB 236",
     "session": "892",
@@ -1006,21 +1006,19 @@
     "latest_action_date": "2025-08-20",
     "latest_action_description": "Referred to Criminal Jurisprudence",
     "latest_passage_date": "",
-    "updated_at": "2026-10-03",
+    "updated_at": "2026-10-13",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB236",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
+      "direct_compliance_requirement": 1,
       "financial_cost": 0,
       "operational_change": 0,
       "industry_breadth": 2,
       "enforcement_risk": 2,
-      "effective_date_urgency": 0,
+      "effective_date_urgency": 1,
       "business_model_impact": 0
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill introduces a meaningful legal shield for trafficking and prostitution victims, increasing enforcement risk for law enforcement by providing a strong defense mechanism. Its broad industry reach affects multiple sectors involved in human trafficking and sex work. While financial costs are minimal, the enforcement risk and industry breadth make this a moderately significant change requiring careful implementation.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-18",
@@ -1037,7 +1035,11 @@
         "title": "Referred to Criminal Jurisprudence",
         "description": "Referral Committee - Referred to Criminal Jurisprudence"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00236I.htm",
+    "bill_text_hash": "57e7f66b72dcb30edf2b0944cc9d1a8a3edc3be57bfd53301ee84a2ca6da5a2b",
+    "summary_word_count": 143,
+    "summary_source": "official bill text"
   },
   {
     "title": "Legislative Absence Vacancies",
