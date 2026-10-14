@@ -16,12 +16,12 @@
   const sessionCountdown = document.querySelector('[data-stat="days-to-session"]');
   const sessionDetail = document.querySelector('[data-session-detail]');
 
-  const showToast = (message) => {
+  const showToast = (message, duration = 3200) => {
     if (!toast) return;
     toast.textContent = message;
     toast.classList.add('visible');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('visible'), 3200);
+    toastTimer = setTimeout(() => toast.classList.remove('visible'), duration);
   };
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -265,9 +265,7 @@
   const formatUpdatedOn = (bill) => {
     const rawDate = bill.updated_at || bill.updatedOn || bill.last_updated || bill.generated_at;
     if (!rawDate) return datasetUpdatedOn;
-    const date = new Date(rawDate);
-    if (Number.isNaN(date.getTime())) return safe(rawDate);
-    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    return formatDateString(rawDate) || safe(rawDate);
   };
 
   // Bill history timeline. Prefers the stored `bill_history` array written by
@@ -505,7 +503,7 @@
       ? bill.source_url
       : 'https://capitol.texas.gov/';
     const detailFields = Object.entries(bill)
-      .filter(([key]) => !['id', 'identifier', 'title', 'impact_level', 'industry', 'specific_industry', 'source_url', 'bill_text_source', 'bill_text_hash', 'summary_word_count', 'bill_history', 'impact_framework', '__index', '__groupId'].includes(key))
+      .filter(([key]) => !['id', 'identifier', 'title', 'impact_level', 'industry', 'specific_industry', 'source_url', 'bill_text_source', 'bill_text_hash', 'summary_word_count', 'bill_history', 'impact_framework', 'updated_at', '__index', '__groupId'].includes(key))
       .slice(0, 30);
     modalBody.innerHTML = `
       <article class="modal-bill-card ${levelClass === 'high' ? 'high-impact' : ''}">
@@ -692,7 +690,9 @@
         }
         const after = window.LariatProfile.toggleBookmark(id);
         const isSaved = after.includes(id);
-        showToast(isSaved ? `Saved ${id} to Your Saves.` : `Removed ${id} from Your Saves.`);
+        showToast(isSaved
+          ? `Saved ${id} to Your Saves. We'll email ${window.LariatProfile.get().email} in your daily bill alert when this bill changes — with what changed and links to the bill.`
+          : `Removed ${id} from Your Saves.`, isSaved ? 9000 : 3200);
         refreshSaveButtons();
         if (window.LariatSubscriptions && typeof window.LariatSubscriptions.syncSaves === 'function') {
           window.LariatSubscriptions.syncSaves();

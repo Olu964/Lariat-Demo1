@@ -201,7 +201,7 @@
   // Save/subscribe gate: a profile email must pass Finalize Email (the code
   // emailed to it) before bills can be saved or plans/subscriptions chosen.
   // Blocks everyone who is not finalized, including visitors with no email.
-  const GATE_TOAST_MESSAGE = 'Please finalize your email with the code before attempting to save a bill or subscribe to an industry';
+  const GATE_TOAST_MESSAGE = 'You must create a <a href="profile.html">profile</a> to access this feature';
 
   function isEmailFinalized() {
     const profile = readProfile();
@@ -212,7 +212,7 @@
     if (isEmailFinalized()) return true;
     const toast = document.querySelector('.toast');
     if (toast) {
-      toast.textContent = GATE_TOAST_MESSAGE;
+      toast.innerHTML = GATE_TOAST_MESSAGE;
       toast.classList.add('visible');
       clearTimeout(window.__lariatToastTimer);
       window.__lariatToastTimer = setTimeout(() => toast.classList.remove('visible'), 3200);

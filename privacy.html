@@ -10,19 +10,19 @@
   <meta name="description" content="How Lariat collects, uses, and protects information used for bill summaries, the Kevin chat assistant, email subscriptions, saved-bill update alerts, the daily notification digest, and the Find your legislator lookup.">
   <meta name="author" content="Lariat">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://lariatdemo.com/privacy.html">
+  <link rel="canonical" href="https://lariat-texas.vercel.app/privacy.html">
   <!-- Open Graph -->
   <meta property="og:title" content="Privacy Policy  -  Lariat">
   <meta property="og:description" content="How Lariat collects, uses, and protects your information.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://lariatdemo.com/privacy.html">
-  <meta property="og:image" content="https://lariatdemo.com/Images/favicon-64.png">
+  <meta property="og:url" content="https://lariat-texas.vercel.app/privacy.html">
+  <meta property="og:image" content="https://lariat-texas.vercel.app/Images/favicon-64.png">
   <meta property="og:site_name" content="Lariat">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Privacy Policy  -  Lariat">
   <meta name="twitter:description" content="How Lariat collects, uses, and protects your information.">
-  <meta name="twitter:image" content="https://lariatdemo.com/Images/favicon-64.png">
+  <meta name="twitter:image" content="https://lariat-texas.vercel.app/Images/favicon-64.png">
   <title>Privacy Policy  -  Lariat</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,7 +63,7 @@
       <div class="eyebrow">Legal &amp; transparency</div>
       <h1>Privacy Policy</h1>
       <p>Lariat turns Texas bill summaries into clear, business-ready signals. This policy explains what information we collect, why we collect it, and the choices you have.</p>
-      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Effective October 9, 2026</div>
+      <div class="legal-updated"><span class="sparkle" aria-hidden="true">✦</span> Effective October 13, 2026</div>
     </section>
 
     <article class="legal-card">
@@ -107,7 +107,7 @@
       <section class="legal-section">
         <h2>4. Where your information lives</h2>
         <p><strong>In your browser.</strong> The feed stores the display name entered on first visit, bill notes, bookmarked bill identifiers, theme preference, selected demo plan, local subscription badge state, the first-visit demo notice flag, the cookie-consent acknowledgment flag, the local access-code lockout timer, and legislators you explicitly save with <strong>Make them your legislator</strong> in localStorage. The badge state includes the email address, industry, and verification timestamp returned after confirmation. A saved-legislator entry includes that person's public profile, up to 25 recent vote records, and a saved-at timestamp. The signed unsubscribe token is delivered by email and is intentionally not stored in browser storage.</p>
-        <p><strong>On the backend host.</strong> In production, the backend runs as Vercel Functions and stores its state in <strong>Upstash Redis</strong>: subscription records, pending-code hashes, lockout metadata, the legislator lookup cache, saved-bill records, per-user notification ledgers, and the global first-seen bill snapshot. Stored email addresses are encrypted at rest with AES-256-GCM using a project secret key; the notification ledger records which bills were announced and their previous versions, and the snapshot contains bill identifiers and timestamps only, no email addresses. In local development, the same records are kept in JSON files under <code>server/data/</code>, outside the public site directory, suitable for local testing rather than production. Pending verification codes are stored only as salted scrypt hashes with a 10-minute expiry. Failed access-code lockout records contain an HMAC-derived network key, a failure count, and timestamps; raw IP addresses are not written to the file.</p>
+        <p><strong>On the backend host.</strong> In production, the backend runs as Vercel Functions. Subscription records, pending-code hashes, lockout metadata, saved-bill records, per-user notification ledgers, and the global first-seen bill snapshot are stored in <strong>Upstash Redis</strong>. The legislator lookup cache is not stored in Upstash: it lives in each function instance's memory (best-effort, not shared across instances, and cleared on cold start). Stored email addresses are encrypted at rest with AES-256-GCM using a project secret key; the notification ledger records which bills were announced and their previous versions, and the snapshot contains bill identifiers and timestamps only, no email addresses. In local development, the same records are kept in JSON files under <code>server/data/</code>, outside the public site directory, and the legislator lookup cache is kept in a local JSON file there as well, suitable for local testing rather than production. Pending verification codes are stored only as salted scrypt hashes with a 10-minute expiry. Failed access-code lockout records contain an HMAC-derived network key, a failure count, and timestamps; raw IP addresses are not written to the file.</p>
         <p><strong>With our email provider.</strong> To deliver verification, welcome, unsubscribe-notice, and notification digest emails, the backend sends the recipient email address, sender information, message content, selected industry, saved-bill identifiers and their recorded changes, and signed unsubscribe URLs in the relevant messages to <a href="https://www.brevo.com/legal/privacypolicy/" target="_blank" rel="noopener noreferrer">Brevo</a>. Brevo's own privacy policy governs its processing. No payment information is collected by the current subscription flow.</p>
         <p><strong>With lookup and legislative-data providers.</strong> The backend sends an entered address or ZIP code to the U.S. Census Bureau's geocoding services and sends only resulting coordinates to Open States to identify current Texas state legislators. To show recent voting history, it requests public bill and vote records from Open States; the Lariat server matches those public records to the returned legislator profile and sends the result to your browser. Lariat does not request or display legislator contact information. Review the <a href="https://www.census.gov/about/policies/privacy.html" target="_blank" rel="noopener noreferrer">Census Bureau privacy policy</a> and Open States' <a href="https://open.pluralpolicy.com/tos/" target="_blank" rel="noopener noreferrer">terms and privacy information</a>.</p>
         <p><strong>With hosting and infrastructure providers.</strong> A public deployment may expose request metadata, such as IP address, timestamps, user agent, requested URL, function logs, and security events, to Vercel, Upstash, a separate backend host, a reverse proxy, or other infrastructure providers according to their policies. When you use Kevin, the question and recent history pass through the deployment's serverless functions to OpenRouter AI, with Google's Gemini API as fallback, as described in section 5. GitHub may process repository and workflow metadata when GitHub Actions runs the bill-data pipeline and calls the digest trigger; the trigger request carries only a shared secret and no visitor information. These providers should be configured with the minimum access, retention, and logging necessary for the deployment.</p>
@@ -124,7 +124,7 @@
           <li><strong>OpenRouter AI</strong>  -  generates bill summaries from official legislative text and record metadata, and generates Kevin chat replies from your question, recent conversation history, the public bill feed, and site information. Bill-summary requests include no visitor personal information; chat requests necessarily include the question you typed. See <a href="https://openrouter.ai/privacy" target="_blank" rel="noopener noreferrer">OpenRouter's privacy information</a> for provider details.</li>
           <li><strong>Google (Gemini API)</strong>  -  fallback answer engine for Kevin when OpenRouter cannot answer; receives the same question, history, feed, and site context. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's privacy policy</a>.</li>
           <li><strong>GitHub Actions</strong>  -  runs the scheduled fetch-and-summarize job and then calls the digest trigger on the backend. It has access to public bill records and repository automation secrets; the digest call authenticates with a shared secret and carries no visitor personal information. See <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub's privacy statement</a>.</li>
-          <li><strong>Upstash</strong>  -  provides the Redis-compatible store that holds production subscription records, saved-bill records, notification ledgers, the legislator lookup cache, rate-limit counters, and the first-seen bill snapshot, with stored email addresses encrypted at rest. See <a href="https://upstash.com/trust/privacy" target="_blank" rel="noopener noreferrer">Upstash's privacy policy</a>.</li>
+          <li><strong>Upstash</strong>  -  provides the Redis-compatible store that holds production subscription records, saved-bill records, notification ledgers, and the first-seen bill snapshot, with stored email addresses encrypted at rest. The legislator lookup cache and Kevin's per-hour chat rate-limit counters are held in per-function-instance memory instead, not in Upstash. See <a href="https://upstash.com/trust/privacy" target="_blank" rel="noopener noreferrer">Upstash's privacy policy</a>.</li>
           <li><strong>Vercel</strong>  -  hosts the static frontend and runs the subscription, profile-email, saved-bill sync, notification digest, legislator, and Kevin functions, and processes deployment, CDN, request, and function metadata when the site is deployed through Vercel. Durable application state lives in the configured Upstash store rather than on the filesystem. See <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Vercel's privacy policy</a>.</li>
         </ul>
       </section>
@@ -143,7 +143,7 @@
           <li><strong>Saved-bill records and notification state</strong>  -  once your profile email is finalized, the backend keeps the mirror of your saved bill identifiers, a per-address notification ledger marking which bills were already announced and their previously recorded versions, and a global first-seen snapshot of bill identifiers and timestamps (no email addresses). They remain until you remove the last saved bill, verify a new profile email that moves them, or the operator deletes them; there is no automatic retention period. The digest never repeats content already recorded in the ledger, and the snapshot ensures no one is emailed retroactively about bills that predate their first dispatched run.</li>
           <li><strong>Browser data</strong>  -  the display name entered on first visit, bill notes, bookmarked bill identifiers, theme preference, selected demo plan, subscription badge state, explicitly saved legislators, first-visit demo notice flag, cookie-consent acknowledgment flag, and local access-code lockout timer remain until removed by the site, changed or cleared through the relevant demo controls, or cleared in browser settings. Unsubscribe tokens are delivered by email and are not stored in browser storage. The reset-subscriptions control removes the local subscription badge state but does not clear the selected demo plan, display name, notes, bookmarked bills, saved legislators, demo-notice flag, lockout timer, delete the backend subscription, or bypass a server-enforced access-code lockout. Removing a bill from Your Saves syncs that removal to the backend so its update alerts stop. Saved legislators are cleared automatically when you run a new legislator lookup.</li>
           <li><strong>Chat questions</strong> are not persisted by Lariat: they live in server process memory only for the duration of the request, alongside in-memory rate-limit counters, and in your page memory until reload. AI providers process each forwarded question under their own policies linked in section 5.</li>
-          <li><strong>Legislator lookup cache</strong>  -  successful address or ZIP lookups are retained by the configured backend for up to 24 hours to avoid repeating external geocoding and legislative-data requests, then become eligible to be replaced or removed by normal cache maintenance. The current prototype does not expose a self-service cache deletion control; contact the operator at the address below for a deletion request. A production deployment must use a shared, access-controlled cache or database rather than relying on local filesystem state.</li>
+          <li><strong>Legislator lookup cache</strong>  -  successful address or ZIP lookups are retained by the configured backend for up to 24 hours to avoid repeating external geocoding and legislative-data requests, then become eligible to be replaced or removed by normal cache maintenance. On the live Vercel deployment the cache lives in each function instance's memory and is not shared across instances; it is cleared whenever an instance restarts. In local development it is kept in a JSON file under <code>server/data/</code>. The current prototype does not expose a self-service cache deletion control; contact the operator at the address below for a deletion request.</li>
           <li><strong>Infrastructure logs</strong>  -  retention is controlled by the hosting provider, reverse proxy, and operator's logging settings. The intended operational target is 365 days where the provider supports it, but the current local prototype does not implement automatic log retention or deletion.</li>
         </ul>
       </section>
@@ -194,7 +194,7 @@
   <dialog id="terms-modal" class="legal-modal" aria-labelledby="terms-modal-title">
     <div class="modal-content">
       <div class="modal-header">
-        <div><div class="modal-kicker">Legal · Updated October 9, 2026</div><h2 id="terms-modal-title">Terms and Conditions</h2></div>
+        <div><div class="modal-kicker">Legal · Updated October 13, 2026</div><h2 id="terms-modal-title">Terms and Conditions</h2></div>
         <button class="modal-close" type="button" data-modal-close aria-label="Close Terms and Conditions" title="Close">×</button>
       </div>
       <div class="modal-body accessibility-body">
@@ -212,7 +212,7 @@
   <dialog id="cookie-modal" class="legal-modal" aria-labelledby="cookie-modal-title">
     <div class="modal-content">
       <div class="modal-header">
-        <div><div class="modal-kicker">Privacy · Updated October 9, 2026</div><h2 id="cookie-modal-title">Cookie Policy</h2></div>
+        <div><div class="modal-kicker">Privacy · Updated October 13, 2026</div><h2 id="cookie-modal-title">Cookie Policy</h2></div>
         <button class="modal-close" type="button" data-modal-close aria-label="Close Cookie Policy" title="Close">×</button>
       </div>
       <div class="modal-body accessibility-body">
@@ -227,7 +227,7 @@
   <dialog id="security-modal" class="legal-modal" aria-labelledby="security-modal-title">
     <div class="modal-content">
       <div class="modal-header">
-        <div><div class="modal-kicker">Security · Updated October 9, 2026</div><h2 id="security-modal-title">SSL / HTTPS Security</h2></div>
+        <div><div class="modal-kicker">Security · Updated October 13, 2026</div><h2 id="security-modal-title">SSL / HTTPS Security</h2></div>
         <button class="modal-close" type="button" data-modal-close aria-label="Close SSL and HTTPS Security" title="Close">×</button>
       </div>
       <div class="modal-body accessibility-body">
@@ -242,7 +242,7 @@
   <dialog id="disclaimer-modal" class="legal-modal" aria-labelledby="disclaimer-modal-title">
     <div class="modal-content">
       <div class="modal-header">
-        <div><div class="modal-kicker">Important · Updated October 9, 2026</div><h2 id="disclaimer-modal-title">Disclaimer</h2></div>
+        <div><div class="modal-kicker">Important · Updated October 13, 2026</div><h2 id="disclaimer-modal-title">Disclaimer</h2></div>
         <button class="modal-close" type="button" data-modal-close aria-label="Close Disclaimer" title="Close">×</button>
       </div>
       <div class="modal-body accessibility-body">
@@ -258,7 +258,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <div>
-          <div class="modal-kicker">Accessibility · Updated October 9, 2026</div>
+          <div class="modal-kicker">Accessibility · Updated October 13, 2026</div>
           <h2 id="accessibility-modal-title">Accessibility statement</h2>
         </div>
         <button class="modal-close" type="button" data-modal-close aria-label="Close accessibility statement" title="Close">×</button>

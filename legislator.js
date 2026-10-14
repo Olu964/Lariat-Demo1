@@ -101,11 +101,12 @@
     return 'We could not complete that lookup. Please try again.';
   };
 
-  const setStatus = (message, isError = false) => {
+  const setStatus = (message, isError = false, isDone = false) => {
     if (!status) return;
     status.textContent = message;
     status.classList.toggle('is-error', isError);
-    status.classList.toggle('is-loading', !isError && Boolean(message));
+    status.classList.toggle('is-complete', !isError && isDone && Boolean(message));
+    status.classList.toggle('is-loading', !isError && !isDone && Boolean(message));
   };
 
   const formatDate = (value) => {
@@ -134,6 +135,11 @@
           <span class="legislator-identity">
             ${photo}
             <span><span class="legislator-name">${escapeHtml(legislator.name)}</span><span class="legislator-party">${escapeHtml(legislator.party || 'Party not listed')}</span></span>
+          </span>
+          <span class="legislator-card-facts">
+            <span class="legislator-card-fact"><span class="legislator-card-fact-label">District</span><span class="legislator-card-fact-value">${escapeHtml(legislator.district || 'Not listed')}</span></span>
+            <span class="legislator-card-fact"><span class="legislator-card-fact-label">Party</span><span class="legislator-card-fact-value">${escapeHtml(legislator.party || 'Not listed')}</span></span>
+            <span class="legislator-card-fact"><span class="legislator-card-fact-label">Chamber</span><span class="legislator-card-fact-value">${escapeHtml(legislator.chamber || 'Not listed')}</span></span>
           </span>
           <span class="legislator-card-action">Click to view full profile <span aria-hidden="true">↗</span></span>
         </button>
@@ -268,7 +274,7 @@
     button.innerHTML = '<span aria-hidden="true">✓</span> Your legislator';
     const role = String(legislator?.chamber || '').toLowerCase() === 'senate' ? 'senator'
       : String(legislator?.chamber || '').toLowerCase() === 'house' ? 'representative' : 'legislator';
-    setStatus(`${legislator?.name || 'That legislator'} is now your ${role}. Their votes will appear on the bill feed.`);
+    setStatus(`${legislator?.name || 'That legislator'} is now your ${role}. Their votes will appear on the bill feed.`, false, true);
   };
 
   const handleListClick = (event) => {
@@ -342,7 +348,7 @@
         results.hidden = false;
         results.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
       }
-      setStatus(payload.cached ? 'Showing a recent lookup for this address.' : 'Lookup complete.');
+      setStatus(payload.cached ? 'Showing a recent lookup for this address.' : 'Lookup complete.', false, true);
     } catch (error) {
       const message = error instanceof Error
         && typeof error.message === 'string'

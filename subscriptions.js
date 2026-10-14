@@ -232,7 +232,7 @@
     if (!profileIndustries().includes(clean)) throw new Error('Unknown industry.');
     const email = profileEmail();
     if (!window.LariatProfile || typeof window.LariatProfile.isEmailFinalized !== 'function' || !window.LariatProfile.isEmailFinalized()) {
-      const error = new Error('Please finalize your email with the code before attempting to save a bill or subscribe to an industry');
+      const error = new Error('You must create a profile to access this feature');
       error.code = 'email_not_finalized';
       throw error;
     }

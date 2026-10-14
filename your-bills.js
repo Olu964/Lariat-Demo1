@@ -22,14 +22,14 @@
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
   }[c]));
 
-  const showToast = (msg) => {
+  const showToast = (msg, duration = 3200) => {
     if (!toast) return;
     toast.textContent = msg;
     toast.classList.add('visible');
     // Shares the site-wide timer key so the profile.js email gate toast and
     // this page's toasts never hide each other early.
     clearTimeout(window.__lariatToastTimer);
-    window.__lariatToastTimer = setTimeout(() => toast.classList.remove('visible'), 3200);
+    window.__lariatToastTimer = setTimeout(() => toast.classList.remove('visible'), duration);
   };
 
   const normId = (v) => String(v || '').replace(/\s+/g, '').toLowerCase();
@@ -137,7 +137,7 @@
           showToast(`Unsubscribed from ${industry}. Notice sent to ${window.LariatProfile.get().email}.`);
         } else {
           await window.LariatSubscriptions.subscribe(industry);
-          showToast(`Subscribed to ${industry}. Confirmation sent to ${window.LariatProfile.get().email}.`);
+          showToast(`Subscribed to ${industry}. Confirmation sent to ${window.LariatProfile.get().email}. Your daily bill alert lists new bills in ${industry} — titles, summaries, and links to the bill and feed.`, 9000);
         }
       } catch (error) {
         showToast(error && error.message ? error.message : 'Something went wrong. Please try again.');

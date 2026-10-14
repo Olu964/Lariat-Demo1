@@ -134,13 +134,15 @@ select:focus { border-color: var(--blue-500); box-shadow: 0 0 0 3px rgba(39, 131
 .stat-card:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.98), var(--shadow-hover); transform: translateY(-3px); }
 .stat-card-accent { border-color: rgba(233,221,214,.95); background: rgba(251,244,236,.86); box-shadow: inset 0 1px 0 rgba(255,255,255,.98), 0 16px 42px rgba(140,90,60,.08); }
 .stat-card-top { display: flex; align-items: center; justify-content: space-between; }
-.stat-icon { position: relative; display: inline-block; width: 23px; height: 23px; border: 1px solid rgba(255,255,255,.95); border-radius: 8px; background-color: #e0eff6; background-image: linear-gradient(115deg, rgba(255,255,255,0) 42%, rgba(255,255,255,.75) 50%, rgba(255,255,255,0) 58%); box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 4px 10px rgba(21,62,80,.14); }
+.stat-icon { position: relative; display: inline-block; width: 23px; height: 23px; border: 1px solid rgba(255,255,255,.95); border-radius: 8px; background-color: #e0eff6; box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 4px 10px rgba(21,62,80,.14); }
 .icon-document::before { position: absolute; top: 5px; left: 7px; width: 8px; height: 10px; border: 1px solid var(--blue-500); border-top: 0; border-radius: 0 0 2px 2px; content: ""; }
 .icon-document::after { position: absolute; top: 6px; left: 9px; width: 5px; height: 1px; background: var(--blue-500); box-shadow: 0 3px 0 var(--blue-500); content: ""; }
-.icon-flag { border-color: rgba(255,255,255,.95); background-color: #fae8e2; background-image: linear-gradient(115deg, rgba(255,255,255,0) 42%, rgba(255,255,255,.8) 50%, rgba(255,255,255,0) 58%); }
+.stat-icon svg { position: absolute; top: 50%; left: 50%; width: 13px; height: 13px; color: var(--blue-500); transform: translate(-50%, -50%); }
+.stat-icon.icon-high svg { color: var(--high); }
+.icon-flag { border-color: rgba(255,255,255,.95); background-color: #fae8e2; }
 .icon-flag::before { position: absolute; top: 4px; left: 7px; width: 7px; height: 9px; border-left: 1.5px solid var(--high); border-top: 1.5px solid var(--high); border-bottom: 1.5px solid var(--high); content: ""; transform: skewY(-16deg); }
 .icon-flag::after { position: absolute; top: 4px; left: 7px; width: 1.5px; height: 14px; background: var(--high); content: ""; }
-.icon-calendar { border-color: rgba(255,255,255,.95); background-color: #eaf2f8; background-image: linear-gradient(115deg, rgba(255,255,255,0) 42%, rgba(255,255,255,.8) 50%, rgba(255,255,255,0) 58%); }
+.icon-calendar { border-color: rgba(255,255,255,.95); background-color: #eaf2f8; }
 .icon-calendar::before { position: absolute; inset: 6px 5px 5px; border: 1px solid var(--navy-700); border-radius: 2px; content: ""; }
 .icon-calendar::after { position: absolute; top: 8px; left: 7px; width: 7px; height: 1px; background: var(--navy-700); box-shadow: 0 3px 0 var(--navy-700); content: ""; }
 .stat-trend { font-size: 10px; font-weight: 700; }
@@ -349,6 +351,7 @@ h2 { margin: 0; color: var(--navy-950); font-size: 22px; letter-spacing: -.045em
 
 .page-reveal { animation: reveal .7s cubic-bezier(.2,.8,.2,1) both; }.delay-one { animation-delay: .08s; }.delay-two { animation-delay: .16s; } @keyframes reveal { from { opacity: 0; transform: translateY(13px); } to { opacity: 1; transform: translateY(0); } }
 .toast { position: fixed; z-index: 10; right: 24px; bottom: 24px; max-width: 310px; padding: 12px 15px; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; background: rgba(12,40,68,.96); color: white; font-size: 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 12px 30px rgba(7,26,45,.25); backdrop-filter: blur(14px); opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity .25s ease, transform .25s ease; }.toast.visible { opacity: 1; transform: translateY(0); }
+.toast a { pointer-events: auto; color: #9fd4f0; text-decoration: underline; }
 
 /* First-visit cookie / browser-storage consent notice */
 .cookie-consent { position: fixed; z-index: 16; right: 0; bottom: 0; left: 0; border-top: 1px solid rgba(216,226,234,.9); background: rgba(255,255,255,.95); color: var(--navy-950); box-shadow: inset 0 1px 0 rgba(255,255,255,.98), 0 -14px 44px rgba(7,26,45,.16); backdrop-filter: blur(18px) saturate(1.2); animation: cookie-consent-rise .35s cubic-bezier(.2,.8,.2,1) both; }
@@ -425,6 +428,7 @@ h2 { margin: 0; color: var(--navy-950); font-size: 22px; letter-spacing: -.045em
 [data-theme="dark"] .gold-eyebrow { color: #d9b96c; }
 [data-theme="dark"] .bill-summary strong { color: var(--ink); }
 [data-theme="dark"] .status-badge.enacted, [data-theme="dark"] .status-badge.alive { color: #8ee0c0; background: #16453b; } [data-theme="dark"] .status-badge.passed { color: #a9d3ef; background: #1d3f57; } [data-theme="dark"] .status-badge.pending { color: #ecd9a0; background: #4a3d1e; } [data-theme="dark"] .status-badge.dead { color: #ffaaa8; background: #4d2c36; }
+[data-theme="dark"] .lookup-status.is-complete::before { background: #3e9e7d; }
 [data-theme="dark"] .vote-badge { border-color: #4d7993; background: rgba(22,42,55,.9); color: #9aafbc; }
 [data-theme="dark"] .select-wrap::after { border-color: var(--navy-700); }
 [data-theme="dark"] .landing-page::before { background: radial-gradient(54% 46% at 74% 10%, rgba(201,161,74,.11), transparent 68%), radial-gradient(48% 42% at 22% 20%, rgba(64,148,190,.13), transparent 66%), linear-gradient(180deg, rgba(255,255,255,.045), transparent 40%); }
@@ -519,13 +523,14 @@ html.theme-transitioning *, html.theme-transitioning *::before, html.theme-trans
 .lookup-button:disabled { cursor: wait; opacity: .65; transform: none; }
 .lookup-status { min-height: 19px; margin: 12px 0 0; color: var(--muted); font-size: 11px; }
 .lookup-status.is-loading::before { display: inline-block; width: 10px; height: 10px; margin-right: 7px; border: 1.5px solid currentColor; border-right-color: transparent; border-radius: 50%; content: ''; vertical-align: -1px; animation: legislator-spin .8s linear infinite; }
+.lookup-status.is-complete::before { display: inline-block; width: 11px; height: 11px; margin-right: 7px; border-radius: 50%; background: #347d69; color: white; content: '✓'; font-size: 7px; font-weight: 700; line-height: 11px; text-align: center; vertical-align: 1px; }
 .lookup-status.is-error { color: var(--high); }
 @keyframes legislator-spin { to { transform: rotate(360deg); } }
 .legislator-results { margin-top: 55px; scroll-margin-top: 24px; }
 .lookup-address { max-width: 310px; overflow: hidden; color: var(--muted-light); font-size: 11px; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
 .legislator-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
-.legislator-card { min-height: 285px; padding: 0; animation: legislator-card-glow 5.5s ease-in-out infinite; }
-.legislator-card-trigger { position: relative; z-index: 1; display: block; width: 100%; min-height: 285px; padding: 20px 22px 19px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; }
+.legislator-card { padding: 0; animation: legislator-card-glow 5.5s ease-in-out infinite; }
+.legislator-card-trigger { position: relative; z-index: 1; display: block; width: 100%; padding: 20px 22px 19px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; }
 .legislator-card-trigger:focus-visible { outline-offset: -4px; }
 .legislator-card-topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .legislator-district { color: var(--muted-light); font-size: 10px; font-weight: 700; }
@@ -537,6 +542,10 @@ html.theme-transitioning *, html.theme-transitioning *::before, html.theme-trans
 .legislator-name { color: var(--navy-900); font-family: Manrope, sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -.035em; line-height: 1.15; }
 .legislator-party { margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 700; }
 .legislator-card-action { display: inline-flex; align-items: center; gap: 5px; margin-top: 17px; color: var(--blue-500); font-size: 11px; font-weight: 700; }
+.legislator-card-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+.legislator-card-fact { min-width: 0; padding: 8px 10px; border: 1px solid #dbeaf0; border-radius: 9px; background: rgba(255,255,255,.75); }
+.legislator-card-fact-label { display: block; margin-bottom: 3px; color: var(--muted-light); font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.legislator-card-fact-value { display: block; overflow: hidden; color: var(--navy-900); font-size: 12px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
 .legislator-card-picker { padding: 0 22px 19px; }
 .make-my-legislator-button { display: inline-flex; width: 100%; align-items: center; justify-content: center; gap: 8px; padding: 11px 14px; border: 1px solid #17466d; border-radius: 9px; background: linear-gradient(180deg, #1e4b77, #0d2e4f); color: white; font-family: inherit; font-size: 11px; font-weight: 700; box-shadow: inset 0 1px 0 rgba(255,255,255,.26), inset 0 -1px 0 rgba(0,0,0,.2), 0 6px 14px rgba(16,51,85,.2); cursor: pointer; transition: background .2s ease, box-shadow .2s ease, transform .2s ease; }
 .make-my-legislator-button:hover { background: linear-gradient(180deg, #275881, #103a5e); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 8px 18px rgba(16,51,85,.24); transform: translateY(-2px); }
@@ -587,8 +596,8 @@ html.theme-transitioning *, html.theme-transitioning *::before, html.theme-trans
 [data-theme="dark"] .make-my-legislator-button.is-selected { border-color: #2c5a4d; background: #16453b; color: #8ee0c0; }
 [data-theme="dark"] .my-vote-hero { border: 1px solid rgba(255,255,255,.14); }
 [data-theme="dark"] .legislator-photo { border-color: rgba(255,255,255,.16); background: #1c3d50; box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 4px 10px rgba(0,0,0,.3); }
-[data-theme="dark"] .legislator-modal-profile, [data-theme="dark"] .vote-history-row, [data-theme="dark"] .legislator-facts > div, [data-theme="dark"] .legislator-pattern-grid > div { border-color: rgba(255,255,255,.12); background: rgba(18,37,50,.72); }
-[data-theme="dark"] .legislator-facts dd, [data-theme="dark"] .legislator-pattern-grid strong, [data-theme="dark"] .legislator-pattern-trend { color: #e7f1f6; }
+[data-theme="dark"] .legislator-modal-profile, [data-theme="dark"] .vote-history-row, [data-theme="dark"] .legislator-facts > div, [data-theme="dark"] .legislator-pattern-grid > div, [data-theme="dark"] .legislator-card-fact { border-color: rgba(255,255,255,.12); background: rgba(18,37,50,.72); }
+[data-theme="dark"] .legislator-facts dd, [data-theme="dark"] .legislator-pattern-grid strong, [data-theme="dark"] .legislator-pattern-trend, [data-theme="dark"] .legislator-card-fact-value { color: #e7f1f6; }
 [data-theme="dark"] .legislator-pattern-bar { background: rgba(255,255,255,.12); }
 [data-theme="dark"] .legislator-modal-section h3, [data-theme="dark"] .vote-history-row h4, [data-theme="dark"] .legislator-name { color: #e7f1f6; }
 [data-theme="dark"] .legislator-modal-party { color: #d0e0e7; }
@@ -738,7 +747,7 @@ html.theme-transitioning *, html.theme-transitioning *::before, html.theme-trans
 .bill-timeline-event { position: relative; padding: 0 0 14px 18px; }
 .bill-timeline-event:last-child { padding-bottom: 6px; }
 .bill-timeline-dot {
-  position: absolute; top: 4px; left: -6px; width: 10px; height: 10px; border-radius: 50%;
+  position: absolute; top: 4px; left: 0; width: 10px; height: 10px; border-radius: 50%;
   border: 2px solid var(--surface); background: var(--blue-500); box-shadow: 0 0 0 1px var(--blue-500);
 }
 .bill-timeline-event:first-child .bill-timeline-dot { background: var(--navy-800); box-shadow: 0 0 0 1px var(--navy-800); }
