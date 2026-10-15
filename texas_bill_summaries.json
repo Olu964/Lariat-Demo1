@@ -390,9 +390,9 @@
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Political subdivisions should review their eminent domain policies and procedures to ensure that any future condemnation petitions are limited to property inside their boundaries; they must update internal guidelines, training materials, and template documents to reflect the new restriction. Private property owners and businesses that may be subject to condemnation should verify that any proposed taking falls within the subdivider’s limits and, if not, treat the action as unauthorized. Entities that rely on eminent domain for infrastructure projects (e.g., utilities, transportation agencies, water districts) should assess whether alternative sites inside their boundaries are feasible and begin early coordination with legal counsel to avoid delays. All affected parties should monitor the official effective date (approximately late August 2025) and confirm that any condemnation actions initiated after that date comply with the new location requirement, while actions begun before the date remain governed by prior law.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 162 is a Texas legislative record titled Relating to. Available metadata lists CONDEMNATION (S0063) City Government--Annexation (I0063) and records this action: Filed on 2025-08-15. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "summary": "HB 162 amends numerous Texas statutes to prohibit political subdivisions from exercising eminent domain over property located outside their own boundaries. The bill adds explicit limitations in the Government Code, Human Resources Code, Local Government Code, Natural Resources Code, Transportation Code, and Water Code, requiring that any condemnation, purchase, or acquisition of property for public use occur only within the subdivision’s corporate limits. It preserves existing authority for actions inside boundaries and clarifies that the restrictions apply only to condemnation petitions filed on or after the Act’s effective date, which is the 91st day after the last day of the 2025 legislative session.",
     "id": "ocd-bill/f4aafaf1-4742-4cfd-a0e4-439f756bd2c2",
     "identifier": "HB 162",
     "session": "892",
@@ -401,28 +401,30 @@
     "latest_action_date": "2025-08-15",
     "latest_action_description": "Filed",
     "latest_passage_date": "",
-    "updated_at": "2026-10-03",
+    "updated_at": "2026-10-15",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB162",
-    "summary_word_count": 40,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 0,
-      "operational_change": 0,
+      "direct_compliance_requirement": 1,
+      "financial_cost": 1,
+      "operational_change": 1,
       "industry_breadth": 2,
-      "enforcement_risk": 0,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
+      "enforcement_risk": 1,
+      "effective_date_urgency": 1,
+      "business_model_impact": 1
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill affects a broad range of industries and government functions (industry_breadth=2) and imposes a clear duty on political subdivisions to limit eminent domain to internal property (direct_compliance_requirement=1). Combined with multiple other moderate impacts, the overall effect is moderate.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
         "title": "Filed",
         "description": "Filing - Filed"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00162I.htm",
+    "bill_text_hash": "62aa0f86025b6e9cf440761b0d5313b9d7625c48d2a0ec9eaf679bc0c513c4a1",
+    "summary_word_count": 103,
+    "summary_source": "official bill text"
   },
   {
     "title": "House Absence Penalties",
