@@ -1,5 +1,1732 @@
 [
   {
+    "title": "Election procedures regarding accepting a voter with a…",
+    "affects": "Elections--Administration (I0277), Elections--General (I0310), Elections--Registration & Suffrage (I0265)",
+    "changes": "See the official text for changes proposed by SB 54.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Enacted",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 54 is listed in Texas legislative metadata with the title Relating to election procedures. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/af05a12e-0441-48d6-b130-b5412d18de02",
+    "identifier": "SB 54",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-26",
+    "latest_action_date": "2025-09-17",
+    "latest_action_description": "Effective on . . . . . . . . . . . . . . .",
+    "latest_passage_date": "2025-09-03",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB54",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-26",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Passed",
+        "description": "Passage - Passed"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Record vote"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Statement(s) of vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Statement(s) of vote recorded in Journal"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Reason for vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Reason for vote recorded in Journal"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "House passage reported",
+        "description": "Passage - House passage reported"
+      },
+      {
+        "date": "2025-09-02",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "Effective on . . . . . . . . . . . . . . ",
+        "description": "Became Law - Effective on . . . . . . . . . . . . . ."
+      }
+    ]
+  },
+  {
+    "title": "Schedule IV Controlled Substances",
+    "affects": "Abortion (I0005), Crimes--Drugs (I0185), Health--General (I0385)",
+    "changes": "See the official text for changes proposed by HB 195.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "High",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Healthcare providers, pharmacies, and pharmaceutical distributors should review current prescribing and dispensing practices for carisoprodol, mifepristone, and misoprostol to understand potential changes if HB 195 becomes law. Organizations should monitor the bill's progress through the House State Affairs Committee and the full House calendar, as it has not yet been enacted. Key implementation questions include how the Texas Department of State Health Services will regulate these substances, what training or certification requirements may apply to prescribers, and how existing inventory will be handled. Providers should confirm current DEA and state licensing requirements remain unchanged until the January 1, 2026 effective date. Legal counsel should assess potential conflicts with federal controlled substance classifications and existing abortion-related statutes. Organizations should prepare for potential changes in patient access, insurance coverage, and supply chain logistics for these medications.",
+    "summary": "HB 195 amends Section 481.037 of the Health and Safety Code to designate carisoprodol, mifepristone, and misoprostol as Schedule IV controlled substances under the Texas Controlled Substances Act. The Act applies prospectively to offenses committed on or after its effective date of January 1, 2026, with prior offenses governed by existing law. The bill was referred to the House State Affairs Committee on August 20, 2025, during the 89th Legislature's second session. The designation of mifepristone and misoprostol as controlled substances directly impacts abortion-related medical practice and pharmaceutical distribution, while carisoprodol is a muscle relaxant with potential for abuse. The legislation creates new criminal and regulatory restrictions on the possession, distribution, and prescription of these substances, affecting healthcare providers, pharmacies, and patients. The bill remains in committee and has not yet been enacted into law.",
+    "id": "ocd-bill/d7ffb443-d066-41b2-8f6e-379df8c37a6f",
+    "identifier": "HB 195",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-18",
+    "latest_action_date": "2025-08-20",
+    "latest_action_description": "Referred to State Affairs",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB195",
+    "impact_scores": {
+      "direct_compliance_requirement": 2,
+      "financial_cost": 1,
+      "operational_change": 2,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 1,
+      "business_model_impact": 2
+    },
+    "impact_rationale": "The bill imposes direct compliance requirements on healthcare providers and pharmacies by mandating Schedule IV controlled substance handling for three medications. The strongest factors are direct_compliance_requirement (2) and operational_change (2), as organizations must implement new storage, prescribing, and reporting procedures, and business_model_impact (2) due to restrictions on prescribing mifepristone and misoprostol affecting abortion services.",
+    "impact_framework": "v2-7-factor",
+    "bill_history": [
+      {
+        "date": "2025-08-18",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Referred to State Affairs",
+        "description": "Referral Committee - Referred to State Affairs"
+      }
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00195I.htm",
+    "bill_text_hash": "8bbe4eb22687496fd0da81008269179e97d15764dce3d33ed967389c4215b399",
+    "summary_word_count": 136,
+    "summary_source": "official bill text"
+  },
+  {
+    "title": "Powers of regional transportation authorities",
+    "affects": "City Government--Finance (I0062), City Government--Roads (I0066), Elections--General (I0310)",
+    "changes": "See the official text for changes proposed by HB 157.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 157 is listed in Texas legislative metadata with the title Relating to powers of. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/446b6721-f1ce-4a23-b4cb-740f9f060504",
+    "identifier": "HB 157",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-15",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB157",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "A groundwater study of certain aquifers underlying the…",
+    "affects": "Interim Studies (I0448), NECHES & TRINITY VALLEYS GROUNDWATER CONSERVATION DISTRICT (DB1J6), PERMITS (S0011)",
+    "changes": "See the official text for changes proposed by SB 55.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 55 is a Texas legislative record titled Relating to a groundwater. Available metadata lists Interim Studies (I0448) NECHES & and records this action: Filed on 2025-08-21. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/33272916-d90f-4cba-975b-ddc7e05045d0",
+    "identifier": "SB 55",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-21",
+    "latest_action_date": "2025-08-21",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB55",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, business model impact as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-21",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-21",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The operation and administration of and practices and…",
+    "affects": "ATASCOSA COUNTY (G0358), BORDER (S0045), BOWIE COUNTY (GZ9IZ)",
+    "changes": "See the official text for changes proposed by HB 16.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Enacted",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 16 is listed in Texas legislative metadata with the title Relating to the operation. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/45c345a1-4de3-4e29-bf43-0654c2abe6fd",
+    "identifier": "HB 16",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-09-17",
+    "latest_action_description": "See remarks for effective date",
+    "latest_passage_date": "2025-08-28",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB16",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 1,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Read 3rd time",
+        "description": "Reading 3 - Read 3rd time"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Passed",
+        "description": "Passage - Passed"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Senate passage reported",
+        "description": "Passage - Senate passage reported"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "See remarks for effective date",
+        "description": "{'id': 'ocd-organization/4c8c2a9c-f33c-476d-bf81-266eb72193f0', 'name': 'Office of the Governor', 'classification': 'executive'} - See remarks for effective date"
+      }
+    ]
+  },
+  {
+    "title": "An exemption from the requirement to obtain a permit from the…",
+    "affects": "ENVIRONMENTAL QUALITY, TEXAS COMMISSION ON (V0334), FLOODS (S0327), PERMITS (S0011)",
+    "changes": "See the official text for changes proposed by HB 231.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 231 is listed in Texas legislative metadata with the title Relating to an exemption. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/263feebe-9658-43de-8d00-582e9b573cb7",
+    "identifier": "HB 231",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-18",
+    "latest_action_date": "2025-08-20",
+    "latest_action_description": "Referred to Disaster Preparedness & Flooding",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB231",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, business model impact as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-18",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Referred to Disaster Preparedness & Flooding",
+        "description": "Referral Committee - Referred to Disaster Preparedness & Flooding"
+      }
+    ]
+  },
+  {
+    "title": "A vacancy in the office of senator or representative due to…",
+    "affects": "HOUSE OF REPRESENTATIVES (V0096), Legislature (I0520), SENATE, TEXAS (V0227)",
+    "changes": "See the official text for changes proposed by HB 141.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 141 is a Texas legislative record titled Relating to a. Available metadata lists HOUSE OF REPRESENTATIVES (V0096) Legislature and records this action: Filed on 2025-08-15. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/5ef401b7-782d-4e0e-91db-2755695eaf28",
+    "identifier": "HB 141",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-15",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB141",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Schedule IV Controlled Substances",
+    "affects": "Abortion (I0005), Crimes--Drugs (I0185), Health--General (I0385)",
+    "changes": "See the official text for changes proposed by HB 151.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Affected organizations and individuals should review the bill text and monitor its progress through the House State Affairs Committee and potential floor consideration. Healthcare providers, pharmacies, and manufacturers of carisoprodol, mifepristone, and misoprostol should confirm current DEA and Texas State Board of Pharmacy classifications and prepare for potential reclassification if the bill advances. Legal counsel should assess implications for prescribing practices, dispensing protocols, and inventory controls. Stakeholders should verify the effective date of January 1, 2026, and confirm whether the bill receives further legislative action or dies in committee. Monitoring the committee hearing schedule and any amendments is essential for accurate compliance planning.",
+    "summary": "HB 151 amends Section 481.037 of the Health and Safety Code to designate carisoprodol, mifepristone, and misoprostol as Schedule IV controlled substances under the Texas Controlled Substances Act. The bill specifies that the change in law applies only to offenses committed on or after the effective date, with prior offenses governed by existing law. The Act takes effect on January 1, 2026. The bill was referred to the House State Affairs Committee on August 18, 2025, and remains in committee as of the latest available action.",
+    "id": "ocd-bill/e10dfaee-889f-450f-9a65-c7a817cf32c6",
+    "identifier": "HB 151",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-18",
+    "latest_action_description": "Referred to State Affairs",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB151",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 1,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill has broad industry reach (industry_breadth=2) affecting pharmaceuticals, healthcare providers, and pharmacies across multiple sectors. The effective date of January 1, 2026, creates moderate urgency (effective_date_urgency=1) for stakeholders to prepare for potential reclassification. However, since the bill remains in committee and imposes no current compliance obligations, direct compliance requirements, financial costs, and enforcement risks remain absent.",
+    "impact_framework": "v2-7-factor",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Referred to State Affairs",
+        "description": "Referral Committee - Referred to State Affairs"
+      }
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00151I.htm",
+    "bill_text_hash": "531e30b725d2a1244dde9517f3920c8ca22acbac3f6cfbebb9177c5e93aaa4cb",
+    "summary_word_count": 87,
+    "summary_source": "official bill text"
+  },
+  {
+    "title": "The authority of a county to establish drainage utilities…",
+    "affects": "County Government--General (I0096), County Government--Land Use & Zoning (I0098), Environment--Water (I0320)",
+    "changes": "See the official text for changes proposed by HB 108.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 108 is listed in Texas legislative metadata with the title Relating to the authority. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/1da3730b-89f2-42c6-83c0-681daffdfd75",
+    "identifier": "HB 108",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-20",
+    "latest_action_description": "Referred to Disaster Preparedness & Flooding",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB108",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, financial cost as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Referred to Disaster Preparedness & Flooding",
+        "description": "Referral Committee - Referred to Disaster Preparedness & Flooding"
+      }
+    ]
+  },
+  {
+    "title": "An exemption from the requirement to obtain a permit from the…",
+    "affects": "ENVIRONMENTAL QUALITY, TEXAS COMMISSION ON (V0334), FLOODS (S0327), PERMITS (S0011)",
+    "changes": "See the official text for changes proposed by SB 18.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Dead",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 18 is listed in Texas legislative metadata with the title Relating to an exemption. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/3fb7607b-fde5-4863-8350-ff8a8bf93d37",
+    "identifier": "SB 18",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-09-17",
+    "latest_action_description": "Vetoed by the Governor",
+    "latest_passage_date": "2025-08-28",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB18",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, business model impact as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-25",
+        "title": "Read 3rd time",
+        "description": "Reading 3 - Read 3rd time"
+      },
+      {
+        "date": "2025-08-25",
+        "title": "Passed",
+        "description": "Passage - Passed"
+      },
+      {
+        "date": "2025-08-25",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Record vote"
+      },
+      {
+        "date": "2025-08-25",
+        "title": "Statement(s) of vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Statement(s) of vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-25",
+        "title": "Reason for vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Reason for vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "House passage reported",
+        "description": "Passage - House passage reported"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "Vetoed by the Governor",
+        "description": "Executive Veto - Vetoed by the Governor"
+      }
+    ]
+  },
+  {
+    "title": "A groundwater study of certain aquifers underlying the…",
+    "affects": "Interim Studies (I0448), NECHES & TRINITY VALLEYS GROUNDWATER CONSERVATION DISTRICT (DB1J6), PERMITS (S0011)",
+    "changes": "See the official text for changes proposed by SB 50.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 50 is a Texas legislative record titled Relating to a groundwater. Available metadata lists Interim Studies (I0448) NECHES & and records this action: Filed on 2025-08-21. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/e6583745-48cc-47fe-b3f2-4668a444ebc2",
+    "identifier": "SB 50",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-21",
+    "latest_action_date": "2025-08-21",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB50",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, business model impact as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-21",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-21",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Proposing a constitutional amendment to abolish ad valorem taxes",
+    "affects": "BONDS (S6060), Political Subdivisions (I0588), Property Interests--Personal Property (I0600)",
+    "changes": "See the official text for changes proposed by HJR 23.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HJR 23 is listed in Texas legislative metadata with the title Proposing a constitutional amendment. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/6004c27f-8be3-412d-a657-6fa123d5b304",
+    "identifier": "HJR 23",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-19",
+    "latest_action_date": "2025-08-20",
+    "latest_action_description": "Referred to Ways & Means",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HJR23",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, financial cost as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-19",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Referred to Ways & Means",
+        "description": "Referral Committee - Referred to Ways & Means"
+      }
+    ]
+  },
+  {
+    "title": "Proposing a constitutional amendment to abolish ad valorem taxes",
+    "affects": "BONDS (S6060), Political Subdivisions (I0588), Property Interests--Personal Property (I0600)",
+    "changes": "See the official text for changes proposed by HJR 14.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HJR 14 is a Texas legislative record titled Proposing a constitutional. Available metadata lists BONDS (S6060) Political Subdivisions (I0588) and records this action: Filed on 2025-08-15. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/48b61113-70cd-41d2-9760-d483d39204be",
+    "identifier": "HJR 14",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-15",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HJR14",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, financial cost as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Real Property Theft and Fraud Laws",
+    "affects": "Real estate professionals, property owners, law enforcement",
+    "changes": "Creates new offenses and procedures for real property theft and fraud, requires recording of certain documents, and establishes restitution procedures.",
+    "business_impact": "Businesses in the real estate industry may need to adapt to new recording requirements and procedures for handling real property transactions.",
+    "impact_level": "High",
+    "industry": "Real Estate & Land Use",
+    "specific_industry": "Real Property Transactions",
+    "status": "Enacted",
+    "suggested_action": "Real estate businesses, title companies, lenders, property owners, county clerks, and related professionals should review the bill's new offenses, document-filing requirements, identification rules, restitution provisions, and procedures for handling alleged real property theft or fraud. Operations and compliance teams should identify which transaction workflows could require additional identity checks, county-recording steps, fraud controls, or coordination with law enforcement and insurers. They should confirm the separate effective dates for offenses and other provisions, including the provisions beginning September 1, 2025, and January 1, 2026, before changing live procedures. Staff should monitor the official Texas Legislature record for amendments, final status, and implementation guidance, then compare the enacted text with existing policies and contracts. Any response involving criminal exposure, filing requirements, or restitution should be reviewed with qualified Texas legal counsel before action is taken.",
+    "summary": "SB 16 amends Texas law to establish new criminal offenses of real property theft and real property fraud, creates graduated felony classifications based on property value thresholds, requires restitution for offenders, mandates photo identification for filing certain real property documents, and sets specific procedures for recording and handling such cases. The bill applies to offenses committed on or after September 1, 2025, with additional provisions taking effect January 1, 2026. It affects real property owners, lenders, title companies, and county clerks involved in recording transactions. Key requirements include filing judgments with county clerks within 10 days, providing restitution to property owners or insurers, and submitting photo IDs for document filings. The legislation does not appear to include specific funding mechanisms beyond standard judicial processes.",
+    "id": "ocd-bill/c18980e2-ef6c-4279-b06e-e6bf6302f8eb",
+    "identifier": "SB 16",
+    "session": "892",
+    "origin_date": "2025-08-15",
+    "updated_at": "2026-09-02",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB16",
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00016E.htm",
+    "bill_text_hash": "ec343eb274379ce3fc4df73771722fa30aa79b309ed3a4ca14c1bda180eac6d0",
+    "summary_word_count": 124,
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "latest_action_date": "2025-09-17",
+    "latest_action_description": "See remarks for effective date",
+    "latest_passage_date": "2025-08-28",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 16 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House amendment(s) laid before the Senate",
+        "description": "Receipt - House amendment(s) laid before the Senate"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Read",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Senate concurs in House amendment(s)",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate concurs in House amendment(s)"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SB 16 on 2025-08-28. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Senate concurs in House amendment(s)-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate concurs in House amendment(s)-reported"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "See remarks for effective date",
+        "description": "{'id': 'ocd-organization/4c8c2a9c-f33c-476d-bf81-266eb72193f0', 'name': 'Office of the Governor', 'classification': 'executive'} - See remarks for effective date"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
+      },
+      {
+        "date": "2026-09-02",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 2,
+      "financial_cost": 1,
+      "operational_change": 2,
+      "industry_breadth": 2,
+      "enforcement_risk": 1,
+      "effective_date_urgency": 2,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "The bill directly establishes new criminal offenses of real property theft and fraud with graduated felony classifications, mandatory restitution, and specific filing procedures, representing a strong direct compliance requirement. It introduces significant operational changes by adding Chapter 5C to the Code of Criminal Procedure with new procedural mandates for judges and county clerks. The legislation broadly impacts real property owners, lenders, title companies, and county clerks, demonstrating wide industry breadth. While restitution creates financial costs for defendants, the bill notes no specific funding mechanisms beyond standard judicial processes. Implementation begins September 1, 2025 with additional provisions effective January 1, 2026, indicating moderate effective date urgency. The changes affect title companies and insurers through restitution requirements, though the overall business model impact is relatively limited.",
+    "impact_framework": "v2-7-factor"
+  },
+  {
+    "title": "The consideration by a groundwater conservation district of…",
+    "affects": "PERMITS (S0011), Special Districts & Authorities--Groundwater Conserve Dist. (I0013), Water--General (I0885)",
+    "changes": "See the official text for changes proposed by SB 41.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 41 is a Texas legislative record titled Relating to the consideration. Available metadata lists PERMITS (S0011) Special Districts & and records this action: Filed on 2025-08-18. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/217a6c48-0fae-4f4a-9f01-e3b943d549a5",
+    "identifier": "SB 41",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-18",
+    "latest_action_date": "2025-08-18",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB41",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-18",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The consideration by a groundwater conservation district of…",
+    "affects": "PERMITS (S0011), Special Districts & Authorities--Groundwater Conserve Dist. (I0013), Water--General (I0885)",
+    "changes": "See the official text for changes proposed by HB 24.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 24 is listed in Texas legislative metadata with the title Relating to the consideration. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/c17d5540-9feb-4d00-bfc9-5fa208438b3f",
+    "identifier": "HB 24",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-21",
+    "latest_action_description": "Left pending in committee",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB24",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Referred to Natural Resources",
+        "description": "Referral Committee - Referred to Natural Resources"
+      },
+      {
+        "date": "2025-08-21",
+        "title": "Considered in public hearing",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Considered in public hearing"
+      },
+      {
+        "date": "2025-08-21",
+        "title": "Committee substitute considered in committee",
+        "description": "Substitution - Committee substitute considered in committee"
+      },
+      {
+        "date": "2025-08-21",
+        "title": "Testimony taken/registration(s) recorded in committee",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Testimony taken/registration(s) recorded in committee"
+      },
+      {
+        "date": "2025-08-21",
+        "title": "Left pending in committee",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Left pending in committee"
+      }
+    ]
+  },
+  {
+    "title": "Texas Women's Privacy Act",
+    "affects": "Women, women's shelters",
+    "changes": "Authorizes a civil penalty and a private civil right of action for violations of the Texas Women's Privacy Act.",
+    "business_impact": "Businesses may need to update policies and procedures to comply with the new law.",
+    "impact_level": "High",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Enacted",
+    "suggested_action": "Organizations responsible for public facilities, shelters, or other spaces covered by the Texas Women's Privacy Act should review the enacted requirements, exceptions, civil penalties, and private right of action described in the official text. Compliance teams should identify which facilities and policies are affected, confirm how access rules must be communicated, and document procedures for situations involving custody, maintenance, medical emergencies, accompaniment, law enforcement, safety threats, or young children. They should also confirm the effective date and determine whether employee training, signage, complaint handling, or recordkeeping needs to be updated. Because violations may create financial and litigation exposure, affected entities should verify the final statutory language and implementation guidance rather than relying solely on this summary. Businesses should coordinate any operational response with qualified counsel and monitor official Texas agency or legislative updates for later interpretations, amendments, or enforcement information.",
+    "summary": "SB 8, titled the Texas Women's Privacy Act, amends Chapter 3002 of the Texas Government Code to regulate the designation and use of certain spaces and facilities according to sex. It requires political subdivisions and state agencies to designate multiple-occupancy private spaces for use exclusively by individuals of one sex and prohibits opposite-sex individuals from using them without specific exceptions (custody, maintenance, medical emergencies, accompaniment, law enforcement, safety threats, and children under 9). The Act authorizes civil penalties of $5,000 for first violations and $25,000 for subsequent violations, and creates a private civil cause of action allowing affected parties to seek declaratory and injunctive relief plus attorney's fees. The Attorney General can investigate complaints and collect penalties. The bill takes effect 91 days after the legislative session ends (2025-09-22).",
+    "id": "ocd-bill/628f4192-e8db-4802-9e01-1a672027f9e0",
+    "identifier": "SB 8",
+    "session": "892",
+    "origin_date": "2025-08-15",
+    "updated_at": "2026-09-02",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB8",
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00008E.htm",
+    "bill_text_hash": "90a912baa7388c62c5c7b50aff094cdcf9d65e0eba9cef491267089007b4a5f3",
+    "summary_word_count": 131,
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "latest_action_date": "2025-09-22",
+    "latest_action_description": "Effective on . . . . . . . . . . . . . . .",
+    "latest_passage_date": "2025-09-03",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 8 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SB 8 on 2025-09-03. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-09-03",
+        "title": "House amendment(s) laid before the Senate",
+        "description": "Receipt - House amendment(s) laid before the Senate"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Read",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Senate concurs in House amendment(s)",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate concurs in House amendment(s)"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Senate concurs in House amendment(s)-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate concurs in House amendment(s)-reported"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-09-03",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-09-04",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
+        "date": "2025-09-22",
+        "title": "Effective on . . . . . . . . . . . . . .",
+        "description": "Became Law - Effective on . . . . . . . . . . . . . ."
+      },
+      {
+        "date": "2025-09-22",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
+      },
+      {
+        "date": "2025-09-22",
+        "title": "Effective on . . . . . . . . . . . . . . ",
+        "description": "Became Law - Effective on . . . . . . . . . . . . . ."
+      }
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 2,
+      "financial_cost": 2,
+      "operational_change": 2,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 1,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill creates direct compliance mandates, imposes significant financial penalties, and requires broad operational adjustments across multiple public sectors.",
+    "impact_framework": "v2-7-factor"
+  },
+  {
+    "title": "Disaster Response and Recovery Licensing",
+    "affects": "disaster response and recovery professionals and businesses",
+    "changes": "requires a license for disaster response and recovery activities and authorizes fees",
+    "business_impact": "may need to obtain a license to operate in disaster response and recovery",
+    "impact_level": "Moderate",
+    "industry": "Government & Municipal Operations",
+    "specific_industry": "Disaster Preparedness & Relief",
+    "status": "Passed",
+    "suggested_action": "Stakeholders should carefully review the bill's implementation timeline, noting that Section 418.455 takes effect January 1, 2027, while the overall act becomes effective 91 days after the legislative session concludes. The Texas Commission on Fire Protection must verify its capacity to conduct criminal history checks under Subsection 418.459 and ensure compliance with the expanded autopsy certification requirements in Subsections (e-1) and (c-1). The Texas Division of Emergency Management needs to adopt the post-disaster after-action report form mandated by Section 29 and fully implement the statewide volunteer management system outlined in Section 418.482-484. Additionally, the small-business disaster recovery program under Section 481.452 should be monitored for compliance with loan eligibility criteria, including the minimum 50% allocation requirement for micro-business loans and interest rate caps. Organizations involved in mass fatality operations should prepare for the creation of a centralized fatality tracking system by December 1, 2026, as required by Section 675.005. Finally, all affected agencies should review their internal procedures to accommodate the new emergency management director designations and annual drill requirements before the January 2027 effective date.",
+    "summary": "SB 2 amends Texas law to strengthen disaster preparedness, response, and recovery across multiple domains. The bill expands the circumstances under which justices of the peace may certify autopsies unnecessary for deaths resulting from natural disasters, requiring clear and convincing evidence of natural causes and absence of unlawful acts. It mandates a training program for justices of the peace on mass fatality event management, covering decision-making protocols, body identification standards, and best practices for missing persons coordination and relative notification. The legislation introduces new licensing requirements for emergency managers, limiting their tenure without a valid license to six months, and establishes a statewide volunteer management system for disaster response. It also creates a small-business disaster recovery program funded through a dedicated account, sets requirements for post-disaster after-action reporting within 60 days, and addresses criminal history record access for license holders and volunteers. Additional provisions cover emergency management director designations during disasters, annual emergency management plan drills, and restrictions on unmanned aircraft in disaster zones.",
+    "id": "ocd-bill/e3b77cbc-8961-47c5-9c6c-7bc8ba526073",
+    "identifier": "SB 2",
+    "session": "892",
+    "origin_date": "2025-08-15",
+    "updated_at": "2026-09-10",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB2",
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00002E.htm",
+    "bill_text_hash": "3731fbbb86b9948386d7640c2dfffbddffe4337743008eaa646bc157ac41e6e9",
+    "summary_word_count": 164,
+    "summary_source": "official bill text",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "latest_action_date": "2025-08-27",
+    "latest_action_description": "House appoints conferees-reported",
+    "latest_passage_date": "2025-08-21",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "First filed - bill comes to fruition",
+        "description": "SB 2 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-21",
+        "title": "Chamber passage recorded",
+        "description": "A chamber recorded passage of SB 2 on 2025-08-21. No enactment is implied beyond the recorded passage."
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Read",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Senate refuses to concur",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate refuses to concur"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Senate requests conference committee",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate requests conference committee"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Senate appoints conferees",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate appoints conferees"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House appoints conferees-reported",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - House appoints conferees-reported"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Senate refuses to concur-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate refuses to concur-reported"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Senate requests conference committee-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate requests conference committee-reported"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Senate appoints conferees-reported",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate appoints conferees-reported"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House grants request for conference committee",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - House grants request for conference committee"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House appoints conferees",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - House appoints conferees"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "House grants request for conf comm-reported",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - House grants request for conf comm-reported"
+      },
+      {
+        "date": "2026-09-10",
+        "title": "Lariat summary refreshed",
+        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
+      }
+    ],
+    "impact_scores": {
+      "direct_compliance_requirement": 2,
+      "financial_cost": 1,
+      "operational_change": 2,
+      "industry_breadth": 1,
+      "enforcement_risk": 1,
+      "effective_date_urgency": 1,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill directly imposes training, licensing, drill, and reporting duties on emergency-management officials and related public officers, creating strong operational and compliance impacts. It also references a small-business disaster recovery program and fee authorization, suggesting possible but not clearly quantified financial effects.",
+    "impact_framework": "v2-7-factor"
+  },
+  {
+    "title": "The use by a political subdivision of public funds for lobbying…",
+    "affects": "ATTORNEY'S FEES (S0202), Charitable & Nonprofit Organizations (I0055), County Government--Finance (I0097)",
+    "changes": "See the official text for changes proposed by HB 96.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 96 is listed in Texas legislative metadata with the title Relating to the use. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/5ed3329b-b4ee-4001-be96-c93bf6a42bd7",
+    "identifier": "HB 96",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-18",
+    "latest_action_description": "Referred to State Affairs",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB96",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, financial cost as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Referred to State Affairs",
+        "description": "Referral Committee - Referred to State Affairs"
+      }
+    ]
+  },
+  {
+    "title": "A vacancy in the office of senator or representative due to…",
+    "affects": "HOUSE OF REPRESENTATIVES (V0096), Legislature (I0520), SENATE, TEXAS (V0227)",
+    "changes": "See the official text for changes proposed by SB 48.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 48 is a Texas legislative record titled Relating to a. Available metadata lists HOUSE OF REPRESENTATIVES (V0096) Legislature and records this action: Filed on 2025-08-21. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/ce7b71cf-1a0e-4ef3-aa5d-6c4f415b0052",
+    "identifier": "SB 48",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-21",
+    "latest_action_date": "2025-08-21",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB48",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-21",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-21",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Texas Women's Privacy Act",
+    "affects": "ATTORNEY GENERAL (V2811), ATTORNEY'S FEES (S0202), BIRTH & DEATH CERTIFICATES (S6418)",
+    "changes": "See the official text for changes proposed by HB 214.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Government entities that own, operate, or control buildings should review their space designation policies to ensure each multiple‑occupancy private space is assigned to a single sex and that procedures are in place to prevent entry by individuals of the opposite sex except as permitted. They must monitor compliance notices from the attorney general, provide requested documentation promptly, and cure any identified violations within fifteen days to avoid civil penalties. Individuals who believe they have been affected may file a written notice with the political subdivision or state agency and, if not cured within three business days, submit a complaint to the attorney general accompanied by the notice and a sworn statement. All parties should be aware that the act applies only to causes of action accruing on or after its effective date, and that fee‑shifting provisions may impose liability for attorney fees if they bring or defend actions under the law.",
+    "summary": "House Bill 214, known as the Texas Women's Privacy Act, establishes a civil penalty framework and a private right of action for violations of designations of certain spaces and facilities according to biological sex. The law requires political subdivisions and state agencies to designate multiple‑occupancy private spaces for use by a single sex, prohibit entry by individuals of the opposite sex except for specified exceptions, and to cure any non‑compliance within fifteen days of notice from the attorney general. Civil penalties of $5,000 for a first violation and $25,000 for subsequent violations apply per day of continuing violation, and the attorney general may also seek injunctive relief and recover attorney fees under a fee‑shifting provision. The act takes effect on the 91st day after the final day of the legislative session.",
+    "id": "ocd-bill/3ea3d205-0fbc-45da-a992-74a466a5cd3e",
+    "identifier": "HB 214",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-18",
+    "latest_action_date": "2025-08-20",
+    "latest_action_description": "Referred to State Affairs",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB214",
+    "impact_scores": {
+      "direct_compliance_requirement": 1,
+      "financial_cost": 2,
+      "operational_change": 2,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 1,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "The bill imposes civil penalties and a private right of action, creating direct financial liability and major operational requirements for government entities, with broad industry coverage and high enforcement risk. These factors combine to make the legislation high‑impact for the entities subject to its compliance duties.",
+    "impact_framework": "v2-7-factor",
+    "bill_history": [
+      {
+        "date": "2025-08-18",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Referred to State Affairs",
+        "description": "Referral Committee - Referred to State Affairs"
+      }
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00214I.htm",
+    "bill_text_hash": "52dd26ccceff00d57336a543226932ca3bc875586b934a06e9f6cdd835a2eccb",
+    "summary_word_count": 136,
+    "summary_source": "official bill text"
+  },
+  {
+    "title": "The provision by a political subdivision of credits against…",
+    "affects": "City Government--General (I0060), County Government--General (I0096), Environment--Water (I0320)",
+    "changes": "See the official text for changes proposed by SB 14.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Enacted",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 14 is listed in Texas legislative metadata with the title Relating to the provision. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/c5dc6275-be04-41ac-92da-bd727dacaa00",
+    "identifier": "SB 14",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-09-17",
+    "latest_action_description": "Effective on 1/1/26",
+    "latest_passage_date": "2025-08-28",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB14",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, financial cost as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Passed",
+        "description": "Passage - Passed"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Record vote"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Statement(s) of vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Statement(s) of vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Reason for vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Reason for vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "House passage reported",
+        "description": "Passage - House passage reported"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Reported enrolled",
+        "description": "Enrolled - Reported enrolled"
+      },
+      {
+        "date": "2025-08-27",
+        "title": "Signed in the Senate",
+        "description": "Passage - Signed in the Senate"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Signed in the House",
+        "description": "Passage - Signed in the House"
+      },
+      {
+        "date": "2025-08-28",
+        "title": "Sent to the Governor",
+        "description": "Executive Receipt - Sent to the Governor"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "Signed by the Governor",
+        "description": "Executive Signature - Signed by the Governor"
+      },
+      {
+        "date": "2025-09-17",
+        "title": "Effective on 1/1/26",
+        "description": "Became Law - Effective on 1/1/26"
+      }
+    ]
+  },
+  {
+    "title": "The regulation of certain products derived from hemp, including…",
+    "affects": "Business & Commerce--Trade Practices (I0006), COMMUNITY SERVICE (S2345), Courts--General (I0160)",
+    "changes": "See the official text for changes proposed by SB 6.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Passed",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 6 is listed in Texas legislative metadata with the title Relating to the regulation. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/d44893a1-337f-4643-af08-11d00c5928b8",
+    "identifier": "SB 6",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-20",
+    "latest_action_description": "Referred to Public Health",
+    "latest_passage_date": "2025-08-19",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB6",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Read 2nd time & passed to engrossment",
+        "description": "Reading 2 - Read 2nd time & passed to engrossment"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-08-19",
+        "title": "Laid before the Senate",
+        "description": "Receipt - Laid before the Senate"
+      },
+      {
+        "date": "2025-08-19",
+        "title": "Read 3rd time",
+        "description": "Reading 3 - Read 3rd time"
+      },
+      {
+        "date": "2025-08-19",
+        "title": "Passed",
+        "description": "Passage - Passed"
+      },
+      {
+        "date": "2025-08-19",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-08-19",
+        "title": "Reason for vote recorded in Journal",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Reason for vote recorded in Journal"
+      },
+      {
+        "date": "2025-08-19",
+        "title": "Reported engrossed",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Reported engrossed"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Received from the Senate",
+        "description": "Introduction - Received from the Senate"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Referred to Public Health",
+        "description": "Referral Committee - Referred to Public Health"
+      }
+    ]
+  },
+  {
+    "title": "The operation and administration of and practices and…",
+    "affects": "ARREST WARRANTS (S0245), ATASCOSA COUNTY (G0358), BASTROP COUNTY (G0125)",
+    "changes": "See the official text for changes proposed by SB 17.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 17 is a Texas legislative record titled Relating to. Available metadata lists ARREST WARRANTS (S0245) ATASCOSA COUNTY and records this action: Co-author authorized on 2025-08-26. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/f1f96da2-5375-4db3-92cd-a172e48b43e3",
+    "identifier": "SB 17",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-26",
+    "latest_action_description": "Co-author authorized",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB17",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 1,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Referred to State Affairs",
+        "description": "Referral Committee - Referred to State Affairs"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Posting rule suspended",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Posting rule suspended"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Record vote",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Scheduled for public hearing on . . ",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Scheduled for public hearing on . ."
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Considered in public hearing",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Considered in public hearing"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Vote taken in committee",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Vote taken in committee"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Reported favorably w/o amendments",
+        "description": "Committee Passage Favorable - Reported favorably w/o amendments"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Committee report printed and distributed",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Committee report printed and distributed"
+      },
+      {
+        "date": "2025-08-18",
+        "title": "Co-author authorized",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Co-author authorized"
+      },
+      {
+        "date": "2025-08-22",
+        "title": "Co-author authorized",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Co-author authorized"
+      },
+      {
+        "date": "2025-08-26",
+        "title": "Co-author authorized",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Co-author authorized"
+      }
+    ]
+  },
+  {
+    "title": "The repeal of or limitations on certain state and local taxes…",
+    "affects": "COMPTROLLER OF PUBLIC ACCOUNTS (V2608), EDUCATION, COMMISSIONER OF (V9954), Education--Primary & Secondary--Finance (I0250)",
+    "changes": "See the official text for changes proposed by HB 92.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 92 is listed in Texas legislative metadata with the title Relating to the repeal. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/9499c753-3d3a-472a-ac62-8aaf63a7856c",
+    "identifier": "HB 92",
+    "session": "892",
+    "session_label": "89th Legislature, 2nd Called Session (2025)",
+    "origin_date": "2025-08-15",
+    "latest_action_date": "2025-08-20",
+    "latest_action_description": "Referred to Ways & Means",
+    "latest_passage_date": "",
+    "updated_at": "2026-10-29",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB92",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 2
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate business model impact, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2025-08-15",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Read first time",
+        "description": "Introduction - Read first time"
+      },
+      {
+        "date": "2025-08-20",
+        "title": "Referred to Ways & Means",
+        "description": "Referral Committee - Referred to Ways & Means"
+      }
+    ]
+  },
+  {
     "title": "Election Procedures for Voter Acceptance",
     "affects": "Elections--Administration (I0277), Elections--General (I0310), Elections--Registration & Suffrage (I0265)",
     "changes": "See the official text for changes proposed by HB 295.",
@@ -1209,348 +2936,6 @@
       "business_model_impact": 0
     },
     "impact_rationale": "The bill directly requires taxing units to calculate no-new-revenue and voter-approval tax rates under revised formulas, creating a clear operational change and broad impact across multiple taxing-unit categories. It also sets a January 1, 2026 effective date for ad valorem tax years, indicating moderate timing relevance without imposing new enforcement penalties or a specific private business-model change.",
-    "impact_framework": "v2-7-factor"
-  },
-  {
-    "title": "Texas Women's Privacy Act",
-    "affects": "Women, women's shelters",
-    "changes": "Authorizes a civil penalty and a private civil right of action for violations of the Texas Women's Privacy Act.",
-    "business_impact": "Businesses may need to update policies and procedures to comply with the new law.",
-    "impact_level": "High",
-    "industry": "N/A",
-    "specific_industry": "N/A",
-    "status": "Enacted",
-    "suggested_action": "Organizations responsible for public facilities, shelters, or other spaces covered by the Texas Women's Privacy Act should review the enacted requirements, exceptions, civil penalties, and private right of action described in the official text. Compliance teams should identify which facilities and policies are affected, confirm how access rules must be communicated, and document procedures for situations involving custody, maintenance, medical emergencies, accompaniment, law enforcement, safety threats, or young children. They should also confirm the effective date and determine whether employee training, signage, complaint handling, or recordkeeping needs to be updated. Because violations may create financial and litigation exposure, affected entities should verify the final statutory language and implementation guidance rather than relying solely on this summary. Businesses should coordinate any operational response with qualified counsel and monitor official Texas agency or legislative updates for later interpretations, amendments, or enforcement information.",
-    "summary": "SB 8, titled the Texas Women's Privacy Act, amends Chapter 3002 of the Texas Government Code to regulate the designation and use of certain spaces and facilities according to sex. It requires political subdivisions and state agencies to designate multiple-occupancy private spaces for use exclusively by individuals of one sex and prohibits opposite-sex individuals from using them without specific exceptions (custody, maintenance, medical emergencies, accompaniment, law enforcement, safety threats, and children under 9). The Act authorizes civil penalties of $5,000 for first violations and $25,000 for subsequent violations, and creates a private civil cause of action allowing affected parties to seek declaratory and injunctive relief plus attorney's fees. The Attorney General can investigate complaints and collect penalties. The bill takes effect 91 days after the legislative session ends (2025-09-22).",
-    "id": "ocd-bill/628f4192-e8db-4802-9e01-1a672027f9e0",
-    "identifier": "SB 8",
-    "session": "892",
-    "origin_date": "2025-08-15",
-    "updated_at": "2026-09-02",
-    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB8",
-    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00008E.htm",
-    "bill_text_hash": "90a912baa7388c62c5c7b50aff094cdcf9d65e0eba9cef491267089007b4a5f3",
-    "summary_word_count": 131,
-    "summary_source": "official bill text",
-    "session_label": "89th Legislature, 2nd Called Session (2025)",
-    "latest_action_date": "2025-09-22",
-    "latest_action_description": "Effective on . . . . . . . . . . . . . . .",
-    "latest_passage_date": "2025-09-03",
-    "bill_history": [
-      {
-        "date": "2025-08-15",
-        "title": "First filed - bill comes to fruition",
-        "description": "SB 8 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
-      },
-      {
-        "date": "2025-08-15",
-        "title": "Received by the Secretary of the Senate",
-        "description": "Filing - Received by the Secretary of the Senate"
-      },
-      {
-        "date": "2025-09-03",
-        "title": "Chamber passage recorded",
-        "description": "A chamber recorded passage of SB 8 on 2025-09-03. No enactment is implied beyond the recorded passage."
-      },
-      {
-        "date": "2025-09-03",
-        "title": "House amendment(s) laid before the Senate",
-        "description": "Receipt - House amendment(s) laid before the Senate"
-      },
-      {
-        "date": "2025-09-03",
-        "title": "Read",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
-      },
-      {
-        "date": "2025-09-03",
-        "title": "Senate concurs in House amendment(s)",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate concurs in House amendment(s)"
-      },
-      {
-        "date": "2025-09-03",
-        "title": "Record vote",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
-      },
-      {
-        "date": "2025-09-03",
-        "title": "Senate concurs in House amendment(s)-reported",
-        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate concurs in House amendment(s)-reported"
-      },
-      {
-        "date": "2025-09-03",
-        "title": "Reported enrolled",
-        "description": "Enrolled - Reported enrolled"
-      },
-      {
-        "date": "2025-09-03",
-        "title": "Signed in the Senate",
-        "description": "Passage - Signed in the Senate"
-      },
-      {
-        "date": "2025-09-03",
-        "title": "Signed in the House",
-        "description": "Passage - Signed in the House"
-      },
-      {
-        "date": "2025-09-04",
-        "title": "Sent to the Governor",
-        "description": "Executive Receipt - Sent to the Governor"
-      },
-      {
-        "date": "2025-09-22",
-        "title": "Effective on . . . . . . . . . . . . . .",
-        "description": "Became Law - Effective on . . . . . . . . . . . . . ."
-      },
-      {
-        "date": "2025-09-22",
-        "title": "Signed by the Governor",
-        "description": "Executive Signature - Signed by the Governor"
-      },
-      {
-        "date": "2025-09-22",
-        "title": "Effective on . . . . . . . . . . . . . . ",
-        "description": "Became Law - Effective on . . . . . . . . . . . . . ."
-      }
-    ],
-    "impact_scores": {
-      "direct_compliance_requirement": 2,
-      "financial_cost": 2,
-      "operational_change": 2,
-      "industry_breadth": 2,
-      "enforcement_risk": 2,
-      "effective_date_urgency": 1,
-      "business_model_impact": 0
-    },
-    "impact_rationale": "The bill creates direct compliance mandates, imposes significant financial penalties, and requires broad operational adjustments across multiple public sectors.",
-    "impact_framework": "v2-7-factor"
-  },
-  {
-    "title": "Disaster Response and Recovery Licensing",
-    "affects": "disaster response and recovery professionals and businesses",
-    "changes": "requires a license for disaster response and recovery activities and authorizes fees",
-    "business_impact": "may need to obtain a license to operate in disaster response and recovery",
-    "impact_level": "Moderate",
-    "industry": "Government & Municipal Operations",
-    "specific_industry": "Disaster Preparedness & Relief",
-    "status": "Passed",
-    "suggested_action": "Stakeholders should carefully review the bill's implementation timeline, noting that Section 418.455 takes effect January 1, 2027, while the overall act becomes effective 91 days after the legislative session concludes. The Texas Commission on Fire Protection must verify its capacity to conduct criminal history checks under Subsection 418.459 and ensure compliance with the expanded autopsy certification requirements in Subsections (e-1) and (c-1). The Texas Division of Emergency Management needs to adopt the post-disaster after-action report form mandated by Section 29 and fully implement the statewide volunteer management system outlined in Section 418.482-484. Additionally, the small-business disaster recovery program under Section 481.452 should be monitored for compliance with loan eligibility criteria, including the minimum 50% allocation requirement for micro-business loans and interest rate caps. Organizations involved in mass fatality operations should prepare for the creation of a centralized fatality tracking system by December 1, 2026, as required by Section 675.005. Finally, all affected agencies should review their internal procedures to accommodate the new emergency management director designations and annual drill requirements before the January 2027 effective date.",
-    "summary": "SB 2 amends Texas law to strengthen disaster preparedness, response, and recovery across multiple domains. The bill expands the circumstances under which justices of the peace may certify autopsies unnecessary for deaths resulting from natural disasters, requiring clear and convincing evidence of natural causes and absence of unlawful acts. It mandates a training program for justices of the peace on mass fatality event management, covering decision-making protocols, body identification standards, and best practices for missing persons coordination and relative notification. The legislation introduces new licensing requirements for emergency managers, limiting their tenure without a valid license to six months, and establishes a statewide volunteer management system for disaster response. It also creates a small-business disaster recovery program funded through a dedicated account, sets requirements for post-disaster after-action reporting within 60 days, and addresses criminal history record access for license holders and volunteers. Additional provisions cover emergency management director designations during disasters, annual emergency management plan drills, and restrictions on unmanned aircraft in disaster zones.",
-    "id": "ocd-bill/e3b77cbc-8961-47c5-9c6c-7bc8ba526073",
-    "identifier": "SB 2",
-    "session": "892",
-    "origin_date": "2025-08-15",
-    "updated_at": "2026-09-10",
-    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB2",
-    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00002E.htm",
-    "bill_text_hash": "3731fbbb86b9948386d7640c2dfffbddffe4337743008eaa646bc157ac41e6e9",
-    "summary_word_count": 164,
-    "summary_source": "official bill text",
-    "session_label": "89th Legislature, 2nd Called Session (2025)",
-    "latest_action_date": "2025-08-27",
-    "latest_action_description": "House appoints conferees-reported",
-    "latest_passage_date": "2025-08-21",
-    "bill_history": [
-      {
-        "date": "2025-08-15",
-        "title": "First filed - bill comes to fruition",
-        "description": "SB 2 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
-      },
-      {
-        "date": "2025-08-15",
-        "title": "Received by the Secretary of the Senate",
-        "description": "Filing - Received by the Secretary of the Senate"
-      },
-      {
-        "date": "2025-08-21",
-        "title": "Chamber passage recorded",
-        "description": "A chamber recorded passage of SB 2 on 2025-08-21. No enactment is implied beyond the recorded passage."
-      },
-      {
-        "date": "2025-08-26",
-        "title": "Read",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
-      },
-      {
-        "date": "2025-08-26",
-        "title": "Senate refuses to concur",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate refuses to concur"
-      },
-      {
-        "date": "2025-08-26",
-        "title": "Senate requests conference committee",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate requests conference committee"
-      },
-      {
-        "date": "2025-08-26",
-        "title": "Senate appoints conferees",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate appoints conferees"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "House appoints conferees-reported",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - House appoints conferees-reported"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "Senate refuses to concur-reported",
-        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate refuses to concur-reported"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "Senate requests conference committee-reported",
-        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate requests conference committee-reported"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "Senate appoints conferees-reported",
-        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate appoints conferees-reported"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "House grants request for conference committee",
-        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - House grants request for conference committee"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "House appoints conferees",
-        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - House appoints conferees"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "House grants request for conf comm-reported",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - House grants request for conf comm-reported"
-      },
-      {
-        "date": "2026-09-10",
-        "title": "Lariat summary refreshed",
-        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
-      }
-    ],
-    "impact_scores": {
-      "direct_compliance_requirement": 2,
-      "financial_cost": 1,
-      "operational_change": 2,
-      "industry_breadth": 1,
-      "enforcement_risk": 1,
-      "effective_date_urgency": 1,
-      "business_model_impact": 0
-    },
-    "impact_rationale": "The bill directly imposes training, licensing, drill, and reporting duties on emergency-management officials and related public officers, creating strong operational and compliance impacts. It also references a small-business disaster recovery program and fee authorization, suggesting possible but not clearly quantified financial effects.",
-    "impact_framework": "v2-7-factor"
-  },
-  {
-    "title": "Real Property Theft and Fraud Laws",
-    "affects": "Real estate professionals, property owners, law enforcement",
-    "changes": "Creates new offenses and procedures for real property theft and fraud, requires recording of certain documents, and establishes restitution procedures.",
-    "business_impact": "Businesses in the real estate industry may need to adapt to new recording requirements and procedures for handling real property transactions.",
-    "impact_level": "High",
-    "industry": "Real Estate & Land Use",
-    "specific_industry": "Real Property Transactions",
-    "status": "Enacted",
-    "suggested_action": "Real estate businesses, title companies, lenders, property owners, county clerks, and related professionals should review the bill's new offenses, document-filing requirements, identification rules, restitution provisions, and procedures for handling alleged real property theft or fraud. Operations and compliance teams should identify which transaction workflows could require additional identity checks, county-recording steps, fraud controls, or coordination with law enforcement and insurers. They should confirm the separate effective dates for offenses and other provisions, including the provisions beginning September 1, 2025, and January 1, 2026, before changing live procedures. Staff should monitor the official Texas Legislature record for amendments, final status, and implementation guidance, then compare the enacted text with existing policies and contracts. Any response involving criminal exposure, filing requirements, or restitution should be reviewed with qualified Texas legal counsel before action is taken.",
-    "summary": "SB 16 amends Texas law to establish new criminal offenses of real property theft and real property fraud, creates graduated felony classifications based on property value thresholds, requires restitution for offenders, mandates photo identification for filing certain real property documents, and sets specific procedures for recording and handling such cases. The bill applies to offenses committed on or after September 1, 2025, with additional provisions taking effect January 1, 2026. It affects real property owners, lenders, title companies, and county clerks involved in recording transactions. Key requirements include filing judgments with county clerks within 10 days, providing restitution to property owners or insurers, and submitting photo IDs for document filings. The legislation does not appear to include specific funding mechanisms beyond standard judicial processes.",
-    "id": "ocd-bill/c18980e2-ef6c-4279-b06e-e6bf6302f8eb",
-    "identifier": "SB 16",
-    "session": "892",
-    "origin_date": "2025-08-15",
-    "updated_at": "2026-09-02",
-    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB16",
-    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00016E.htm",
-    "bill_text_hash": "ec343eb274379ce3fc4df73771722fa30aa79b309ed3a4ca14c1bda180eac6d0",
-    "summary_word_count": 124,
-    "summary_source": "official bill text",
-    "session_label": "89th Legislature, 2nd Called Session (2025)",
-    "latest_action_date": "2025-09-17",
-    "latest_action_description": "See remarks for effective date",
-    "latest_passage_date": "2025-08-28",
-    "bill_history": [
-      {
-        "date": "2025-08-15",
-        "title": "First filed - bill comes to fruition",
-        "description": "SB 16 was first introduced on 2025-08-15. This is when the bill came to fruition as an official Texas legislative record."
-      },
-      {
-        "date": "2025-08-15",
-        "title": "Received by the Secretary of the Senate",
-        "description": "Filing - Received by the Secretary of the Senate"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "House amendment(s) laid before the Senate",
-        "description": "Receipt - House amendment(s) laid before the Senate"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "Read",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Read"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "Senate concurs in House amendment(s)",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Senate concurs in House amendment(s)"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "Record vote",
-        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Record vote"
-      },
-      {
-        "date": "2025-08-27",
-        "title": "Reported enrolled",
-        "description": "Enrolled - Reported enrolled"
-      },
-      {
-        "date": "2025-08-28",
-        "title": "Chamber passage recorded",
-        "description": "A chamber recorded passage of SB 16 on 2025-08-28. No enactment is implied beyond the recorded passage."
-      },
-      {
-        "date": "2025-08-28",
-        "title": "Senate concurs in House amendment(s)-reported",
-        "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Senate concurs in House amendment(s)-reported"
-      },
-      {
-        "date": "2025-08-28",
-        "title": "Signed in the Senate",
-        "description": "Passage - Signed in the Senate"
-      },
-      {
-        "date": "2025-08-28",
-        "title": "Signed in the House",
-        "description": "Passage - Signed in the House"
-      },
-      {
-        "date": "2025-08-28",
-        "title": "Sent to the Governor",
-        "description": "Executive Receipt - Sent to the Governor"
-      },
-      {
-        "date": "2025-09-17",
-        "title": "See remarks for effective date",
-        "description": "{'id': 'ocd-organization/4c8c2a9c-f33c-476d-bf81-266eb72193f0', 'name': 'Office of the Governor', 'classification': 'executive'} - See remarks for effective date"
-      },
-      {
-        "date": "2025-09-17",
-        "title": "Signed by the Governor",
-        "description": "Executive Signature - Signed by the Governor"
-      },
-      {
-        "date": "2026-09-02",
-        "title": "Lariat summary refreshed",
-        "description": "Lariat refreshed this summary record. Legislative status reflects the official latest action, not this refresh date."
-      }
-    ],
-    "impact_scores": {
-      "direct_compliance_requirement": 2,
-      "financial_cost": 1,
-      "operational_change": 2,
-      "industry_breadth": 2,
-      "enforcement_risk": 1,
-      "effective_date_urgency": 2,
-      "business_model_impact": 1
-    },
-    "impact_rationale": "The bill directly establishes new criminal offenses of real property theft and fraud with graduated felony classifications, mandatory restitution, and specific filing procedures, representing a strong direct compliance requirement. It introduces significant operational changes by adding Chapter 5C to the Code of Criminal Procedure with new procedural mandates for judges and county clerks. The legislation broadly impacts real property owners, lenders, title companies, and county clerks, demonstrating wide industry breadth. While restitution creates financial costs for defendants, the bill notes no specific funding mechanisms beyond standard judicial processes. Implementation begins September 1, 2025 with additional provisions effective January 1, 2026, indicating moderate effective date urgency. The changes affect title companies and insurers through restitution requirements, though the overall business model impact is relatively limited.",
     "impact_framework": "v2-7-factor"
   },
   {
