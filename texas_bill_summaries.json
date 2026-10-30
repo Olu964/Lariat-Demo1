@@ -91,6 +91,11 @@
       },
       {
         "date": "2025-09-17",
+        "title": "Effective on . . . . . . . . . . . . . .",
+        "description": "Became Law - Effective on . . . . . . . . . . . . . ."
+      },
+      {
+        "date": "2025-09-17",
         "title": "Effective on . . . . . . . . . . . . . . ",
         "description": "Became Law - Effective on . . . . . . . . . . . . . ."
       }
@@ -240,16 +245,16 @@
     ]
   },
   {
-    "title": "The operation and administration of and practices and…",
+    "title": "Judicial Branch Reform Act",
     "affects": "ATASCOSA COUNTY (G0358), BORDER (S0045), BOWIE COUNTY (GZ9IZ)",
     "changes": "See the official text for changes proposed by HB 16.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
-    "impact_level": "Moderate",
+    "impact_level": "High",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Affected organizations and individuals should review the specific effective dates and jurisdictional changes applicable to their county or court type, as implementation occurs in phases from December 2025 through September 2028. Court administrators, clerks, judges, and county commissioners should verify new court creations, jurisdictional transfers, and docketing requirements in their respective jurisdictions, particularly in Brazoria, Colorado, Ellis, Fort Bend, Gonzales, Guadalupe, Hidalgo, Harris, Lavaca, Montgomery, Rockwall, Sabine, Williamson, and Wichita counties. Entities should confirm salary adjustment calculations under the revised statutory county court judge compensation formulas and update local rules accordingly. Court security committees must develop emergency management plans as required by Article 3. The Department of Public Safety should prepare for the November 1, 2026 reporting deadline on driver's license address confidentiality procedures. Legal practitioners should monitor case filing deadlines to ensure proper venue under the new jurisdictional boundaries, noting that pending cases generally remain governed by prior law.",
     "status": "Enacted",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 16 is listed in Texas legislative metadata with the title Relating to the operation. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 16 is a comprehensive judicial branch reform act that amends the Government Code to reorganize district courts, statutory county courts, municipal courts, and related administrative procedures across multiple Texas counties. The bill creates numerous new judicial districts and courts, including the 490th, 492nd, 501st, 502nd, 503rd, 504th, 511th, 512th, 513th, 514th, 515th, 516th, 517th, 523rd, and 273rd judicial districts, with varying effective dates ranging from December 1, 2025, to September 1, 2028. It modifies jurisdictional boundaries, establishes court preferences for civil, criminal, and family law matters, adjusts salary structures for statutory county court judges, and expands concurrent jurisdiction for county courts at law in several counties. The bill also increases criminal penalties for offenses against court employees and judges, authorizes certain fees, and requires the Department of Public Safety to review driver's license address confidentiality procedures by November 1, 2026. Provisions generally apply prospectively to cases filed after each section's effective date.",
     "id": "ocd-bill/45c345a1-4de3-4e29-bf43-0654c2abe6fd",
     "identifier": "HB 16",
     "session": "892",
@@ -258,21 +263,19 @@
     "latest_action_date": "2025-09-17",
     "latest_action_description": "See remarks for effective date",
     "latest_passage_date": "2025-08-28",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-10-30",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB16",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 1,
+      "direct_compliance_requirement": 2,
+      "financial_cost": 2,
       "operational_change": 1,
       "industry_breadth": 2,
       "enforcement_risk": 2,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
+      "effective_date_urgency": 2,
+      "business_model_impact": 1
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill imposes direct compliance requirements on courts, clerks, and county governments through mandatory court creations, jurisdictional changes, and reporting deadlines. Financial costs arise from new court establishments, salary adjustments, and fee authorizations. The enforcement risk is elevated due to increased criminal penalties for offenses against court personnel. Effective date urgency is high given the phased implementation beginning December 2025.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
@@ -329,7 +332,11 @@
         "title": "See remarks for effective date",
         "description": "{'id': 'ocd-organization/4c8c2a9c-f33c-476d-bf81-266eb72193f0', 'name': 'Office of the Governor', 'classification': 'executive'} - See remarks for effective date"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00016E.htm",
+    "bill_text_hash": "f533af3705845c0ca709df3cafa9ecaba580cebf9736dd5c42c12c4bf14ae77c",
+    "summary_word_count": 153,
+    "summary_source": "official bill text"
   },
   {
     "title": "An exemption from the requirement to obtain a permit from the…",
@@ -938,9 +945,9 @@
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Because HB 24 was left pending in committee and has not been enacted, no legal or operational action is required at this time. Groundwater conservation districts, permit applicants, and affected water planning entities should monitor the bill's status during any subsequent legislative consideration, including potential committee referral, floor scheduling, and any amendments that may alter the five percent threshold or the modeled available groundwater methodology. Organizations should confirm the final enacted text, if any, and verify the effective date and the definition of 'executive administrator' determinations referenced in the bill. If enacted, districts would need to review existing and future permit applications against the new five percent cap and coordinate with the executive administrator on modeled available groundwater apportionments. Until enactment, current permitting practices remain unchanged.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 24 is listed in Texas legislative metadata with the title Relating to the consideration. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 24 amends Section 36.1132 of the Water Code by adding Subsection (d), which prohibits a groundwater conservation district from issuing a permit to an applicant for the production and transfer out of the district of groundwater if the total amount authorized across all of the district's permits to that applicant would exceed five percent of the total modeled available groundwater apportioned to the district as determined by the executive administrator. Section 2 makes the new subsection applicable only to permits issued on or after the Act's effective date. Section 3 sets the effective date as the 91st day after the last day of the legislative session. The bill was left pending in committee on August 21, 2025, and therefore has not been enacted.",
     "id": "ocd-bill/c17d5540-9feb-4d00-bfc9-5fa208438b3f",
     "identifier": "HB 24",
     "session": "892",
@@ -949,21 +956,19 @@
     "latest_action_date": "2025-08-21",
     "latest_action_description": "Left pending in committee",
     "latest_passage_date": "",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-10-30",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB24",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
+      "direct_compliance_requirement": 1,
       "financial_cost": 0,
-      "operational_change": 0,
+      "operational_change": 1,
       "industry_breadth": 2,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
+      "effective_date_urgency": 1,
+      "business_model_impact": 1
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The strongest factors are industry_breadth (2) because the five percent cap on groundwater export permits affects multiple groundwater-dependent industries statewide, and operational_change (1) and effective_date_urgency (1) because districts would need to adjust permitting workflows and the Act takes effect 91 days after session end. The bill was left pending in committee and has not been enacted, so direct compliance obligations and enforcement risk remain absent.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
@@ -1000,7 +1005,11 @@
         "title": "Left pending in committee",
         "description": "{'id': 'ocd-organization/d6189dbb-417e-429e-ae4b-2ee6747eddc0', 'name': 'House', 'classification': 'lower'} - Left pending in committee"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00024I.htm",
+    "bill_text_hash": "08f5cf932e7ebcc9187be9fe62ed126adb090f69fff2dcf98037e79fa2833690",
+    "summary_word_count": 125,
+    "summary_source": "official bill text"
   },
   {
     "title": "Texas Women's Privacy Act",
@@ -1634,7 +1643,7 @@
       },
       {
         "date": "2025-08-15",
-        "title": "Scheduled for public hearing on . . ",
+        "title": "Scheduled for public hearing on . .",
         "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Scheduled for public hearing on . ."
       },
       {
@@ -1656,6 +1665,11 @@
         "date": "2025-08-15",
         "title": "Committee report printed and distributed",
         "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Committee report printed and distributed"
+      },
+      {
+        "date": "2025-08-15",
+        "title": "Scheduled for public hearing on . . ",
+        "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Scheduled for public hearing on . ."
       },
       {
         "date": "2025-08-18",
