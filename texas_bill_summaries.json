@@ -198,16 +198,16 @@
     ]
   },
   {
-    "title": "A groundwater study of certain aquifers underlying the…",
+    "title": "Neches Trinity Aquifer Study",
     "affects": "Interim Studies (I0448), NECHES & TRINITY VALLEYS GROUNDWATER CONSERVATION DISTRICT (DB1J6), PERMITS (S0011)",
     "changes": "See the official text for changes proposed by SB 55.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "The Texas Water Development Board should initiate the required study promptly, allocating staff and data resources to meet the January 12, 2027 reporting deadline. The Neches and Trinity Valleys Groundwater Conservation District must suspend processing of any new permit or permit amendment applications for production and export of groundwater and establish a tracking system to ensure no permits are issued before the 270‑day post‑report waiting period ends. Applicants and water users should monitor the study’s progress and the district’s public notices to anticipate the moratorium’s conclusion. Legislative committees and the governor’s office should schedule review of the report upon receipt to evaluate any further policy adjustments. All parties should verify that internal procedures reflect the November 1, 2027 expiration date to avoid inadvertent non‑compliance.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "SB 55 is a Texas legislative record titled Relating to a groundwater. Available metadata lists Interim Studies (I0448) NECHES & and records this action: Filed on 2025-08-21. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "summary": "SB 55 directs the Texas Water Development Board to study the aquifers beneath the Neches and Trinity Valleys Groundwater Conservation District, analyzing perpetual groundwater production potential, comparing it to modeled available groundwater as of September 1, 2025, and assessing hydrological effects of proposed production and transfers. The Board must submit its findings to the governor, lieutenant governor, speaker of the house, and relevant legislative committees by January 12, 2027. Until 270 days after that deadline, the district is prohibited from issuing new permits or permit amendments for groundwater production and transfer out of the district. The provision expires on November 1, 2027, and the Act takes effect immediately if passed by a two‑thirds vote, otherwise on the 91st day after the legislative session ends.",
     "id": "ocd-bill/33272916-d90f-4cba-975b-ddc7e05045d0",
     "identifier": "SB 55",
     "session": "892",
@@ -216,21 +216,19 @@
     "latest_action_date": "2025-08-21",
     "latest_action_description": "Filed",
     "latest_passage_date": "",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-11-02",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB55",
-    "summary_word_count": 40,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
+      "direct_compliance_requirement": 1,
       "financial_cost": 0,
-      "operational_change": 0,
+      "operational_change": 1,
       "industry_breadth": 2,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
+      "effective_date_urgency": 1,
       "business_model_impact": 1
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, business model impact as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill imposes a mandatory permit moratorium on a specific groundwater district and requires a state agency study, creating a direct compliance duty for government entities and a moderate operational shift for permit applicants. The January 2027 report deadline and subsequent 270‑day wait period drive the primary urgency and industry breadth impacts.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-21",
@@ -242,7 +240,11 @@
         "title": "Filed",
         "description": "Filing - Filed"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00055I.htm",
+    "bill_text_hash": "978210fa512e4f4f0f2e7199f5a8ef13b76361338f51d7331280f46424edbba4",
+    "summary_word_count": 125,
+    "summary_source": "official bill text"
   },
   {
     "title": "Judicial Branch Reform Act",
