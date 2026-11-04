@@ -393,16 +393,16 @@
     ]
   },
   {
-    "title": "A vacancy in the office of senator or representative due to…",
+    "title": "Legislative Vacancy Due to Absence",
     "affects": "HOUSE OF REPRESENTATIVES (V0096), Legislature (I0520), SENATE, TEXAS (V0227)",
     "changes": "See the official text for changes proposed by HB 141.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "The Texas Legislature should monitor the progress of HB 141 closely, as the bill requires a two-thirds vote in both houses to take effect immediately. If the vote passes, the vacancy provision would become effective without delay, creating a new statutory mechanism for handling legislative absences. The House should prepare for potential immediate enactment and ensure the legislative process is ready to implement Section 301.074. No specific actions are required from private entities or businesses, as the bill applies only to legislative members. The bill's impact is primarily on government operations, with no financial burden or operational changes for commercial activities. The legislature should verify the vote outcome and confirm the effective date based on whether the two-thirds threshold is met.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 141 is a Texas legislative record titled Relating to a. Available metadata lists HOUSE OF REPRESENTATIVES (V0096) Legislature and records this action: Filed on 2025-08-15. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "summary": "HB 141 amends the Texas Government Code to create a new Section 301.074 addressing vacancies in legislative offices due to excessive absence. The bill states that a legislator who is absent from all proceedings for seven consecutive days without granted leave vacates their office. The provision applies to absences occurring on or after the effective date, which is triggered by a two-thirds vote in both houses or takes effect 91 days after the legislative session if not immediately passed. This legislation primarily affects state legislative operations rather than private businesses, with no direct compliance obligations, financial costs, or operational changes for commercial entities. The effective date carries significant urgency depending on legislative vote, making it a high-priority item for the Texas Legislature to monitor.",
     "id": "ocd-bill/5ef401b7-782d-4e0e-91db-2755695eaf28",
     "identifier": "HB 141",
     "session": "892",
@@ -411,28 +411,30 @@
     "latest_action_date": "2025-08-15",
     "latest_action_description": "Filed",
     "latest_passage_date": "",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-11-04",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB141",
-    "summary_word_count": 40,
-    "summary_source": "metadata",
     "impact_scores": {
       "direct_compliance_requirement": 0,
       "financial_cost": 0,
       "operational_change": 0,
       "industry_breadth": 2,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
+      "effective_date_urgency": 2,
       "business_model_impact": 0
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill introduces a new statutory provision that creates a vacancy mechanism for legislators with excessive absences, primarily affecting state legislative operations across the government sector. The effective date is urgent, with immediate effect possible if the two-thirds vote threshold is met, or 91 days after the session otherwise. There is no direct compliance requirement on private businesses, no financial costs, and minimal operational changes for commercial entities. The enforcement risk is low as it is a statutory provision without private right of action. These factors together indicate moderate overall impact, driven by the industry breadth and effective date urgency.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
         "title": "Filed",
         "description": "Filing - Filed"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00141I.htm",
+    "bill_text_hash": "1f9df842d0ea78378a96cc7f33c9f5ff236e5165ad46e10ec73304b3392effeb",
+    "summary_word_count": 125,
+    "summary_source": "official bill text"
   },
   {
     "title": "Schedule IV Controlled Substances",
