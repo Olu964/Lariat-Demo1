@@ -341,16 +341,16 @@
     "summary_source": "official bill text"
   },
   {
-    "title": "An exemption from the requirement to obtain a permit from the…",
+    "title": "Local Sponsor Dam Permit Exemption",
     "affects": "ENVIRONMENTAL QUALITY, TEXAS COMMISSION ON (V0334), FLOODS (S0327), PERMITS (S0011)",
     "changes": "See the official text for changes proposed by HB 231.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Affected organizations-specifically Texas special districts and authorities (e.g., watershed protection districts, flood control districts) that operate dams or reservoirs for erosion, floodwater, and sediment control-should review their USDA NRCS agreements to confirm they qualify as 'qualified local sponsors' under Section 52(b)(1) or (2), Article III, or Section 59, Article XVI, Texas Constitution. Organizations should verify that any dam or reservoir they own or control has normal storage of no more than 200 acre-feet and is operated for the stated purposes. They should also confirm that existing NRCS agreements remain in place and that ownership or control of the dam or reservoir continues. Affected entities should monitor TCEQ's rulemaking process, which must be completed by April 1, 2026, to understand final implementation requirements.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 231 is listed in Texas legislative metadata with the title Relating to an exemption. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 231 creates a permit exemption for qualified local sponsors operating dams or reservoirs under a USDA Natural Resources Conservation Service agreement for erosion, floodwater, and sediment control. The exemption covers construction and maintenance of dams with normal storage not exceeding 200 acre-feet, and water diversion for repair and maintenance. The exemption terminates if the sponsor no longer owns or controls the dam/reservoir. TCEQ must adopt implementing rules by April 1, 2026.",
     "id": "ocd-bill/263feebe-9658-43de-8d00-582e9b573cb7",
     "identifier": "HB 231",
     "session": "892",
@@ -359,21 +359,19 @@
     "latest_action_date": "2025-08-20",
     "latest_action_description": "Referred to Disaster Preparedness & Flooding",
     "latest_passage_date": "",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-11-05",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB231",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 0,
+      "direct_compliance_requirement": 1,
+      "financial_cost": 1,
       "operational_change": 0,
       "industry_breadth": 2,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
+      "effective_date_urgency": 2,
       "business_model_impact": 1
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, business model impact as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill directly exempts qualified local sponsors from TCEQ permitting requirements for certain dams and reservoirs, creating a compliance obligation tied to USDA NRCS agreements and constitutional district/authority status. The April 1, 2026 rulemaking deadline creates urgency, and the exemption affects multiple water-related special districts and authorities across Texas.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-18",
@@ -390,7 +388,11 @@
         "title": "Referred to Disaster Preparedness & Flooding",
         "description": "Referral Committee - Referred to Disaster Preparedness & Flooding"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00231I.htm",
+    "bill_text_hash": "08162f8d8e357fd4391c16b0033745080a7d2214885d9968a90ed3717ef1f71c",
+    "summary_word_count": 73,
+    "summary_source": "official bill text"
   },
   {
     "title": "Legislative Vacancy Due to Absence",
@@ -1591,16 +1593,16 @@
     ]
   },
   {
-    "title": "The operation and administration of and practices and…",
+    "title": "Texas Judicial District Reorganization",
     "affects": "ARREST WARRANTS (S0245), ATASCOSA COUNTY (G0358), BASTROP COUNTY (G0125)",
     "changes": "See the official text for changes proposed by SB 17.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
-    "impact_level": "Moderate",
+    "impact_level": "High",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Organizations and individuals involved in Texas judicial administration-including county clerks, district clerks, district attorneys, county commissioners courts, municipal judges, court security committees, and the Office of Court Administration-should review their current district and county court assignments, confirm which counties are affected by new district numbers or new court types, and prepare for changes to filing procedures, jury composition, and concurrent jurisdiction rules effective January 1, 2026, September 1, 2026, October 1, 2026, January 1, 2027, September 1, 2028, and January 1, 2029. County commissioners courts should verify staffing and budget allocations for new county civil courts and statutory probate courts. Municipal judges should review court security committee requirements and emergency management plan obligations. The Department of Public Safety must submit a compliance review report by November 1, 2026.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "SB 17 is a Texas legislative record titled Relating to. Available metadata lists ARREST WARRANTS (S0245) ATASCOSA COUNTY and records this action: Co-author authorized on 2025-08-26. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "summary": "SB 17 reorganizes Texas district court districts and statutory county court jurisdictions, creates new judicial districts in multiple counties (Brazoria, Colorado, Lavaca, Fort Bend, Rockwall, Ellis, Comal, Williamson, Harris), and adds new county civil courts and statutory probate courts. It also expands jury size limits for certain civil cases, modifies concurrent jurisdiction rules, and authorizes fees.",
     "id": "ocd-bill/f1f96da2-5375-4db3-92cd-a172e48b43e3",
     "identifier": "SB 17",
     "session": "892",
@@ -1609,21 +1611,19 @@
     "latest_action_date": "2025-08-26",
     "latest_action_description": "Co-author authorized",
     "latest_passage_date": "",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-11-05",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB17",
-    "summary_word_count": 40,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 1,
+      "direct_compliance_requirement": 2,
+      "financial_cost": 2,
       "operational_change": 1,
       "industry_breadth": 2,
       "enforcement_risk": 2,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
+      "effective_date_urgency": 2,
+      "business_model_impact": 1
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill imposes direct compliance requirements on county clerks, district clerks, judges, and court administrators through new district assignments, jury size limits, and concurrent jurisdiction rules, with financial costs from new court staffing and fee authorizations, and enforcement risk through compliance review deadlines.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
@@ -1690,7 +1690,11 @@
         "title": "Co-author authorized",
         "description": "{'id': 'ocd-organization/cabf1716-c572-406a-bfdd-1917c11ac629', 'name': 'Senate', 'classification': 'upper'} - Co-author authorized"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00017I.htm",
+    "bill_text_hash": "7fa69ec0e3960a548580b0b430839c188d0f5c8609d788d8a58df0ec11c9de05",
+    "summary_word_count": 56,
+    "summary_source": "official bill text"
   },
   {
     "title": "The repeal of or limitations on certain state and local taxes…",
