@@ -163,9 +163,9 @@
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Authorities should review their existing tax revenue allocation policies and update their general mobility program frameworks to comply with the new Section 452.204 requirements. The Texas Department of Transportation and regional transportation authorities should coordinate with local election units to ensure annual project listing compliance. Financial officers should assess how the 25 percent allocation limit and the requirement to use 50 percent of available revenue on the first day of the fiscal year will affect budgeting. The Department of State should monitor implementation timelines and provide guidance on the debt repayment obligations. All affected authorities should prepare for the effective date (91 days after the 2025-08-15 session) and ensure their systems can track tax revenue allocation and project funding.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 157 is listed in Texas legislative metadata with the title Relating to powers of. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 157 amends the Texas Transportation Code to establish a General Mobility Program (Section 452.204) that allows regional transportation authorities to allocate up to 25 percent of their sales and use tax revenue to infrastructure projects such as sidewalks, trails, roads, streetlights, and drainage. The bill requires annual project listings from authorities, mandates that half of available tax revenue be used on the first day of the fiscal year and the other half on a reimbursement basis, and requires unused funds to be applied toward debt repayment. It also permits authorities to pledge up to 75 percent of tax revenue for bond security and restricts withdrawal elections for authorities with subregional boards. The Act takes effect 91 days after the legislative session ends.",
     "id": "ocd-bill/446b6721-f1ce-4a23-b4cb-740f9f060504",
     "identifier": "HB 157",
     "session": "892",
@@ -174,28 +174,30 @@
     "latest_action_date": "2025-08-15",
     "latest_action_description": "Filed",
     "latest_passage_date": "",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-11-06",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB157",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 0,
+      "direct_compliance_requirement": 1,
+      "financial_cost": 1,
       "operational_change": 0,
       "industry_breadth": 2,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
+      "effective_date_urgency": 1,
+      "business_model_impact": 2
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill introduces significant compliance requirements for regional transportation authorities regarding tax revenue allocation and debt management. The business model impact is substantial because it fundamentally changes how authorities can use sales and use tax revenue for infrastructure and debt reduction.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
         "title": "Filed",
         "description": "Filing - Filed"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00157I.htm",
+    "bill_text_hash": "bd12fb1811862179fd6136bc10f3ac93b338e4d10355936bdb039123b2add2a3",
+    "summary_word_count": 124,
+    "summary_source": "official bill text"
   },
   {
     "title": "Neches Trinity Aquifer Study",
