@@ -1248,16 +1248,16 @@
     "impact_framework": "v2-7-factor"
   },
   {
-    "title": "The use by a political subdivision of public funds for lobbying…",
+    "title": "Political Subdivision Lobbying Restrictions",
     "affects": "ATTORNEY'S FEES (S0202), Charitable & Nonprofit Organizations (I0055), County Government--Finance (I0097)",
     "changes": "See the official text for changes proposed by HB 96.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Review Section 556.0056 and Section 89.002 amendments to understand the specific prohibitions on political subdivisions and nonprofit associations. Identify which political subdivisions and nonprofit organizations are affected and assess compliance requirements. Prepare for potential enforcement through civil remedies including injunctive relief and attorney's fee recovery. Monitor the effective date (91 days after the session) and ensure affected entities are informed of the new restrictions. Verify that existing practices involving lobbyist-hiring or payments to lobbying-focused nonprofit associations are reviewed and adjusted as needed. Coordinate with legal counsel to understand the scope of compliance obligations and develop a compliance timeline for affected entities.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HB 96 is listed in Texas legislative metadata with the title Relating to the use. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "HB 96 amends the Texas Government Code to restrict the use of public funds by political subdivisions for lobbying activities. The bill adds Section 556.0056, which prohibits political subdivisions from hiring individuals required to register as lobbyists under Chapter 305 and from paying nonprofit state associations that primarily represent political subdivisions. It also amends Section 89.002 of the Local Government Code regarding the State Association of Counties with similar restrictions. If a political subdivision engages in prohibited activities, taxpayers or residents may seek injunctive relief and recover reasonable attorney's fees. The law takes effect 91 days after the legislative session ends, and contracts entered before that date remain governed by prior law.",
     "id": "ocd-bill/5ed3329b-b4ee-4001-be96-c93bf6a42bd7",
     "identifier": "HB 96",
     "session": "892",
@@ -1266,21 +1266,19 @@
     "latest_action_date": "2025-08-18",
     "latest_action_description": "Referred to State Affairs",
     "latest_passage_date": "",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-11-07",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=HB96",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
+      "direct_compliance_requirement": 1,
       "financial_cost": 1,
       "operational_change": 0,
       "industry_breadth": 2,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
+      "effective_date_urgency": 1,
       "business_model_impact": 0
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, financial cost as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill imposes a direct compliance requirement on political subdivisions and nonprofit associations to restrict lobbying activities funded by public money, with industry breadth spanning multiple government entities. While enforcement relies on civil remedies rather than criminal penalties, the potential for attorney's fee recovery creates a financial consideration. The effective date is not immediately urgent but requires monitoring as it takes 91 days after the legislative session.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
@@ -1297,7 +1295,11 @@
         "title": "Referred to State Affairs",
         "description": "Referral Committee - Referred to State Affairs"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/HB00096I.htm",
+    "bill_text_hash": "c9074885b72e07a0c19e9ff9d5071d9d810b03a4a04e68f27680a7f771af8055",
+    "summary_word_count": 114,
+    "summary_source": "official bill text"
   },
   {
     "title": "A vacancy in the office of senator or representative due to…",
