@@ -1,15 +1,15 @@
 [
   {
-    "title": "Election procedures regarding accepting a voter with a…",
+    "title": "Voter Residence Address Update Procedures",
     "affects": "Elections--Administration (I0277), Elections--General (I0310), Elections--Registration & Suffrage (I0265)",
     "changes": "See the official text for changes proposed by SB 54.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Affected organizations including county election officials, registration agencies, and voter registration systems should review the new requirements for submitting change of address statements and statements of residence. These entities must ensure their systems can process the additional information required (residence requirements, registration details, and address change requests) and update voter files accordingly. Voters should be informed about the new procedures and any deadlines for submitting changes. The Texas Secretary of State's office should monitor implementation timelines and ensure compliance with the September 1, 2025 effective date. Local election administrators should prepare for potential increases in registration inquiries and verify that their systems can handle the new workflow without disrupting existing voter registration processes.",
     "status": "Enacted",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "SB 54 is listed in Texas legislative metadata with the title Relating to election procedures. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "SB 54 amends Texas Election Code Section 15.025 to modify procedures for voters with non-current residence addresses. The bill, effective September 1, 2025, allows registered voters whose residence addresses are outdated to vote in their registered precinct if they reside in the county where they are registered. It requires voters to submit a statement to an election officer that includes residence requirements, registration information, and a request to change their registration address. The changes apply to notices submitted on or after the effective date, and the Act takes effect immediately if passed by a two-thirds vote in both houses, otherwise 91 days after the legislative session ends.",
     "id": "ocd-bill/af05a12e-0441-48d6-b130-b5412d18de02",
     "identifier": "SB 54",
     "session": "892",
@@ -18,21 +18,19 @@
     "latest_action_date": "2025-09-17",
     "latest_action_description": "Effective on . . . . . . . . . . . . . . .",
     "latest_passage_date": "2025-09-03",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-11-09",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB54",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
+      "direct_compliance_requirement": 1,
       "financial_cost": 0,
       "operational_change": 0,
       "industry_breadth": 2,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
+      "effective_date_urgency": 2,
+      "business_model_impact": 1
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill imposes a direct compliance requirement on voters to submit specific statements and change of address requests, creating operational changes for election administrators. The effective date of September",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-26",
@@ -99,7 +97,11 @@
         "title": "Effective on . . . . . . . . . . . . . . ",
         "description": "Became Law - Effective on . . . . . . . . . . . . . ."
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00054E.htm",
+    "bill_text_hash": "e3e281f3e64d8733a75e8b020100d4b6838a5f07b6dcaf6206abd32ad75b6afd",
+    "summary_word_count": 108,
+    "summary_source": "official bill text"
   },
   {
     "title": "Schedule IV Controlled Substances",
@@ -644,16 +646,16 @@
     ]
   },
   {
-    "title": "A groundwater study of certain aquifers underlying the…",
+    "title": "Neches and Trinity Valleys Groundwater Study",
     "affects": "Interim Studies (I0448), NECHES & TRINITY VALLEYS GROUNDWATER CONSERVATION DISTRICT (DB1J6), PERMITS (S0011)",
     "changes": "See the official text for changes proposed by SB 50.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "The Texas Water Development Board should prepare the required groundwater study in accordance with Section 8863.106, ensuring all analysis criteria are met and the report is submitted to the governor, lieutenant governor, speaker of the House, and relevant committees by the January 12, 2027 deadline. The Board must also establish a timeline to issue new permits only 270 days after the report submission, and monitor the district's permit issuance schedule to ensure compliance. The district should be notified of the permit moratorium period and prepare for the 270-day waiting period before any new groundwater production or transfer permits can be granted. This action ensures regulatory compliance with the new statutory requirements and maintains the integrity of the groundwater conservation district's management plan.",
     "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "SB 50 is a Texas legislative record titled Relating to a groundwater. Available metadata lists Interim Studies (I0448) NECHES & and records this action: Filed on 2025-08-21. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "summary": "SB 50, introduced in the Texas Senate (Session 892), amends the Special District Local Laws Code by adding Section 8863.106, which mandates the Texas Water Development Board to conduct a comprehensive groundwater study of aquifers underlying the Neches and Trinity Valleys Groundwater Conservation District. The study must analyze perennial groundwater production potential, compare results to pre-September 1, 2025 modeled amounts, and assess hydrological effects including recharge, inflows, discharges, spring flows, and surface water interactions. The Board must submit a report to the governor, lieutenant governor, speaker of the House, and relevant legislative committees by January 12, 2027. The district is prohibited from issuing new permits or permit amendments until 270 days after the report is submitted. Section 8863.106(d) explicitly excludes permits issued by the district before the Act's effective date. The Act takes effect immediately upon a two-thirds vote in both houses, or on the 91st day after the legislative session if not immediately enacted. The section expires on November 1, 2027.",
     "id": "ocd-bill/e6583745-48cc-47fe-b3f2-4668a444ebc2",
     "identifier": "SB 50",
     "session": "892",
@@ -662,21 +664,19 @@
     "latest_action_date": "2025-08-21",
     "latest_action_description": "Filed",
     "latest_passage_date": "",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-11-09",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB50",
-    "summary_word_count": 40,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
+      "direct_compliance_requirement": 1,
       "financial_cost": 0,
-      "operational_change": 0,
+      "operational_change": 1,
       "industry_breadth": 2,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
+      "effective_date_urgency": 2,
       "business_model_impact": 1
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, business model impact as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "Deterministic signals rate effective date urgency, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-21",
@@ -688,7 +688,11 @@
         "title": "Filed",
         "description": "Filing - Filed"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00050I.htm",
+    "bill_text_hash": "371f9c07e1955322a18f71cfedfdf33148ba5317172c617d4af62f4de9bd7bed",
+    "summary_word_count": 165,
+    "summary_source": "official bill text"
   },
   {
     "title": "Proposing a constitutional amendment to abolish ad valorem taxes",
@@ -1500,16 +1504,16 @@
     ]
   },
   {
-    "title": "The regulation of certain products derived from hemp, including…",
+    "title": "Hemp Product Regulation Act",
     "affects": "Business & Commerce--Trade Practices (I0006), COMMUNITY SERVICE (S2345), Courts--General (I0160)",
     "changes": "See the official text for changes proposed by SB 6.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
-    "impact_level": "Moderate",
+    "impact_level": "High",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Affected organizations including hemp cultivators, processors, manufacturers, and retailers should review their compliance obligations under the new licensing and registration requirements. They must implement testing protocols for cannabinoid and contaminant levels, update product labeling to include QR codes and required information, and establish procedures for child-resistant packaging and age verification. Retailers should ensure all locations are registered and maintain records of registration fees. The executive commissioner must adopt the required rules by February 1, 2026, and the department must issue product registration numbers and maintain a public list. Businesses should prepare for potential criminal penalties including fines up to $10,000 and felony charges for violations, and anticipate operational changes to their supply chains and sales practices.",
     "status": "Passed",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "SB 6 is listed in Texas legislative metadata with the title Relating to the regulation. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "SB 6, Texas Senate Bill 6, amends the Health and Safety Code to regulate consumable hemp products and hemp-derived cannabinoids. The bill requires occupational licenses and registrations for manufacturers and retailers, imposes licensing and registration fees ($10,000 initial license, $10,000 renewal, $20,000 registration fee, $500 application fee), mandates testing for cannabinoid content and heavy metals, requires QR codes on product labels with a \"SCAN QR CODE BEFORE PURCHASE\" message, and prohibits sale of products containing non-CBD cannabinoids or exceeding 0.3% THC. It also creates criminal offenses for manufacturing, possessing, or selling prohibited products, with penalties ranging from Class B misdemeanors to felony charges, and authorizes administrative penalties up to $10,000. The bill takes effect 91 days after the legislative session and requires product registration by March 1, 2026.",
     "id": "ocd-bill/d44893a1-337f-4643-af08-11d00c5928b8",
     "identifier": "SB 6",
     "session": "892",
@@ -1518,21 +1522,19 @@
     "latest_action_date": "2025-08-20",
     "latest_action_description": "Referred to Public Health",
     "latest_passage_date": "2025-08-19",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-11-09",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB6",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 1,
-      "operational_change": 0,
+      "direct_compliance_requirement": 2,
+      "financial_cost": 2,
+      "operational_change": 1,
       "industry_breadth": 2,
       "enforcement_risk": 2,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
+      "effective_date_urgency": 1,
+      "business_model_impact": 2
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The bill imposes direct compliance requirements on private businesses through licensing, registration, and testing mandates, creating significant financial and operational burdens. Enforcement risks are elevated due to criminal offenses and administrative penalties, while the industry breadth spans multiple sectors of the hemp economy. The effective date provides a clear timeline for implementation, though some preparation is needed before full compliance.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
@@ -1594,7 +1596,11 @@
         "title": "Referred to Public Health",
         "description": "Referral Committee - Referred to Public Health"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00006E.htm",
+    "bill_text_hash": "987fe8f714990e678c90071b25c3e6c7d5f610166fa12ccedcc17aee16958524",
+    "summary_word_count": 133,
+    "summary_source": "official bill text"
   },
   {
     "title": "Texas Judicial District Reorganization",
