@@ -549,16 +549,16 @@
     ]
   },
   {
-    "title": "An exemption from the requirement to obtain a permit from the…",
+    "title": "Dams and Reservoirs Permit Exemption",
     "affects": "ENVIRONMENTAL QUALITY, TEXAS COMMISSION ON (V0334), FLOODS (S0327), PERMITS (S0011)",
     "changes": "See the official text for changes proposed by SB 18.",
     "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
     "impact_level": "Moderate",
     "industry": "N/A",
     "specific_industry": "N/A",
+    "suggested_action": "Water resource management organizations, local sponsors, and the Texas Commission on Environmental Quality should review the amendment to understand the scope of the permit exemption. The qualified local sponsors (districts or authorities with USDA NRCS agreements) will need to verify their eligibility criteria and ensure compliance with the 200 acre-feet storage limit. The Texas Commission on Environmental Quality must develop and adopt implementing rules by April 1, 2026, which may require coordination with state agencies. Stakeholders should monitor the legislative process to confirm the two-thirds vote requirement for immediate effect and prepare for potential rulemaking. The bill does not impose new financial costs on private entities but may affect project planning and permitting timelines for erosion and floodwater control infrastructure.",
     "status": "Dead",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "SB 18 is listed in Texas legislative metadata with the title Relating to an exemption. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "summary": "SB 18 amends the Texas Water Code to create an exemption from the permit requirement for certain dams and reservoirs operated for erosion, floodwater, and sediment control purposes. The bill allows qualified local sponsors-districts or authorities with USDA NRCS agreements-to construct or maintain dams or reservoirs with up to 200 acre-feet of storage without obtaining a permit from the Texas Commission on Environmental Quality. The Texas Commission must adopt implementing rules by April 1, 2026, and the Act takes effect immediately upon a two-thirds legislative vote or 91 days after the session if not immediately enacted.",
     "id": "ocd-bill/3fb7607b-fde5-4863-8350-ff8a8bf93d37",
     "identifier": "SB 18",
     "session": "892",
@@ -567,21 +567,19 @@
     "latest_action_date": "2025-09-17",
     "latest_action_description": "Vetoed by the Governor",
     "latest_passage_date": "2025-08-28",
-    "updated_at": "2026-10-29",
+    "updated_at": "2026-11-10",
     "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=892&Bill=SB18",
-    "summary_word_count": 34,
-    "summary_source": "metadata",
     "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 0,
+      "direct_compliance_requirement": 1,
+      "financial_cost": 1,
       "operational_change": 0,
       "industry_breadth": 2,
       "enforcement_risk": 0,
-      "effective_date_urgency": 0,
+      "effective_date_urgency": 2,
       "business_model_impact": 1
     },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, business model impact as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
+    "impact_rationale": "The amendment creates a significant operational change for water resource management organizations and qualified local sponsors who must verify eligibility and comply with the 200 acre-feet storage limit. The effective date urgency is high due to the immediate effect provision and April 1, 2026 rule adoption deadline.",
+    "impact_framework": "v2-7-factor",
     "bill_history": [
       {
         "date": "2025-08-15",
@@ -643,7 +641,11 @@
         "title": "Vetoed by the Governor",
         "description": "Executive Veto - Vetoed by the Governor"
       }
-    ]
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/892/billtext/html/SB00018E.htm",
+    "bill_text_hash": "ebe8fc5781c9931467b1b1f715ad3abc36763b23177d6e10dc9b73782ae7acf3",
+    "summary_word_count": 98,
+    "summary_source": "official bill text"
   },
   {
     "title": "Neches and Trinity Valleys Groundwater Study",
