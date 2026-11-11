@@ -831,6 +831,18 @@ html.theme-transitioning *, html.theme-transitioning *::before, html.theme-trans
 [data-theme="dark"] .industries-list .subscribe-button:hover { border-color: rgba(255,255,255,.34); }
 [data-theme="dark"] .industries-list .subscribe-button.unsubscribe { border-color: rgba(255,130,120,.5); }
 [data-theme="dark"] .industries-list .subscribed-note { color: #9aafbc; }
+.saves-email-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); }
+.saves-email-banner[hidden] { display: none; }
+.saves-banner-text { margin: 0; color: var(--ink); font-size: 13px; line-height: 1.5; }
+.saves-banner-actions { display: inline-flex; gap: 8px; }
+.saves-banner-actions .profile-button { padding: 8px 14px; font-size: 12px; }
+.saved-bills-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: var(--space-8); }
+.saved-bills-list .saved-bill-fallback { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font-size: 14px; }
+.saved-bills-list .saved-bill-fallback button { border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); padding: 6px 10px; font-size: 12px; cursor: pointer; }
+[data-theme="dark"] .saves-email-banner { border-color: rgba(255,255,255,.14); background: rgba(13,29,39,.9); }
+[data-theme="dark"] .saves-banner-text { color: #d0e0e7; }
+[data-theme="dark"] .saved-bills-list .saved-bill-fallback { border-color: rgba(255,255,255,.12); background: rgba(13,29,39,.9); color: #e7f1f6; }
+[data-theme="dark"] .saved-bills-list .saved-bill-fallback button { border-color: rgba(255,255,255,.16); background: rgba(17,35,46,.85); color: #e7f1f6; }
 @media (max-width: 640px) { .profile-card { padding: 22px 18px 19px; } .profile-add-row { flex-direction: column; } }
 
 /* Header profile entry: Create Profile link <-> first-name pill */

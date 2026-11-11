@@ -198,9 +198,10 @@
     return next;
   }
 
-  // Save/subscribe gate: a profile email must pass Finalize Email (the code
-  // emailed to it) before bills can be saved or plans/subscriptions chosen.
-  // Blocks everyone who is not finalized, including visitors with no email.
+  // Subscribe/plan gate: a profile email must pass Finalize Email (the code
+  // emailed to it) before plans or subscriptions are chosen. Bills can be
+  // saved without it. Blocks everyone who is not finalized, including
+  // visitors with no email.
   const GATE_TOAST_MESSAGE = 'You must create a <a href="profile.html">profile</a> to access this feature';
 
   function isEmailFinalized() {

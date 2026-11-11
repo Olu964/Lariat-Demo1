@@ -288,4 +288,16 @@
 
   document.addEventListener('lariat:profile-changed', paint);
   paint();
+
+  if (window.location.hash === '#email') {
+    const p = storedProfile();
+    const verified = Boolean(p.email && p.emailVerifiedAt);
+    const target = verified ? lockedRow : emailInput;
+    if (target && typeof target.scrollIntoView === 'function') {
+      target.scrollIntoView({ block: 'center' });
+    }
+    if (!verified && emailInput) {
+      emailInput.focus({ preventScroll: true });
+    }
+  }
 })();

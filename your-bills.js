@@ -15,6 +15,15 @@
   const industriesCount = document.querySelector('#industries-count');
   const industriesHint = document.querySelector('#industries-hint');
   const toast = document.querySelector('.toast');
+  const banner = document.querySelector('#saves-email-banner');
+  const bannerText = document.querySelector('#saves-banner-text');
+  const bannerLink = document.querySelector('#saves-banner-link');
+  const bannerDismiss = document.querySelector('#saves-banner-dismiss');
+
+  const DISCLOSURE_STORAGE_KEY = 'lariat-saves-disclosure-v1';
+  const VERIFY_BANNER_TEXT = 'Verify your email to receive updates about this bill.';
+  const DISCLOSURE_BANNER_TEXT = 'Email updates are on. Lariat sends your email and saved bill IDs to its backend to monitor them and send alerts. Your notes stay in this browser.';
+  let disclosureDismissedThisSession = false;
 
   if (!list) return;
 
@@ -54,23 +63,81 @@
     return window.LariatProfile.get().bookmarkedBills || [];
   }
 
+  function disclosureDismissed() {
+    if (disclosureDismissedThisSession) return true;
+    try {
+      return localStorage.getItem(DISCLOSURE_STORAGE_KEY) === '1';
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function paintEmailBanner(ids) {
+    if (!banner) return;
+    const emailOn = Boolean(finalizedEmail());
+    if (!ids.length || (emailOn && disclosureDismissed())) {
+      banner.hidden = true;
+      return;
+    }
+    banner.hidden = false;
+    if (bannerText) {
+      bannerText.textContent = emailOn ? DISCLOSURE_BANNER_TEXT : VERIFY_BANNER_TEXT;
+    }
+    if (bannerLink) bannerLink.hidden = emailOn;
+    if (bannerDismiss) bannerDismiss.hidden = !emailOn;
+  }
+
   function paint() {
     const ids = savedIds();
     if (count) count.textContent = String(ids.length);
+    paintEmailBanner(ids);
     if (!ids.length) {
       if (hint) hint.textContent = 'No saved bills yet. Browse the feed and save the ones that matter to you.';
       list.innerHTML = '<li class="profile-empty">Nothing here yet — your saved bills will appear on this page.</li>';
       return;
     }
-    if (hint) hint.textContent = 'Saved only in this browser. Remove any bill you no longer want to track.';
+    const emailOn = Boolean(finalizedEmail());
+    if (hint) {
+      hint.textContent = emailOn
+        ? 'Saved bills with email updates on. Remove any bill you no longer want to track.'
+        : 'Saved in this browser. Verify your email to get updates when these bills change.';
+    }
+    const view = window.LariatBillView;
     list.innerHTML = ids.map((id) => {
       const bill = billIndex.get(normId(id));
-      const title = bill && bill.title ? bill.title : 'Bill details load from the feed dataset';
-      const meta = bill
-        ? [bill.impact_level ? `${bill.impact_level} impact` : '', bill.status || bill.latest_action_description || ''].filter(Boolean).join(' · ')
-        : '';
-      return `<li><span><strong>${escapeHtml(id)}</strong> — ${escapeHtml(String(title).slice(0, 120))}${meta ? ` <em>(${escapeHtml(meta)})</em>` : ''}</span><button type="button" data-unsave="${escapeHtml(id)}" aria-label="Remove ${escapeHtml(id)}">Remove</button></li>`;
+      if (bill && view && typeof view.cardMarkup === 'function') {
+        return `<li>${view.cardMarkup(bill, { isSaved: true, index: null, specificIndustryView: false })}</li>`;
+      }
+      return `<li class="saved-bill-fallback"><span><strong>${escapeHtml(id)}</strong> — Bill details load from the feed dataset</span><button type="button" data-unsave="${escapeHtml(id)}" aria-label="Remove ${escapeHtml(id)}">Remove</button></li>`;
     }).join('');
+    wireSavedCards();
+  }
+
+  function wireSavedCards() {
+    const view = window.LariatBillView;
+    if (!view || typeof view.openModal !== 'function') return;
+    list.querySelectorAll('.bill-card-button').forEach((card) => {
+      const pill = card.querySelector('[data-save-bill]');
+      const bill = pill ? billIndex.get(normId(pill.dataset.saveBill)) : null;
+      if (bill) card.addEventListener('click', () => view.openModal(bill, card));
+    });
+    list.querySelectorAll('[data-save-bill]').forEach((pill) => {
+      const activate = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!window.LariatProfile) return;
+        window.LariatProfile.toggleBookmark(pill.dataset.saveBill);
+        showToast(`Removed ${pill.dataset.saveBill}.`);
+        paint();
+        if (window.LariatSubscriptions && typeof window.LariatSubscriptions.syncSaves === 'function') {
+          window.LariatSubscriptions.syncSaves();
+        }
+      };
+      pill.addEventListener('click', activate);
+      pill.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') activate(event);
+      });
+    });
   }
 
   list.addEventListener('click', (event) => {
@@ -83,6 +150,16 @@
       window.LariatSubscriptions.syncSaves();
     }
   });
+
+  if (bannerDismiss) {
+    bannerDismiss.addEventListener('click', () => {
+      disclosureDismissedThisSession = true;
+      try {
+        localStorage.setItem(DISCLOSURE_STORAGE_KEY, '1');
+      } catch (error) { /* ignore — the notice stays dismissed for this visit */ }
+      paintEmailBanner(savedIds());
+    });
+  }
 
   function finalizedEmail() {
     if (!window.LariatProfile || typeof window.LariatProfile.isEmailFinalized !== 'function') return '';

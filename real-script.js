@@ -3,7 +3,6 @@
   const modal = document.querySelector('#bill-modal');
   const modalTitle = document.querySelector('#bill-modal-title');
   const modalBody = document.querySelector('#bill-modal-body');
-  let toastTimer;
   let lastFocusedElement;
   let allBills = [];
   const notesStorageKey = 'lariat-bill-notes-v1';
@@ -20,8 +19,8 @@
     if (!toast) return;
     toast.textContent = message;
     toast.classList.add('visible');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('visible'), duration);
+    clearTimeout(window.__lariatToastTimer);
+    window.__lariatToastTimer = setTimeout(() => toast.classList.remove('visible'), duration);
   };
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -606,6 +605,30 @@
   });
   modal?.addEventListener('close', () => lastFocusedElement?.focus());
 
+  const billCardMarkup = (bill, { isSaved = false, index = null, specificIndustryView = false } = {}) => {
+    const levelClass = impactClass(bill.impact_level);
+    const identifier = escapeHtml(bill.identifier || 'Unknown ID');
+    const title = escapeHtml(bill.title || 'Untitled bill');
+    const cardIndustry = specificIndustryView
+      ? displaySpecificIndustry(bill.specific_industry, bill.industry)
+      : displayIndustry(bill.industry);
+    const cardSession = formatSessionShort(bill);
+    const cardOrigin = formatOriginShort(bill);
+    const cardMeta = [cardSession, cardOrigin].filter(Boolean).join(' · ');
+    const rawIdentifier = String(bill.identifier || 'Unknown ID');
+    const indexAttr = index === null || index === undefined ? '' : ` data-bill-index="${index}"`;
+    return `
+              <button class="bill-card bill-card-button ${levelClass === 'high' ? 'high-impact' : ''}" type="button"${indexAttr} aria-label="Open full summary for ${identifier}" title="Open the full summary for ${identifier}">
+                <div class="bill-topline"><span class="bill-number">${identifier}</span><span class="bill-date">${escapeHtml(cardIndustry)}</span></div>
+                <div class="bill-heading"><h3>${title}</h3><div class="bill-badges">${statusBadge(bill)}<span class="impact-badge ${levelClass}"><span class="badge-dot"></span>${escapeHtml(safe(bill.impact_level))} impact</span>${myVoteBadges(bill)}</div></div>
+                ${cardMeta ? `<div class="bill-meta"><span>${escapeHtml(cardMeta)}</span></div>` : ''}
+                <span class="bill-card-footer"><span class="bill-card-action">Click to view full summary <span aria-hidden="true">↗</span></span><span class="bill-save-button" role="button" tabindex="0" data-save-bill="${escapeHtml(rawIdentifier)}" aria-pressed="${isSaved}" title="${isSaved ? `${identifier} is in Your Saves — activate to remove` : `Save ${identifier} to Your Saves`}">${isSaved ? 'Saved to Your Saves <span aria-hidden="true">✓</span>' : 'Save to Your Saves'}</span></span>
+              </button>
+    `;
+  };
+
+  window.LariatBillView = { cardMarkup: billCardMarkup, openModal: openBillModal };
+
   const renderBills = (bills, viewTitle = 'All industries', showSpecificIndustry = false) => {
     const list = document.querySelector('#bill-list');
     if (!list) return;
@@ -630,27 +653,11 @@
         </div>
         <div class="industry-bills">
           ${industryBills.map((bill) => {
-            const levelClass = impactClass(bill.impact_level);
-            const identifier = escapeHtml(bill.identifier || 'Unknown ID');
-            const title = escapeHtml(bill.title || 'Untitled bill');
-            const cardIndustry = showSpecificIndustry
-              ? displaySpecificIndustry(bill.specific_industry, bill.industry)
-              : displayIndustry(bill.industry);
-            const cardSession = formatSessionShort(bill);
-            const cardOrigin = formatOriginShort(bill);
-            const cardMeta = [cardSession, cardOrigin].filter(Boolean).join(' · ');
             const rawIdentifier = String(bill.identifier || 'Unknown ID');
             const isSaved = window.LariatProfile
               ? window.LariatProfile.get().bookmarkedBills.includes(rawIdentifier)
               : false;
-            return `
-              <button class="bill-card bill-card-button ${levelClass === 'high' ? 'high-impact' : ''}" type="button" data-bill-index="${bill.__index}" aria-label="Open full summary for ${identifier}" title="Open the full summary for ${identifier}">
-                <div class="bill-topline"><span class="bill-number">${identifier}</span><span class="bill-date">${escapeHtml(cardIndustry)}</span></div>
-                <div class="bill-heading"><h3>${title}</h3><div class="bill-badges">${statusBadge(bill)}<span class="impact-badge ${levelClass}"><span class="badge-dot"></span>${escapeHtml(safe(bill.impact_level))} impact</span>${myVoteBadges(bill)}</div></div>
-                ${cardMeta ? `<div class="bill-meta"><span>${escapeHtml(cardMeta)}</span></div>` : ''}
-                <span class="bill-card-footer"><span class="bill-card-action">Click to view full summary <span aria-hidden="true">↗</span></span><span class="bill-save-button" role="button" tabindex="0" data-save-bill="${escapeHtml(rawIdentifier)}" aria-pressed="${isSaved}" title="${isSaved ? `${identifier} is in Your Saves — activate to remove` : `Save ${identifier} to Your Saves`}">${isSaved ? 'Saved to Your Saves <span aria-hidden="true">✓</span>' : 'Save to Your Saves'}</span></span>
-              </button>
-            `;
+            return billCardMarkup(bill, { isSaved, index: bill.__index, specificIndustryView: showSpecificIndustry });
           }).join('')}
         </div>
       </section>
@@ -684,15 +691,19 @@
           return;
         }
         const id = el.dataset.saveBill;
-        const alreadySaved = window.LariatProfile.get().bookmarkedBills.includes(id);
-        if (!alreadySaved && typeof window.LariatProfile.requireVerifiedEmail === 'function' && !window.LariatProfile.requireVerifiedEmail()) {
-          return;
-        }
         const after = window.LariatProfile.toggleBookmark(id);
         const isSaved = after.includes(id);
-        showToast(isSaved
-          ? `Saved ${id} to Your Saves. We'll email ${window.LariatProfile.get().email} in your daily bill alert when this bill changes — with what changed and links to the bill.`
-          : `Removed ${id} from Your Saves.`, isSaved ? 9000 : 3200);
+        const emailFinalized = typeof window.LariatProfile.isEmailFinalized === 'function'
+          && window.LariatProfile.isEmailFinalized();
+        let toastMessage = `Removed ${id} from Your Saves.`;
+        let toastDuration = 3200;
+        if (isSaved) {
+          toastDuration = 9000;
+          toastMessage = emailFinalized
+            ? `Saved ${id} to Your Saves. We'll email ${window.LariatProfile.get().email} in your daily bill alert when this bill changes — with what changed and links to the bill.`
+            : `Saved ${id} on this device. Verify your email to receive updates about this bill.`;
+        }
+        showToast(toastMessage, toastDuration);
         refreshSaveButtons();
         if (window.LariatSubscriptions && typeof window.LariatSubscriptions.syncSaves === 'function') {
           window.LariatSubscriptions.syncSaves();
@@ -797,59 +808,61 @@
     }
   };
 
-  const canvas = document.createElement('canvas');
-  canvas.className = 'ambient-canvas';
-  canvas.setAttribute('aria-hidden', 'true');
-  document.body.prepend(canvas);
-  const context = canvas.getContext('2d');
-  const reduceMotion = prefersReducedMotion;
-  const points = Array.from({ length: 18 }, (_, index) => ({
-    x: Math.random(), y: Math.random(), radius: 1 + Math.random() * 1.5,
-    speed: 0.00008 + Math.random() * 0.00013, phase: index * 0.8,
-  }));
+  if (document.querySelector('#bill-list')) {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'ambient-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    document.body.prepend(canvas);
+    const context = canvas.getContext('2d');
+    const reduceMotion = prefersReducedMotion;
+    const points = Array.from({ length: 18 }, (_, index) => ({
+      x: Math.random(), y: Math.random(), radius: 1 + Math.random() * 1.5,
+      speed: 0.00008 + Math.random() * 0.00013, phase: index * 0.8,
+    }));
 
-  if (context && !reduceMotion) {
-    let animationFrame;
-    let isVisible = document.visibilityState !== 'hidden';    const resize = () => {
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * ratio;
-      canvas.height = window.innerHeight * ratio;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    };
-    let resizeTimer;
-    const scheduleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(resize, 120);
-    };
+    if (context && !reduceMotion) {
+      let animationFrame;
+      let isVisible = document.visibilityState !== 'hidden';    const resize = () => {
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = window.innerWidth * ratio;
+        canvas.height = window.innerHeight * ratio;
+        canvas.style.width = `${window.innerWidth}px`;
+        canvas.style.height = `${window.innerHeight}px`;
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      };
+      let resizeTimer;
+      const scheduleResize = () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(resize, 120);
+      };
 
-    const draw = (time = 0) => {
-      animationFrame = undefined;
-      if (!isVisible) return;
-      context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      points.forEach((point) => {
-        const x = point.x * window.innerWidth + Math.sin(time * point.speed + point.phase) * 20;
-        const y = point.y * window.innerHeight + Math.cos(time * point.speed + point.phase) * 14;
-        context.beginPath(); context.arc(x, y, point.radius, 0, Math.PI * 2);
-        context.fillStyle = 'rgba(39, 131, 187, .12)'; context.fill();
-      });
-      animationFrame = requestAnimationFrame(draw);
-    };
-    const updateVisibility = () => {
-      isVisible = document.visibilityState !== 'hidden';
-      if (!isVisible) {
-        if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
+      const draw = (time = 0) => {
         animationFrame = undefined;
-      } else if (animationFrame === undefined) {
+        if (!isVisible) return;
+        context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        points.forEach((point) => {
+          const x = point.x * window.innerWidth + Math.sin(time * point.speed + point.phase) * 20;
+          const y = point.y * window.innerHeight + Math.cos(time * point.speed + point.phase) * 14;
+          context.beginPath(); context.arc(x, y, point.radius, 0, Math.PI * 2);
+          context.fillStyle = 'rgba(39, 131, 187, .12)'; context.fill();
+        });
         animationFrame = requestAnimationFrame(draw);
-      }
-    };
-    resize();
-    window.addEventListener('resize', scheduleResize, { passive: true });
-    document.addEventListener('visibilitychange', updateVisibility);
-    animationFrame = requestAnimationFrame(draw);
+      };
+      const updateVisibility = () => {
+        isVisible = document.visibilityState !== 'hidden';
+        if (!isVisible) {
+          if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
+          animationFrame = undefined;
+        } else if (animationFrame === undefined) {
+          animationFrame = requestAnimationFrame(draw);
+        }
+      };
+      resize();
+      window.addEventListener('resize', scheduleResize, { passive: true });
+      document.addEventListener('visibilitychange', updateVisibility);
+      animationFrame = requestAnimationFrame(draw);
+    }
+    scheduleSessionCountdown();
+    loadBills();
   }
-  scheduleSessionCountdown();
-  loadBills();
 })();
