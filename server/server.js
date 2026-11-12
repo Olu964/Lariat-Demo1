@@ -14,7 +14,7 @@
  *   2. Provides the profile-email API that the frontend calls:
  *
  *        POST /api/profile/email/request   { email }
- *        POST /api/profile/email/verify    { email, code, oldEmails[] }
+ *        POST /api/profile/email/verify    { email, code, oldEmails[], profileId }
  *        GET  /api/health
  *
  * Email is sent through Brevo (https://www.brevo.com) when BREVO_API_KEY is
@@ -108,6 +108,7 @@ const CODE_EXPIRY_MS = CODE_EXPIRY_MINUTES * 60 * 1000;
 const REQUEST_COOLDOWN_MS = 60 * 1000;          // min time between codes for one address
 const VERIFY_MAX_ATTEMPTS = 5;                   // wrong-code tries before the code is voided
 const PROFILE_EMAIL_PURPOSE = '__profile_email__'; // sentinel "industry" for profile-finalize codes
+const PROFILE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i; // browser profile identity
 const IP_RATE_LIMIT = { windowMs: 60 * 60 * 1000, max: 10 }; // /request calls per IP per hour
 const UNSUBSCRIBE_TOKEN_DAYS = Math.min(365, Math.max(1, Number(process.env.SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS) || 90));
 
@@ -434,7 +435,7 @@ validateConfiguration();
  * ------------------------------------------------------------------------- */
 
 function defaultData() {
-  return { subscriptions: [], pendingCodes: [], saves: [], notifs: {}, feedSnapshot: null };
+  return { subscriptions: [], pendingCodes: [], saves: [], notifs: {}, claims: {}, feedSnapshot: null };
 }
 
 function loadData() {
@@ -551,6 +552,14 @@ function loadData() {
           ...(typeof ledger.updatedAt === 'string' ? { updatedAt: ledger.updatedAt } : {}),
         }]))
       : {},
+    // Email claims: HMAC email index -> owning browser profile id. One
+    // profile may confirm an address; others are rejected at finalize time.
+    claims: parsed.claims && typeof parsed.claims === 'object' && !Array.isArray(parsed.claims)
+      ? Object.fromEntries(Object.entries(parsed.claims)
+        .filter(([key, owner]) => typeof key === 'string' && key.length <= MAX_EMAIL_LENGTH + 8
+          && typeof owner === 'string'
+          && PROFILE_ID_PATTERN.test(owner)))
+      : {},
     feedSnapshot: parsed.feedSnapshot && typeof parsed.feedSnapshot === 'object' && !Array.isArray(parsed.feedSnapshot)
       ? Object.fromEntries(Object.entries(parsed.feedSnapshot)
         .filter(([id, stamp]) => typeof id === 'string' && id.length <= 40 && typeof stamp === 'string'))
@@ -637,6 +646,31 @@ const pendingKey = (email, industry) => `${emailLookupId(email)}::${industry}`;
 function findPending(email, industry) {
   const key = pendingKey(email, industry);
   return store.pendingCodes.find((pending) => pending.key === key) || null;
+}
+
+/* Email claims: an address may be confirmed by only one browser profile.
+ * Keyed by the same HMAC index used for subscriptions. The local server is
+ * single-process, so the check-and-set below is atomic on the event loop
+ * (no await between read and write) — the mirror of Redis SET NX. */
+function claimEmail(email, profileId) {
+  const key = emailLookupId(email);
+  const owner = store.claims[key];
+  if (owner === undefined) {
+    store.claims[key] = String(profileId);
+    return { claimed: true, owner: String(profileId) };
+  }
+  return { claimed: false, owner: String(owner) };
+}
+
+// Drops a claim only when it is owned by profileId — one profile can never
+// release another's address (the oldEmails move list is client-supplied).
+function releaseClaim(email, profileId) {
+  const key = emailLookupId(email);
+  if (store.claims[key] !== undefined && store.claims[key] === String(profileId)) {
+    delete store.claims[key];
+    return true;
+  }
+  return false;
 }
 
 /* Signed unsubscribe tokens (HMAC-SHA256, tamper-proof, expiring). The token
@@ -2362,6 +2396,7 @@ async function handleProfileEmailVerify(req, res, body) {
   pruneExpiredPendingCodes();
   const email = typeof body.email === 'string' ? body.email.trim() : '';
   const verificationCode = typeof body.code === 'string' ? body.code.trim() : '';
+  const profileId = typeof body.profileId === 'string' ? body.profileId.trim() : '';
   const rawOldEmails = Array.isArray(body.oldEmails) ? body.oldEmails : [];
   const oldEmails = [...new Set(
     rawOldEmails
@@ -2378,6 +2413,9 @@ async function handleProfileEmailVerify(req, res, body) {
   }
   if (!CODE_PATTERN.test(verificationCode)) {
     return sendJsonError(res, 400, 'The confirmation code must be 6 digits.', 'invalid_code');
+  }
+  if (!PROFILE_ID_PATTERN.test(profileId)) {
+    return sendJsonError(res, 400, 'This browser profile could not be identified. Reload the page and try again.', 'invalid_profile_id');
   }
   if (verifyRateLimiter(clientIp(req))) {
     return sendJsonError(res, 429, 'Too many verification attempts. Please wait a while and try again.', 'rate_limited');
@@ -2410,12 +2448,24 @@ async function handleProfileEmailVerify(req, res, body) {
     return sendJsonError(res, 400, 'That code is not correct. Please try again.', 'wrong_code');
   }
 
+  // One address may be confirmed by only one browser profile. The claim is
+  // taken after the code proves inbox ownership and before any state
+  // changes: an address already claimed by another profile is a hard
+  // reject; this profile may re-confirm its own address.
+  const claim = claimEmail(email, profileId);
+  if (!claim.claimed && claim.owner !== profileId) {
+    return sendJsonError(res, 409, 'Email already in use on another profile', 'email_taken');
+  }
+
   // Code verified: consume it, then move any server subscriptions and
   // notification state (saved bills + ledgers) recorded under the user's old
   // address(es) to the new profile email.
   store.pendingCodes = store.pendingCodes.filter((p) => p !== pending);
   const moved = [];
   for (const oldEmail of oldEmails) {
+    // The profile is leaving this address: release its claim (only when
+    // this profile owns it) so another profile can confirm it later.
+    releaseClaim(oldEmail, profileId);
     const records = store.subscriptions.filter(
       (subscription) => subscription && recordMatchesEmail(subscription, oldEmail),
     );

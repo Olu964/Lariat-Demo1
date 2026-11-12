@@ -701,7 +701,7 @@
           toastDuration = 9000;
           toastMessage = emailFinalized
             ? `Saved ${id} to Your Saves. We'll email ${window.LariatProfile.get().email} in your daily bill alert when this bill changes — with what changed and links to the bill.`
-            : `Saved ${id} on this device. Verify your email to receive updates about this bill.`;
+            : `Saved ${id} on this device. Verify your email to receive daily updates about this bill.`;
         }
         showToast(toastMessage, toastDuration);
         refreshSaveButtons();

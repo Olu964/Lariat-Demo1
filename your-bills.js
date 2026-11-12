@@ -21,8 +21,8 @@
   const bannerDismiss = document.querySelector('#saves-banner-dismiss');
 
   const DISCLOSURE_STORAGE_KEY = 'lariat-saves-disclosure-v1';
-  const VERIFY_BANNER_TEXT = 'Verify your email to receive updates about this bill.';
-  const DISCLOSURE_BANNER_TEXT = 'Email updates are on. Lariat sends your email and saved bill IDs to its backend to monitor them and send alerts. Your notes stay in this browser.';
+  const VERIFY_BANNER_TEXT = 'Verify your email to receive daily updates about this bill.';
+  const DISCLOSURE_BANNER_TEXT = 'Email updates are on. Lariat sends your email and saved bill IDs to its backend to monitor them and include changes in your daily alert email. Your notes stay in this browser.';
   let disclosureDismissedThisSession = false;
 
   if (!list) return;
@@ -100,7 +100,7 @@
     if (hint) {
       hint.textContent = emailOn
         ? 'Saved bills with email updates on. Remove any bill you no longer want to track.'
-        : 'Saved in this browser. Verify your email to get updates when these bills change.';
+        : 'Saved in this browser. Verify your email to get daily updates when these bills change.';
     }
     const view = window.LariatBillView;
     list.innerHTML = ids.map((id) => {

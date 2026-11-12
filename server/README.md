@@ -31,7 +31,7 @@ email server-side, so no email API key ever reaches the browser.
 | `/api/subscriptions/unsubscribe` | POST | `{ email, industry }` | Removes the subscription (idempotent) and emails a notice; used by the Unsubscribe button |
 | `/api/subscriptions/unsubscribe?token=…` | GET | signed token | Removes the subscription named by the token and shows a confirmation page |
 | `/api/profile/email/request` | POST | `{ email }` | Sends the 6-digit code that finalizes a profile email |
-| `/api/profile/email/verify` | POST | `{ email, code, oldEmails }` | Confirms the code and moves subscriptions from old addresses |
+| `/api/profile/email/verify` | POST | `{ email, code, oldEmails, profileId }` | Confirms the code, enforces one profile per address (409 `email_taken`), and moves subscriptions from old addresses |
 | `/api/notifications/saves` | POST | `{ email, billIds[] }` | Mirrors the browser's saved bills server-side for update alerts (full replace) |
 | `/api/notifications/dispatch` | POST | bearer secret | Runs the daily digest: new industry bills + saved-bill updates, one email per user |
 

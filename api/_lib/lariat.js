@@ -37,6 +37,8 @@ const CODE_EXPIRY_MINUTES = Math.min(24 * 60, Math.max(1, Number(process.env.SUB
 const CODE_EXPIRY_SECONDS = CODE_EXPIRY_MINUTES * 60;
 const VERIFY_MAX_ATTEMPTS = 5;
 const PROFILE_EMAIL_PURPOSE = '__profile_email__';
+// Browser profile identity (crypto.randomUUID shape) that owns email claims.
+const PROFILE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const UNSUBSCRIBE_TOKEN_DAYS = Math.min(365, Math.max(1, Number(process.env.SUBSCRIPTION_UNSUBSCRIBE_TOKEN_DAYS) || 90));
 
 // Notification digest configuration. The dispatch endpoint is admin-only and
@@ -123,11 +125,27 @@ async function ucmd(...args) {
   return result;
 }
 
-const ipHash = (ip) => crypto.createHash('sha256').update(String(ip || 'unknown')).digest('hex');
+// Rate-limit keys identify a client IP only through a keyed HMAC, so a leaked
+// Redis key cannot be reversed against the IPv4 candidate space. Keyed by
+// DATA_KEY — a stable env value shared by every serverless instance (a
+// per-instance secret would fragment the counters). Without DATA_KEY the plain
+// digest remains, but that configuration already fails closed in requireCore()
+// before any Redis write happens.
+const IP_HASH_KEY = DATA_KEY
+  ? crypto.createHash('sha256').update(DATA_KEY).update(':ip-lookup-v1').digest()
+  : null;
+const ipHash = (ip) => {
+  const input = String(ip || 'unknown');
+  const digest = IP_HASH_KEY
+    ? crypto.createHmac('sha256', IP_HASH_KEY)
+    : crypto.createHash('sha256');
+  return digest.update(input).digest('hex');
+};
 const subKey = (emailHmac, industry) => `lariat:sub:${emailHmac}:${industry}`;
 const pendKey = (key) => `lariat:pend:${key}`;
 const rlKey = (name, ip) => `lariat:rl:${name}:${ipHash(ip)}`;
 const cdKey = (key) => `lariat:cd:${key}`;
+const claimKey = (emailHmac) => `lariat:claim:${emailHmac}`;
 
 /* ---------------------------------------------------------------------------
  * Email crypto (same shapes as server.js)
@@ -139,7 +157,14 @@ const EMAIL_HMAC_KEY = DATA_KEY
 
 function emailLookupId(email) {
   const lowered = String(email || '').toLowerCase();
-  if (!EMAIL_HMAC_KEY) return lowered;
+  if (!EMAIL_HMAC_KEY) {
+    // Fail closed: a plaintext address must never become a Redis key. Every
+    // existing endpoint calls requireCore()/requireEmail() first, so this is
+    // unreachable in practice — it guards future callers that forget the gate.
+    const error = new Error('Email backend misconfigured (data key).');
+    error.status = 500;
+    throw error;
+  }
   return `hmac:${crypto.createHmac('sha256', EMAIL_HMAC_KEY).update(lowered).digest('hex')}`;
 }
 
@@ -286,6 +311,31 @@ async function deletePending(email, industry) {
 
 async function bumpPendingAttempts(email, industry) {
   await ucmd('HINCRBY', pendKey(pendingKey(email, industry)), 'attempts', '1');
+}
+
+// Email claims: an address may be confirmed by only one browser profile.
+// SET NX claims atomically — concurrent confirmations of the same address
+// cannot both win. Returns { claimed, owner }; an unclaimed address is
+// claimed for profileId, and an existing claim is reported so the caller
+// can allow the same profile to re-confirm or reject a different one.
+async function claimEmail(email, profileId) {
+  const key = claimKey(emailLookupId(email));
+  const set = await ucmd('SET', key, String(profileId), 'NX');
+  if (set === 'OK') return { claimed: true, owner: String(profileId) };
+  const owner = await ucmd('GET', key);
+  return { claimed: false, owner: owner == null ? null : String(owner) };
+}
+
+// Drops a claim only when it is owned by profileId — one profile can never
+// release another's address (the oldEmails move list is client-supplied).
+async function releaseClaim(email, profileId) {
+  const key = claimKey(emailLookupId(email));
+  const owner = await ucmd('GET', key);
+  if (owner != null && String(owner) === String(profileId)) {
+    await ucmd('DEL', key);
+    return true;
+  }
+  return false;
 }
 
 async function saveSubscription(record) {
@@ -599,7 +649,14 @@ async function deliverEmail(email, { subject, html }) {
   });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const detail = body.message ? `${body.message}${body.code ? ` (${body.code})` : ''}` : `Brevo returned HTTP ${response.status}`;
+    // Provider errors can echo the recipient address. Redact before the
+    // message propagates to call-site console.error handlers (Vercel logs).
+    const redacted = body.message
+      ? String(body.message).replace(/[^\s@]+@[^\s@]+\.[^\s@]+/g, '[redacted-email]')
+      : '';
+    const detail = redacted
+      ? `${redacted}${body.code ? ` (${body.code})` : ''}`
+      : `Brevo returned HTTP ${response.status}`;
     const error = new Error(detail);
     error.status = response.status;
     throw error;
@@ -850,6 +907,7 @@ module.exports = {
   CODE_EXPIRY_MINUTES,
   VERIFY_MAX_ATTEMPTS,
   PROFILE_EMAIL_PURPOSE,
+  PROFILE_ID_PATTERN,
   INDUSTRY_LIST,
   UNSUBSCRIBE_TOKEN_DAYS,
   requireCore,
@@ -871,6 +929,8 @@ module.exports = {
   savePending,
   deletePending,
   bumpPendingAttempts,
+  claimEmail,
+  releaseClaim,
   saveSubscription,
   findSubscription,
   deleteSubscription,

@@ -3,12 +3,14 @@
 /*
  * Vercel serverless function: profile-email confirmation-code confirm.
  *
- *   POST /api/profile/email/verify   { email, code, oldEmails[] }
+ *   POST /api/profile/email/verify   { email, code, oldEmails[], profileId }
  *
  * Stateless port of handleProfileEmailVerify in server/server.js. On success,
  * every subscription recorded under the user's old address(es) moves to the
  * new profile email with freshly signed unsubscribe links; the confirmation
  * email carries those links and each old address gets a best-effort notice.
+ * An address already claimed by another browser profile is hard-rejected
+ * (409 email_taken) before any state changes.
  */
 
 const lib = require('../../_lib/lariat');
@@ -21,6 +23,7 @@ module.exports = async (req, res) => {
     const body = await lib.readJsonBody(req);
     const email = typeof body.email === 'string' ? body.email.trim() : '';
     const verificationCode = typeof body.code === 'string' ? body.code.trim() : '';
+    const profileId = typeof body.profileId === 'string' ? body.profileId.trim() : '';
     const rawOldEmails = Array.isArray(body.oldEmails) ? body.oldEmails : [];
     const oldEmails = [...new Set(
       rawOldEmails
@@ -37,6 +40,9 @@ module.exports = async (req, res) => {
     }
     if (!lib.CODE_PATTERN.test(verificationCode)) {
       return lib.sendErr(res, 400, 'The confirmation code must be 6 digits.', 'invalid_code');
+    }
+    if (!lib.PROFILE_ID_PATTERN.test(profileId)) {
+      return lib.sendErr(res, 400, 'This browser profile could not be identified. Reload the page and try again.', 'invalid_profile_id');
     }
     if (await lib.rateLimited('profile-verify', ip, 60 * 60, 25)) {
       return lib.sendErr(res, 429, 'Too many verification attempts. Please wait a while and try again.', 'rate_limited');
@@ -67,6 +73,15 @@ module.exports = async (req, res) => {
       return lib.sendErr(res, 400, 'That code is not correct. Please try again.', 'wrong_code');
     }
 
+    // One address may be confirmed by only one browser profile. The claim is
+    // taken atomically (SET NX) after the code proves inbox ownership and
+    // before any state changes: an address already claimed by another
+    // profile is a hard reject; this profile may re-confirm its own address.
+    const claim = await lib.claimEmail(email, profileId);
+    if (!claim.claimed && claim.owner !== profileId) {
+      return lib.sendErr(res, 409, 'Email already in use on another profile', 'email_taken');
+    }
+
     // Code verified: consume it, then move subscriptions and notification
     // state (saved bills + notification ledgers) recorded under the user's
     // old address(es) to the new profile email.
@@ -74,6 +89,9 @@ module.exports = async (req, res) => {
     const newFields = lib.makeEmailFields(email);
     const moved = [];
     for (const oldEmail of oldEmails) {
+      // The profile is leaving this address: release its claim (only when
+      // this profile owns it) so another profile can confirm it later.
+      await lib.releaseClaim(oldEmail, profileId);
       const records = await lib.findSubscriptionsByHmac(lib.emailLookupId(oldEmail));
       for (const subscription of records) {
         const updated = {

@@ -18,6 +18,38 @@ These are not claims that the prototype is production-safe. They are the materia
 
 No secrets, subscriber records, or runtime caches are tracked by Git in the current worktree; verify repository history and remote settings before launch.
 
+## Email address claims (one profile per address)
+
+Finalize Email enforces that one address can be confirmed by only one browser profile:
+
+- Each browser stores a stable random `profileId` (UUID) in localStorage under its own key. It survives "Clear profile" so a browser is never locked out of addresses it already confirmed.
+- At confirmation time (`POST /api/profile/email/verify`, after the emailed code proves inbox ownership and before any state changes), the backend atomically claims the address for that `profileId` (Redis `SET NX` in production, an in-memory check-and-set in the local server). An address already claimed by a different `profileId` is rejected with HTTP 409 `email_taken`; the frontend shows "Email already in use on another profile" as a bottom-right toast. The same profile may re-confirm its own address.
+- When a profile changes its address, claims on its old addresses are released — but only claims owned by that same `profileId`. The client-supplied `oldEmails` list can never release another profile's claim.
+- Deliberate policy change: this rejects with an explicit "already in use" message, whereas the rest of the API never reveals whether an address exists. The rejection only happens after the requester has proven inbox ownership by entering the emailed code; code requests (`/api/profile/email/request`) remain indistinguishable for any valid address.
+- Limitations: uniqueness is string-level, case-insensitive. Provider aliases (Gmail dots/plus tags) are different strings and are not treated as the same inbox. Addresses confirmed before this feature shipped have no claim until they are next confirmed; there is no server-side identity to backfill. The `profileId` lives in localStorage, so it is a soft identity — clearing site data for the browser generates a new id (old claims remain held until released by an email change).
+
+## User data in Redis (production inventory)
+
+What the Vercel backend (`api/**`) writes to Upstash Redis, and how each piece is protected:
+
+| Key | Contents | Protection | Retention |
+|---|---|---|---|
+| `lariat:sub:<hmac>:<industry>` | subscription record: address, industry, timestamps, random unsubscribe `tokenId` | address only as AES-256-GCM `emailEnc`; key segment is HMAC-SHA256 of the lowercased address | until user unsubscribes or profile moves |
+| `lariat:pend:<hmac>::<purpose>` | pending confirmation code | scrypt hash + random salt, never plaintext; address encrypted | TTL, default 10 minutes |
+| `lariat:saves:<hmac>` | saved bill IDs (max 200) + address | address encrypted; key is HMAC index | until profile moves |
+| `lariat:notif:<hmac>` | notification "seen" ledger | no address in value; key is HMAC index | until profile moves |
+| `lariat:claim:<hmac>` | owning browser profile UUID | opaque random UUID; key is HMAC index | until released by an email change |
+| `lariat:rl:*`, `lariat:cd:*` | rate-limit / cooldown counters | client IP only as HMAC keyed by `SUBSCRIPTION_DATA_KEY` (never raw, never unsalted) | TTL (1 h window / 60 s) |
+| `lariat:notif:feed` | bill IDs → timestamps | no user data | overwritten by dispatch |
+
+Guarantees enforced in code:
+
+- **No plaintext address in keys or values.** Key segments come from `emailLookupId()` (HMAC-SHA256 keyed by `SUBSCRIPTION_DATA_KEY`), which now throws instead of falling back to a plaintext address; `requireCore()`/`requireEmail()` (`api/_lib/lariat.js`) additionally fail closed with 500 before any Redis call when the data key or Upstash credentials are missing.
+- **No names or postal addresses are ever written to Redis** (legislator lookups stay in process memory with a 24 h TTL and are never logged).
+- **Logs carry no PII**: request bodies, confirmation codes, and unsubscribe tokens are never logged; Brevo provider error messages are redacted of email-shaped text before they reach `console.error`.
+- **No full unsubscribe token is stored server-side** — only the random `tokenId`; the signed token exists only inside the emailed URL (its payload is base64url, not encrypted — see the unsubscribe-token risk above).
+- **Retention**: user records persist until the user acts (unsubscribe, profile move). A retention/deletion process for abandoned accounts remains required before public launch (listed under remaining risks).
+
 ## Lowest-cost safe remediation plan
 
 ### 0. Choose a simple deployment shape

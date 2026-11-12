@@ -48,6 +48,12 @@
     displayName: '', email: '', emailVerifiedAt: '', industries: [], bookmarkedBills: [], legislatorAddress: '',
   });
 
+  // Stable per-browser identity the backend uses to enforce one profile per
+  // address (see profile.js readProfileId).
+  const profileId = () => (window.LariatProfile && typeof window.LariatProfile.getId === 'function'
+    ? window.LariatProfile.getId()
+    : '');
+
   // Distinct subscription emails that differ from `exceptEmail`; these are
   // the old addresses the server will move on a successful finalize.
   const oldSubscriptionEmails = (exceptEmail) => {
@@ -219,6 +225,14 @@
         return;
       }
       const oldEmails = oldSubscriptionEmails(finalizeEmail);
+      // The profile's current finalized address also releases its claim on
+      // success, even when it has no subscription badges of its own.
+      const previousEmail = (storedProfile().email || '').trim();
+      if (previousEmail
+        && previousEmail.toLowerCase() !== finalizeEmail.toLowerCase()
+        && !oldEmails.some((address) => address.toLowerCase() === previousEmail.toLowerCase())) {
+        oldEmails.push(previousEmail);
+      }
       setFinalizeStatus('Confirming…');
       let data;
       try {
@@ -226,8 +240,21 @@
           email: finalizeEmail,
           code,
           oldEmails,
+          profileId: profileId(),
         });
       } catch (error) {
+        if (error && error.code === 'email_taken') {
+          const message = 'Email already in use on another profile';
+          setFinalizeStatus(message);
+          showToast(message);
+          if (emailInput && !emailInput.hidden) {
+            emailInput.focus();
+            if (typeof emailInput.select === 'function') {
+              try { emailInput.select(); } catch (selectError) { /* ignore */ }
+            }
+          }
+          return;
+        }
         setFinalizeStatus(backendErrorHint(error));
         if (codeInput) codeInput.focus();
         return;

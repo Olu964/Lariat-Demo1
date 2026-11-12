@@ -9,6 +9,8 @@
   'use strict';
 
   const PROFILE_KEY = 'lariat-profile-v1';
+  const PROFILE_ID_KEY = 'lariat-profile-id-v1';
+  const PROFILE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const LEGACY_NAME_KEY = 'lariat-user-name';
   const LEGACY_SKIPPED = '__skipped__';
   const MAX_NAME_LENGTH = 80;
@@ -137,6 +139,26 @@
     return next;
   }
 
+  // Stable per-browser identity for server-side email claims: the backend
+  // rejects a confirmation when the address is already claimed by another
+  // profile. Stored under its own key so Clear profile never wipes it —
+  // otherwise this browser could be locked out of addresses it confirmed.
+  function readProfileId() {
+    let id = '';
+    try { id = localStorage.getItem(PROFILE_ID_KEY) || ''; } catch (error) { id = ''; }
+    if (!PROFILE_ID_PATTERN.test(id)) {
+      id = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+        ? crypto.randomUUID()
+        : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+          const r = Math.random() * 16 | 0;
+          const v = c === 'x' ? r : ((r & 0x3) | 0x8);
+          return v.toString(16);
+        });
+      try { localStorage.setItem(PROFILE_ID_KEY, id); } catch (error) { /* storage blocked */ }
+    }
+    return id;
+  }
+
   function initialsFor(name) {
     const clean = sanitizeName(name);
     if (!clean) return 'TX';
@@ -247,6 +269,7 @@
     get: readProfile,
     set: writeProfile,
     clear: clearProfile,
+    getId: readProfileId,
     toggleBookmark,
     initialsFor,
     isEmailFinalized,
