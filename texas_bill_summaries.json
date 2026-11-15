@@ -1,5 +1,1142 @@
 [
   {
+    "title": "Proposing a constitutional amendment requiring the state to expand eligibility for Medicaid to certain individuals under the federal Patient Protection and Affordable Care Act",
+    "affects": "Human Services--Medical Assistance (I0905), MEDICAID (S4885), Resolutions--Constitutional Amendments (I0661)",
+    "changes": "See the official text for changes proposed by HJR 73.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HJR 73 is a Texas legislative record titled Proposing a. Available metadata lists Human Services--Medical Assistance (I0905) MEDICAID and records this action: Filed on 2026-11-12. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/4238bbb7-a273-4ed4-bc71-9fa698c7648f",
+    "identifier": "HJR 73",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-12",
+    "latest_action_date": "2026-11-12",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-13",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=HJR73",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, business model impact as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-12",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The conversion of all or a portion of a municipal sales and use…",
+    "affects": "Amusements, Games, Sports (I0034), COMPTROLLER OF PUBLIC ACCOUNTS (V2608), City Government--General (I0060)",
+    "changes": "See the official text for changes proposed by SB 78.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 78 is a Texas legislative record titled Relating to the. Available metadata lists Amusements, Games, Sports (I0034) COMPTROLLER and records this action: Filed on 2026-11-09. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/18788e29-584a-4cc0-a5e5-4477183342a3",
+    "identifier": "SB 78",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-09",
+    "latest_action_date": "2026-11-09",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-13",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB78",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, financial cost as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-09",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-09",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The establishment of the Task Force on Concrete Plants",
+    "affects": "CEMENT & CONCRETE (S0315), CONCRETE PLANTS, TASK FORCE ON (VC4HS), ENVIRONMENTAL QUALITY, TEXAS COMMISSION ON (V0334)",
+    "changes": "See the official text for changes proposed by SB 382.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 382 is a Texas legislative record titled Relating to the establishment. Available metadata lists CEMENT & CONCRETE (S0315) CONCRETE and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/fe36490a-2ba0-4a15-97c5-dc99347aab81",
+    "identifier": "SB 382",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB382",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The monitoring of the opacity of emissions from certain…",
+    "affects": "CEMENT & CONCRETE (S0315), ENVIRONMENTAL QUALITY, TEXAS COMMISSION ON (V0334), Environment--Air (I0325)",
+    "changes": "See the official text for changes proposed by SB 389.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 389 is a Texas legislative record titled Relating to the monitoring. Available metadata lists CEMENT & CONCRETE (S0315) ENVIRONMENTAL and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/5549af75-a0c1-4b9d-a3c6-39cc01771196",
+    "identifier": "SB 389",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB389",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Required water pressure boosters for certain housing…",
+    "affects": "Aging (I0015), HOUSING & COMMUNITY AFFAIRS, TEXAS DEPARTMENT OF (V0008), Housing--General (I0405)",
+    "changes": "See the official text for changes proposed by SB 351.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 351 is a Texas legislative record titled Relating to required water. Available metadata lists Aging (I0015) HOUSING & COMMUNITY and records this action: Filed on 2026-11-12. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/a2236daf-f8c5-4a7f-bce8-90e46353c94b",
+    "identifier": "SB 351",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-12",
+    "latest_action_date": "2026-11-12",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB351",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 1,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, financial cost as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-12",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-12",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Inquiries about and the consideration of criminal history…",
+    "affects": "CRIMINAL RECORDS (S0008), Criminal Procedure--General (I0208), Labor--General (I0500)",
+    "changes": "See the official text for changes proposed by HB 1155.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 1155 is a Texas legislative record titled Relating to. Available metadata lists CRIMINAL RECORDS (S0008) Criminal Procedure--General and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/9a5afa5a-0e68-45d0-864a-2259f8eb0a74",
+    "identifier": "HB 1155",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=HB1155",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Air quality permits for concrete crushing facilities and…",
+    "affects": "CEMENT & CONCRETE (S0315), County Government--General (I0096), Environment--Air (I0325)",
+    "changes": "See the official text for changes proposed by SB 378.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 378 is a Texas legislative record titled Relating to air quality. Available metadata lists CEMENT & CONCRETE (S0315) County and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/c9a797f6-ab46-44f2-93f3-73044c05e2af",
+    "identifier": "SB 378",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB378",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Designating May 24 as Victims of the Uvalde Shooting Day",
+    "affects": "Education--Primary & Secondary--Other School Personnel (I0246), Education--Primary & Secondary--Teachers (I0242), Holidays (I0395)",
+    "changes": "See the official text for changes proposed by SB 375.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Low",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "suggested_action": "Because this is a ceremonial designation, no legal or operational action is required of businesses, schools, or other organizations. Affected parties should monitor the bill record for committee referral, floor votes, and passage, and confirm whether the two-thirds threshold for immediate effect was met or whether the September 1, 2027 effective date applies. Schools, local governments, and community groups that may choose to hold observances should verify any local decisions about ceremonies or activities, since the bill does not prescribe specific requirements. Before relying on the designation, confirm the enrolled text and final chapter number through the Texas Legislature's official bill history, and document the effective date actually triggered by the final vote count.",
+    "status": "Pending",
+    "summary": "SB 375 would amend Chapter 662 of the Texas Government Code to designate May 24 as Victims of the Uvalde Shooting Day, honoring the 21 children and teachers killed in Uvalde, Texas, on May 24, 2022, whose names are listed in the bill. The measure states the day shall be regularly observed by appropriate ceremonies and activities, but it creates no mandate, prohibition, penalty, fee, or private-sector duty. The Act takes effect immediately only if it receives a two-thirds vote of all members elected to each house; otherwise it takes effect September 1, 2027. The record shows the bill was filed on November 13, 2026, with no further action listed, so its status and any observance implementation remain unconfirmed.",
+    "id": "ocd-bill/c29290cb-1a9a-4a16-a025-a8bdd128688a",
+    "identifier": "SB 375",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB375",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 0,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "The bill is purely ceremonial, designating a memorial observance day with no shall/must duty, penalty, fee, or private-sector obligation. No factor exceeds 0, and ceremonial resolutions are always Low under the framework.",
+    "impact_framework": "v2-7-factor",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ],
+    "bill_text_source": "https://capitol.texas.gov/tlodocs/90R/billtext/html/SB00375I.htm",
+    "bill_text_hash": "107ff87b9e3640410a1175fe4e4c00f4473569ee69839827d99475dea064bf8b",
+    "summary_word_count": 119,
+    "summary_source": "official bill text"
+  },
+  {
+    "title": "Air quality permits for certain concrete plants and crushing…",
+    "affects": "CEMENT & CONCRETE (S0315), ENVIRONMENTAL QUALITY, TEXAS COMMISSION ON (V0334), Environment--Air (I0325)",
+    "changes": "See the official text for changes proposed by SB 384.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 384 is a Texas legislative record titled Relating to air quality. Available metadata lists CEMENT & CONCRETE (S0315) ENVIRONMENTAL and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/c0489d1d-81a9-416b-b634-59e0b7fa648e",
+    "identifier": "SB 384",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB384",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The response by the Texas Commission on Environmental Quality…",
+    "affects": "CEMENT & CONCRETE (S0315), ENVIRONMENTAL QUALITY, TEXAS COMMISSION ON (V0334), Environment--Air (I0325)",
+    "changes": "See the official text for changes proposed by SB 390.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 390 is a Texas legislative record titled Relating to the response. Available metadata lists CEMENT & CONCRETE (S0315) ENVIRONMENTAL and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/32639e9e-d7b1-4de7-881a-df14cfa9bd8e",
+    "identifier": "SB 390",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB390",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Required training for school district peace officers and school…",
+    "affects": "Education--Primary & Secondary--Other School Personnel (I0246), LAW ENFORCEMENT, TEXAS COMMISSION ON (V0986), Law Enforcement (I0510)",
+    "changes": "See the official text for changes proposed by SB 209.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 209 is a Texas legislative record titled Relating to. Available metadata lists Education--Primary & Secondary--Other School Personnel and records this action: Filed on 2026-11-09. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/2b259dc7-f814-4f54-97cf-02d28322957d",
+    "identifier": "SB 209",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-09",
+    "latest_action_date": "2026-11-09",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB209",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 1,
+      "industry_breadth": 2,
+      "enforcement_risk": 1,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, enforcement risk as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-09",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-09",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Coverage for screening mammograms, diagnostic imaging, and…",
+    "affects": "Insurance--Health & Accident (I0422), MAMMOGRAPHY (S6017), Women (I0925)",
+    "changes": "See the official text for changes proposed by HB 1153.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 1153 is a Texas legislative record titled Relating to coverage. Available metadata lists Insurance--Health & Accident (I0422) MAMMOGRAPHY and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/bfa9a4d8-8b1c-4c43-ac50-2abba63cb305",
+    "identifier": "HB 1153",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=HB1153",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Remedies against defendants not lawfully present in the United…",
+    "affects": "ACCIDENTS (S0333), Aliens (I0032), Civil Remedies & Liabilities (I0065)",
+    "changes": "See the official text for changes proposed by HB 176.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 176 is a Texas legislative record titled Relating to remedies against. Available metadata lists ACCIDENTS (S0333) Aliens (I0032) and records this action: Filed on 2026-11-09. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/cb3e9490-fee8-4a9d-a781-dc2e916b9a11",
+    "identifier": "HB 176",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-09",
+    "latest_action_date": "2026-11-09",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=HB176",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-09",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The consideration of certain local government actions before…",
+    "affects": "CEMENT & CONCRETE (S0315), ENVIRONMENTAL QUALITY, TEXAS COMMISSION ON (V0334), Environment--Air (I0325)",
+    "changes": "See the official text for changes proposed by SB 380.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 380 is a Texas legislative record titled Relating to the consideration. Available metadata lists CEMENT & CONCRETE (S0315) ENVIRONMENTAL and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/567029eb-be30-4c2b-ba45-b7ab9df4a437",
+    "identifier": "SB 380",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB380",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 1
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, business model impact as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "An extension of the expiration date of the family violence…",
+    "affects": "BEXAR COUNTY (G2466), Criminal Procedure--Bail & Pretrial Release (I0202), Criminal Procedure--General (I0208)",
+    "changes": "See the official text for changes proposed by SB 119.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 119 is a Texas legislative record titled Relating to. Available metadata lists BEXAR COUNTY (G2466) Criminal Procedure--Bail and records this action: Filed on 2026-11-09. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/9de9bad4-e39d-4023-98a0-bb17a8e52998",
+    "identifier": "SB 119",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-09",
+    "latest_action_date": "2026-11-09",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB119",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-09",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-09",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The establishment of a fetal alcohol spectrum disorder program…",
+    "affects": "Alcoholism & Drug Abuse (I0030), DEVELOPMENTAL DISABILITIES, TEXAS COUNCIL FOR (V0625), Disabilities, Persons with (I0380)",
+    "changes": "See the official text for changes proposed by HB 1156.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 1156 is a Texas legislative record titled Relating to the establishment. Available metadata lists Alcoholism & Drug Abuse (I0030) and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/b5f1b53e-596a-45a2-8ab0-2c93ceae18ec",
+    "identifier": "HB 1156",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=HB1156",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Establishment of the Texas Rare Disease Advisory Council",
+    "affects": "Education--Higher--Health Institutions (I0237), HEALTH & HUMAN SERVICES COMMISSION (V0177), Health--Other Diseases & Medical Conditions (I0383)",
+    "changes": "See the official text for changes proposed by SB 352.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 352 is a Texas legislative record titled Relating to. Available metadata lists Education--Higher--Health Institutions (I0237) HEALTH & and records this action: Filed on 2026-11-12. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/b3cfcc73-d533-4bca-8182-cfdd51cf883c",
+    "identifier": "SB 352",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-12",
+    "latest_action_date": "2026-11-12",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB352",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-12",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-12",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The criminal offense of conducting a marriage ceremony for a…",
+    "affects": "Civil Remedies & Liabilities (I0065), Crimes--Miscellaneous (I0200), Family--Marriage Relationship (I0350)",
+    "changes": "See the official text for changes proposed by SB 178.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 178 is a Texas legislative record titled Relating to the criminal. Available metadata lists Civil Remedies & Liabilities (I0065) and records this action: Filed on 2026-11-09. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/693ce468-e800-4d3a-8914-a412204f4954",
+    "identifier": "SB 178",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-09",
+    "latest_action_date": "2026-11-09",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB178",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-09",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-09",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "A prohibition on the crushing of contaminated concrete by…",
+    "affects": "CEMENT & CONCRETE (S0315), ENVIRONMENTAL QUALITY, TEXAS COMMISSION ON (V0334), Environment--Air (I0325)",
+    "changes": "See the official text for changes proposed by SB 385.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 385 is a Texas legislative record titled Relating to a prohibition. Available metadata lists CEMENT & CONCRETE (S0315) ENVIRONMENTAL and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/c3222284-b540-4b20-91e2-5cf3230b3cc3",
+    "identifier": "SB 385",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB385",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 1,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, direct compliance requirement as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The payment of an emergency award for relocation or housing…",
+    "affects": "Crime Victims Compensation (I0084), Criminal Procedure--General (I0208), Housing--General (I0405)",
+    "changes": "See the official text for changes proposed by HB 1154.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 1154 is a Texas legislative record titled Relating to the. Available metadata lists Crime Victims Compensation (I0084) Criminal and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/67f316ff-afd1-4b1b-a0a3-337bfebcbab5",
+    "identifier": "HB 1154",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=HB1154",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 2,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate enforcement risk, industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The establishment of the Texas airport investment partnership…",
+    "affects": "AIRPORTS (S0307), TRANSPORTATION, TEXAS DEPARTMENT OF (V8796), Transportation--Aviation (I0822)",
+    "changes": "See the official text for changes proposed by HB 1149.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 1149 is a Texas legislative record titled Relating to the. Available metadata lists AIRPORTS (S0307) TRANSPORTATION, TEXAS DEPARTMENT and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/a2aad57d-6900-4a1c-82b7-6885bfecd69f",
+    "identifier": "HB 1149",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=HB1149",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The establishment of the Texas Do-Not-Sell Registry for firearms",
+    "affects": "Electronic Information Systems (I0311), PUBLIC SAFETY, DEPARTMENT OF (V0251), Weapons (I0887)",
+    "changes": "See the official text for changes proposed by HB 1159.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "HB 1159 is a Texas legislative record titled Relating to the. Available metadata lists Electronic Information Systems (I0311) PUBLIC and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/7763f643-4b16-418f-b532-38d9dbece25b",
+    "identifier": "HB 1159",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-13",
+    "latest_action_date": "2026-11-13",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=HB1159",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-13",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "The authority of a political subdivision to require a minimum…",
+    "affects": "City Government--General (I0060), City Government--Land Use & Zoning (I0064), County Government--General (I0096)",
+    "changes": "See the official text for changes proposed by SB 141.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 141 is listed in Texas legislative metadata with the title Relating to the authority. Official bill text was unavailable in this demo. Specific legal provisions and effects require verification from the official source.",
+    "id": "ocd-bill/f2c0040f-0081-490b-93a8-5c344fd6cbf2",
+    "identifier": "SB 141",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-09",
+    "latest_action_date": "2026-11-09",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB141",
+    "summary_word_count": 34,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-09",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-09",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Preauthorization of certain benefits by certain health benefit…",
+    "affects": "CANCER (S0658), DIABETES (S0486), Health--Other Diseases & Medical Conditions (I0383)",
+    "changes": "See the official text for changes proposed by SB 350.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 350 is a Texas legislative record titled Relating to preauthorization of. Available metadata lists CANCER (S0658) DIABETES (S0486) and records this action: Filed on 2026-11-12. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/11fd76e6-eaa5-4cc5-a235-45907eeec640",
+    "identifier": "SB 350",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-12",
+    "latest_action_date": "2026-11-12",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB350",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-12",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-12",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
+    "title": "Bullying and cyberbullying in public schools",
+    "affects": "Artificial Intelligence (IQ7C5), BULLYING (S0543), DISCRIMINATION (S0052)",
+    "changes": "See the official text for changes proposed by SB 100.",
+    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
+    "impact_level": "Moderate",
+    "industry": "N/A",
+    "specific_industry": "N/A",
+    "status": "Pending",
+    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
+    "summary": "SB 100 is a Texas legislative record titled Relating to bullying. Available metadata lists Artificial Intelligence (IQ7C5) BULLYING (S0543) and records this action: Filed on 2026-11-09. Official bill text was unavailable, so specific provisions require verification from the official source.",
+    "id": "ocd-bill/502810c0-9bfe-4d20-8c77-7893dc771f41",
+    "identifier": "SB 100",
+    "session": "90R",
+    "session_label": "Texas session 90R",
+    "origin_date": "2026-11-09",
+    "latest_action_date": "2026-11-09",
+    "latest_action_description": "Filed",
+    "latest_passage_date": "",
+    "updated_at": "2026-11-15",
+    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB100",
+    "summary_word_count": 40,
+    "summary_source": "metadata",
+    "impact_scores": {
+      "direct_compliance_requirement": 0,
+      "financial_cost": 0,
+      "operational_change": 0,
+      "industry_breadth": 2,
+      "enforcement_risk": 0,
+      "effective_date_urgency": 0,
+      "business_model_impact": 0
+    },
+    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
+    "impact_framework": "v2-7-factor-metadata",
+    "bill_history": [
+      {
+        "date": "2026-11-09",
+        "title": "Received by the Secretary of the Senate",
+        "description": "Filing - Received by the Secretary of the Senate"
+      },
+      {
+        "date": "2026-11-09",
+        "title": "Filed",
+        "description": "Filing - Filed"
+      }
+    ]
+  },
+  {
     "title": "The reporting of violations of law and wasteful spending under…",
     "affects": "AUDITOR, STATE (V4364), City Government--Employees/Officers (I0061), County Government--Employees/Officers (I0095)",
     "changes": "See the official text for changes proposed by HB 1127.",
@@ -257,53 +1394,6 @@
     ]
   },
   {
-    "title": "Designating May 24 as Victims of the Uvalde Shooting Day",
-    "affects": "Education--Primary & Secondary--Other School Personnel (I0246), Education--Primary & Secondary--Teachers (I0242), Holidays (I0395)",
-    "changes": "See the official text for changes proposed by SB 375.",
-    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
-    "impact_level": "Moderate",
-    "industry": "N/A",
-    "specific_industry": "N/A",
-    "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "SB 375 is a Texas legislative record titled Relating to. Available metadata lists Education--Primary & Secondary--Other School Personnel and records this action: Filed on 2026-11-13. Official bill text was unavailable, so specific provisions require verification from the official source.",
-    "id": "ocd-bill/c29290cb-1a9a-4a16-a025-a8bdd128688a",
-    "identifier": "SB 375",
-    "session": "90R",
-    "session_label": "Texas session 90R",
-    "origin_date": "2026-11-13",
-    "latest_action_date": "2026-11-13",
-    "latest_action_description": "Filed",
-    "latest_passage_date": "",
-    "updated_at": "2026-11-13",
-    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB375",
-    "summary_word_count": 40,
-    "summary_source": "metadata",
-    "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 0,
-      "operational_change": 0,
-      "industry_breadth": 2,
-      "enforcement_risk": 0,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
-    },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
-    "bill_history": [
-      {
-        "date": "2026-11-13",
-        "title": "Received by the Secretary of the Senate",
-        "description": "Filing - Received by the Secretary of the Senate"
-      },
-      {
-        "date": "2026-11-13",
-        "title": "Filed",
-        "description": "Filing - Filed"
-      }
-    ]
-  },
-  {
     "title": "An alcoholic beverage tax credit for certain liquor or malt…",
     "affects": "ALCOHOLIC BEVERAGE COMMISSION, TEXAS (V0472), Agriculture (I0020), GIFTS & DONATIONS (S0122)",
     "changes": "See the official text for changes proposed by HB 1133.",
@@ -434,48 +1524,6 @@
       },
       {
         "date": "2026-11-13",
-        "title": "Filed",
-        "description": "Filing - Filed"
-      }
-    ]
-  },
-  {
-    "title": "Proposing a constitutional amendment requiring the state to expand eligibility for Medicaid to certain individuals under the federal Patient Protection and Affordable Care Act",
-    "affects": "Human Services--Medical Assistance (I0905), MEDICAID (S4885), Resolutions--Constitutional Amendments (I0661)",
-    "changes": "See the official text for changes proposed by HJR 73.",
-    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
-    "impact_level": "Moderate",
-    "industry": "N/A",
-    "specific_industry": "N/A",
-    "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "HJR 73 is a Texas legislative record titled Proposing a. Available metadata lists Human Services--Medical Assistance (I0905) MEDICAID and records this action: Filed on 2026-11-12. Official bill text was unavailable, so specific provisions require verification from the official source.",
-    "id": "ocd-bill/4238bbb7-a273-4ed4-bc71-9fa698c7648f",
-    "identifier": "HJR 73",
-    "session": "90R",
-    "session_label": "Texas session 90R",
-    "origin_date": "2026-11-12",
-    "latest_action_date": "2026-11-12",
-    "latest_action_description": "Filed",
-    "latest_passage_date": "",
-    "updated_at": "2026-11-13",
-    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=HJR73",
-    "summary_word_count": 40,
-    "summary_source": "metadata",
-    "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 0,
-      "operational_change": 0,
-      "industry_breadth": 2,
-      "enforcement_risk": 0,
-      "effective_date_urgency": 0,
-      "business_model_impact": 1
-    },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, business model impact as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
-    "bill_history": [
-      {
-        "date": "2026-11-12",
         "title": "Filed",
         "description": "Filing - Filed"
       }
@@ -980,53 +2028,6 @@
       },
       {
         "date": "2026-11-13",
-        "title": "Filed",
-        "description": "Filing - Filed"
-      }
-    ]
-  },
-  {
-    "title": "The conversion of all or a portion of a municipal sales and use…",
-    "affects": "Amusements, Games, Sports (I0034), COMPTROLLER OF PUBLIC ACCOUNTS (V2608), City Government--General (I0060)",
-    "changes": "See the official text for changes proposed by SB 78.",
-    "business_impact": "Practical effects should be determined from the official text and the bill's current status.",
-    "impact_level": "Moderate",
-    "industry": "N/A",
-    "specific_industry": "N/A",
-    "status": "Pending",
-    "suggested_action": "Review the official bill text and monitor the recorded legislative status.",
-    "summary": "SB 78 is a Texas legislative record titled Relating to the. Available metadata lists Amusements, Games, Sports (I0034) COMPTROLLER and records this action: Filed on 2026-11-09. Official bill text was unavailable, so specific provisions require verification from the official source.",
-    "id": "ocd-bill/18788e29-584a-4cc0-a5e5-4477183342a3",
-    "identifier": "SB 78",
-    "session": "90R",
-    "session_label": "Texas session 90R",
-    "origin_date": "2026-11-09",
-    "latest_action_date": "2026-11-09",
-    "latest_action_description": "Filed",
-    "latest_passage_date": "",
-    "updated_at": "2026-11-13",
-    "source_url": "https://capitol.texas.gov/BillLookup/History.aspx?LegSess=90R&Bill=SB78",
-    "summary_word_count": 40,
-    "summary_source": "metadata",
-    "impact_scores": {
-      "direct_compliance_requirement": 0,
-      "financial_cost": 1,
-      "operational_change": 0,
-      "industry_breadth": 2,
-      "enforcement_risk": 0,
-      "effective_date_urgency": 0,
-      "business_model_impact": 0
-    },
-    "impact_rationale": "Metadata-only assessment: Deterministic signals rate industry breadth, financial cost as the strongest factors.",
-    "impact_framework": "v2-7-factor-metadata",
-    "bill_history": [
-      {
-        "date": "2026-11-09",
-        "title": "Received by the Secretary of the Senate",
-        "description": "Filing - Received by the Secretary of the Senate"
-      },
-      {
-        "date": "2026-11-09",
         "title": "Filed",
         "description": "Filing - Filed"
       }
