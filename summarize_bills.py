@@ -982,6 +982,23 @@ def valid_short_title(value: Any) -> str:
     return t[:1].upper() + t[1:] if t else ""
 
 
+def needs_short_title(title: Any) -> bool:
+    """True when a stored display title is not already a clean 2-6 word name.
+
+    Feed cards render record["title"] verbatim, so long captions, ellipsis
+    cuts from short_display_title(), and raw "Relating to"/"Proposing" captions
+    all need the AI short-title pass regardless of which code path stored them.
+    """
+    t = re.sub(r"\s+", " ", str(title or "").strip())
+    if not t:
+        return True
+    if t.endswith(("…", "...")):
+        return True
+    if re.match(r"(?i)^(relating to|proposing)\b", t):
+        return True
+    return len(t.split()) > 6 or len(t) > 70
+
+
 def short_title_context(record: dict[str, Any]) -> str:
     """Ground a short-name request in the stored record (already sourced from
     official text or explicitly labeled metadata) — no refetch needed."""
@@ -1080,13 +1097,15 @@ def short_display_title(raw: str, limit: int = 64) -> str:
     Safety". Stripping the boilerplate prefix and capping length keeps the
     feed readable without inventing facts.
     """
-    t = re.sub(r"\s+", " ", str(raw or "").strip().rstrip("."))
+    t = re.sub(r"\s+", " ", str(raw or "").strip().rstrip(".…"))
     t = re.sub(r"(?i)^relating to\s+", "", t)
     t = t[:1].upper() + t[1:] if t else t
     if len(t) <= limit:
         return t
+    # Word-boundary cut with no ellipsis: a stored "..." is what made feed
+    # cards look broken, and needs_short_title() runs the AI pass afterward.
     cut = t[:limit].rsplit(" ", 1)[0]
-    return cut.rstrip(" ,;:") + "…"
+    return cut.rstrip(" ,;:")
 
 
 def fallback_display_fields(bill: dict[str, Any], old: dict[str, Any] | None) -> dict[str, str]:
@@ -1109,12 +1128,12 @@ def fallback_display_fields(bill: dict[str, Any], old: dict[str, Any] | None) ->
     else:
         fields = {}
     cached_title = str(old.get("title") or "").strip() if old else ""
-    # A cached title that is itself a raw caption ("Relating to ...") was
-    # stored before short titles existed — shorten it instead of preserving it.
-    if cached_title and not re.match(r"(?i)^relating to\b", cached_title):
+    # A cached title that is already a clean 2-6 word name is preserved
+    # verbatim; raw captions and pre-short-title ellipsis cuts are shortened.
+    if cached_title and not needs_short_title(cached_title):
         fields["title"] = cached_title
     else:
-        fields["title"] = short_display_title(bill_title) if re.match(r"(?i)^relating to\b", bill_title) else (cached_title or bill_title)
+        fields["title"] = short_display_title(cached_title or bill_title)
     fields["affects"] = fields.get("affects") or ("N/A - ceremonial resolution" if ceremonial else ", ".join(subjects[:3]) or "Affected parties identified in the official text")
     fields["changes"] = fields.get("changes") or ("N/A - no substantive policy change" if ceremonial else f"See the official text for changes proposed by {identifier}.")
     fields["business_impact"] = fields.get("business_impact") or ("N/A - no business impact" if ceremonial else "Practical effects should be determined from the official text and the bill's current status.")
@@ -1342,7 +1361,10 @@ def update_feed(path: Path) -> None:
 
 
 def main() -> int:
-    load_dotenv(Path(".env")); args = parse_args(); bills = read_bills(args.input)
+    load_dotenv(Path(".env")); args = parse_args()
+    if args.fix_titles_only:
+        return fix_titles_only(args)
+    bills = read_bills(args.input)
     api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
     # Metadata-only records do not need an AI key. Official-text summaries do,
     # so a missing key causes those bills to use the explicit metadata fallback.
@@ -1364,15 +1386,6 @@ def main() -> int:
                 raise RuntimeError("OPENROUTER_API_KEY is unavailable for an official-text summary")
             output, active_model_index = generate_ai_record(bill_context(bill, text, text_url), models, active_model_index, api_key)
             record = normalize(output, bill, text_url, digest, old, text)
-            if re.match(r"(?i)^relating to\b", record.get("title") or "") or (record.get("title") or "").endswith("…"):
-                # Raw captions and trimmed fallbacks read badly on feed cards.
-                # A short AI name is best-effort: it must never fail the bill.
-                try:
-                    short, active_model_index = generate_short_title(short_title_context(record), models, active_model_index, api_key)
-                    record["title"] = short
-                    print(f"{identifier}: short title -> {short}", file=sys.stderr)
-                except Exception as exc:
-                    print(f"{identifier}: keeping fallback title ({exc})", file=sys.stderr)
             records.append(record); print(f"[{index}/{len(bills)}] {identifier} -> AI ({models[active_model_index]})")
             time.sleep(args.delay)
         except Exception as exc:
@@ -1420,6 +1433,21 @@ def main() -> int:
         return 1
     if unresolved:
         print(f"Warning: publishing {len(records)} summaries; {len(unresolved)} bill(s) unresolved: {', '.join(unresolved)}", file=sys.stderr)
+    # Feed cards render record["title"] verbatim, so every record gets a clean
+    # 2-6 word display name here — cached, metadata, retained, and merged-in
+    # records included, which the old per-path gate never reached. Best-effort:
+    # a title failure falls back to the deterministic cut, never blocks publish.
+    for record in records:
+        if not needs_short_title(record.get("title")):
+            continue
+        identifier = str(record.get("identifier") or "Unknown")
+        try:
+            short, active_model_index = generate_short_title(short_title_context(record), models, active_model_index, api_key)
+            record["title"] = short
+            print(f"{identifier}: short title -> {short}", file=sys.stderr)
+        except Exception as exc:
+            record["title"] = short_display_title(record.get("title") or "")
+            print(f"{identifier}: fallback short title ({exc})", file=sys.stderr)
     write_output(records, args.output); update_feed(Path("feed.html"))
     print(f"Saved {len(records)} summaries; deferred failures: {failures}; unresolved failures: {len(unresolved)}")
     if unresolved and not args.write_partial:
@@ -1439,13 +1467,70 @@ def _strip_em_dashes(value: Any) -> Any:
     return value
 
 
+def sanitize_display_title(title: Any) -> str:
+    """Deterministic last-line defense for published feed titles.
+
+    Applied inside write_output() so no code path - cached, metadata,
+    rate-limited, or regressed - can persist an ellipsis cut or a raw
+    "Relating to" caption. Length/word-count cleanup stays with the AI
+    short-title pass and validate_feed.py.
+    """
+    t = re.sub(r"\s+", " ", str(title or "").strip())
+    t = re.sub(r"(?:\.\.\.|…)+$", "", t)
+    t = re.sub(r"(?i)^relating to\s+", "", t).strip().rstrip(" ,;:")
+    return t[:1].upper() + t[1:] if t else t
+
+
 def write_output(records: list[dict[str, Any]], path: Path) -> None:
+    for record in records:
+        if isinstance(record, dict):
+            record["title"] = sanitize_display_title(record.get("title"))
     path.parent.mkdir(parents=True, exist_ok=True); temp = path.with_suffix(path.suffix + ".tmp")
     temp.write_text(json.dumps(_strip_em_dashes(records), indent=2, ensure_ascii=False) + "\n", encoding="utf-8"); temp.replace(path)
 
 
+def fix_titles_only(args: argparse.Namespace) -> int:
+    """Repair display titles in an existing feed file.
+
+    No fetching, no scraping, no summary regeneration - just the short-title
+    pass over titles that fail needs_short_title(). This is the automatic
+    self-heal primitive used by CI validation and the published-feed guard.
+    """
+    if not args.output.exists():
+        print(f"No feed file at {args.output}", file=sys.stderr)
+        return 1
+    try:
+        records = json.loads(args.output.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"Cannot read feed file: {exc}", file=sys.stderr)
+        return 1
+    if not isinstance(records, list) or not all(isinstance(record, dict) for record in records):
+        print("Feed file is not a list of records", file=sys.stderr)
+        return 1
+    api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+    models = choose_openrouter_models(api_key, args.model) if api_key else []
+    active_model_index = 0
+    repaired = 0
+    for record in records:
+        if not needs_short_title(record.get("title")):
+            continue
+        identifier = str(record.get("identifier") or "Unknown")
+        try:
+            short, active_model_index = generate_short_title(short_title_context(record), models, active_model_index, api_key)
+            record["title"] = short
+            repaired += 1
+            print(f"{identifier}: short title -> {short}", file=sys.stderr)
+        except Exception as exc:
+            record["title"] = short_display_title(record.get("title") or "")
+            repaired += 1
+            print(f"{identifier}: fallback short title ({exc})", file=sys.stderr)
+    write_output(records, args.output)
+    print(f"Title repair: {repaired} of {len(records)} records updated")
+    return 0
+
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or REQUESTED_MODEL); parser.add_argument("--delay", type=float, default=5.0); parser.add_argument("--write-partial", action="store_true", help="Write output even when some bills fail")
+    parser = argparse.ArgumentParser(); parser.add_argument("--input", type=Path, default=Path(DEFAULT_INPUT)); parser.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT)); parser.add_argument("--model", default=os.getenv("SUMMARIZER_MODEL") or REQUESTED_MODEL); parser.add_argument("--delay", type=float, default=5.0); parser.add_argument("--write-partial", action="store_true", help="Write output even when some bills fail"); parser.add_argument("--fix-titles-only", action="store_true", help="Only repair display titles in the existing output file; no fetching or summarization")
     return parser.parse_args()
 
 if __name__ == "__main__": raise SystemExit(main())

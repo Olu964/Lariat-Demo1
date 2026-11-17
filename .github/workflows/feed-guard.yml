@@ -1,0 +1,67 @@
+name: Guard published bill feed
+
+# Second line of defense: the daily update workflow validates the file it is
+# about to commit. This guard validates the feed independently, on its own
+# schedule, and repairs display titles automatically if anything bad ever
+# reaches main (manual edits, bad merges, failed runs).
+
+on:
+  schedule:
+    - cron: '45 14 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: feed-guard-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    # Never run the secret-bearing repair job from an arbitrary branch.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Verify guard revision
+        run: |
+          grep -q "def needs_short_title" summarize_bills.py
+          grep -q "def sanitize_display_title" summarize_bills.py
+          grep -q "fix-titles-only" summarize_bills.py
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+
+      - name: Validate the committed feed the site actually fetches
+        id: validate
+        continue-on-error: true
+        run: python3 validate_feed.py --self-test && python3 validate_feed.py texas_bill_summaries.json
+
+      - name: Auto-repair bad titles and publish the fix
+        # Runs only when validation found violations. write_output() strips
+        # hard violations deterministically; the AI pass fixes soft ones;
+        # rate-limit leftovers are tolerated with a warning so the feed
+        # always converges without human intervention.
+        if: steps.validate.outcome == 'failure'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SUMMARIZER_MODEL: ${{ vars.SUMMARIZER_MODEL }}
+        run: |
+          echo "::warning::Published feed has bad titles; running automatic repair"
+          python3 summarize_bills.py --fix-titles-only
+          python3 validate_feed.py texas_bill_summaries.json --allow-soft
+          git config user.name "lariat-bot"
+          git config user.email "lariat-bot@users.noreply.github.com"
+          git add texas_bill_summaries.json
+          if ! git diff --cached --quiet; then
+            git commit -m "fix: repair published bill titles"
+            git push
+          else
+            echo "Repair produced no changes"
+          fi

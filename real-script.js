@@ -39,6 +39,23 @@
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
   }[character]));
 
+  // Last-line display defense: never render a broken bill title even if bad
+  // data ships in the feed JSON. Mirrors needs_short_title/sanitize_display_title
+  // in summarize_bills.py; only triggers on genuinely broken titles and never
+  // emits an ellipsis.
+  const displayTitle = (value) => {
+    const raw = String(value ?? '').replace(/\s+/g, ' ').trim();
+    if (!raw) return 'Untitled bill';
+    const cleaned = raw.replace(/(?:\.\.\.|…)+$/, '').replace(/^relating to\s+/i, '').replace(/[,\s]+$/, '').trim();
+    if (!cleaned) return 'Untitled bill';
+    const title = cleaned[0].toUpperCase() + cleaned.slice(1);
+    const words = title.split(' ');
+    if (words.length <= 8 && title.length <= 70) return title;
+    let cut = title.slice(0, 60);
+    if (title.charAt(60) && !/\s/.test(title.charAt(60))) cut = cut.replace(/\s+\S*$/, '');
+    return cut.trim().replace(/[ ,;:]+$/, '') || title;
+  };
+
   // The curated set of industries Lariat tracks. Every option stays in the
   // dropdown even when the current dataset has no bills for it  -  empty
   // industries show a "no bills recently passed" message.
@@ -491,7 +508,7 @@
     if (!modal || !modalTitle || !modalBody) return;
     lastFocusedElement = trigger;
     const identifier = safe(bill.identifier).trim() || 'Bill';
-    const title = safe(bill.title).trim() || 'Untitled bill';
+    const title = displayTitle(bill.title);
     const level = safe(bill.impact_level).trim() || 'Not provided';
     const levelClass = impactClass(level);
     const updatedOn = formatUpdatedOn(bill);
@@ -608,7 +625,7 @@
   const billCardMarkup = (bill, { isSaved = false, index = null, specificIndustryView = false } = {}) => {
     const levelClass = impactClass(bill.impact_level);
     const identifier = escapeHtml(bill.identifier || 'Unknown ID');
-    const title = escapeHtml(bill.title || 'Untitled bill');
+    const title = escapeHtml(displayTitle(bill.title));
     const cardIndustry = specificIndustryView
       ? displaySpecificIndustry(bill.specific_industry, bill.industry)
       : displayIndustry(bill.industry);

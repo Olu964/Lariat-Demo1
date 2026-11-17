@@ -36,6 +36,13 @@ jobs:
           echo "Workflow commit: $(git rev-parse --short HEAD)"
           grep -q "containing exactly these keys: summary, suggested_action, impact_factors, impact_rationale" summarize_bills.py
           echo "Summary, suggested-action, and impact prompt is active"
+          # Title self-heal guards: fail fast if the short-title pass or the
+          # write-time sanitizer is ever removed by a future change.
+          grep -q "def needs_short_title" summarize_bills.py
+          grep -q "def sanitize_display_title" summarize_bills.py
+          grep -q "fix-titles-only" summarize_bills.py
+          grep -q "needs_short_title" validate_feed.py
+          echo "Title shortening and sanitize guards are active"
 
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
@@ -83,6 +90,30 @@ jobs:
           ARGS=()
           if [ -n "$SUMMARIZER_MODEL" ]; then ARGS+=(--model "$SUMMARIZER_MODEL"); fi
           python3 summarize_bills.py "${ARGS[@]}"
+
+      - name: Validate feed titles
+        id: validate_titles
+        continue-on-error: true
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SUMMARIZER_MODEL: ${{ vars.SUMMARIZER_MODEL }}
+        run: |
+          python3 validate_feed.py --self-test
+          python3 validate_feed.py texas_bill_summaries.json
+
+      - name: Auto-repair bad titles
+        # Runs only when validation found violations. Deterministic sanitize
+        # fixes hard violations; the AI pass fixes soft ones; rate-limit
+        # leftovers are tolerated with a warning so the feed always publishes
+        # and self-converges on the next run.
+        if: steps.validate_titles.outcome == 'failure'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          SUMMARIZER_MODEL: ${{ vars.SUMMARIZER_MODEL }}
+        run: |
+          echo "::warning::Feed titles failed validation; running automatic repair"
+          python3 summarize_bills.py --fix-titles-only
+          python3 validate_feed.py texas_bill_summaries.json --allow-soft
 
       - name: Commit regenerated summaries (only when something changed)
         if: success()
